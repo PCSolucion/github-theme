@@ -1,0 +1,1103 @@
+/*
+Theme Name: GitHub Theme
+Theme URI: https://github.com/yourusername/github-theme
+Author: Your Name
+Author URI: https://yourwebsite.com
+Description: Un tema de WordPress inspirado en el diseño limpio y moderno de GitHub. Caracterizado por un diseño oscuro, tipografía clara y experiencia de usuario minimalista.
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: github-theme
+Tags: dark, minimal, github-inspired, modern, clean
+*/
+
+/* Reset y Variables CSS */
+:root {
+    --github-bg-primary: #0d1117;
+    --github-bg-secondary: #161b22;
+    --github-bg-tertiary: #1c2128;
+    --github-border: #30363d;
+    --github-text-primary: #c9d1d9;
+    --github-text-secondary: #8b949e;
+    --github-text-tertiary: #6e7681;
+    --github-accent: #008ec2;
+    --github-success: #238636;
+    --github-danger: #da3633;
+    --github-warning: #d29922;
+    --github-font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --github-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--github-font-sans);
+    background-color: var(--github-bg-primary);
+    color: var(--github-text-primary);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body.single,
+body.single-post {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Header */
+.site-header {
+    background-color: var(--github-bg-secondary);
+    border-bottom: 1px solid var(--github-border);
+    padding: 10px 24px;
+}
+
+body.single .site-header,
+body.single-post .site-header {
+    margin-top: 0 !important;
+}
+
+.header-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.site-logo {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    line-height: 0;
+}
+
+.site-logo-image {
+    width: 38px;
+    height: 38px;
+    display: block;
+}
+
+.site-logo:hover .site-logo-image {
+    opacity: 0.8;
+}
+
+/* Buscador estilo GitHub */
+.header-search-wrapper {
+    flex: 1;
+    max-width: 400px;
+    margin: 0 16px;
+}
+
+.AppHeader-search {
+    position: relative;
+    width: 100%;
+}
+
+.AppHeader-search-input {
+    width: 100%;
+    padding: 7px 32px 7px 12px;
+    background-color: #0d1117 !important;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    color: #c9d1d9 !important;
+    font-size: 14px;
+    font-family: var(--github-font-sans);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.AppHeader-search-input::placeholder {
+    color: #6e7681 !important;
+}
+
+.AppHeader-search-input:focus {
+    outline: none;
+    border-color: #58a6ff;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    background-color: #0d1117 !important;
+}
+
+.AppHeader-search-input:hover {
+    background-color: #161b22;
+    border-color: #21262d;
+}
+
+.AppHeader-search-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    fill: #6e7681;
+    pointer-events: none;
+}
+
+.main-navigation {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    background-color: transparent;
+}
+
+.main-navigation ul,
+.main-navigation .nav-menu {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+}
+
+.main-navigation li {
+    display: inline-block;
+    margin: 0;
+    background-color: transparent;
+}
+
+.main-navigation a {
+    color: #c9d1d9;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+    background-color: transparent;
+    padding: 10px 12px;
+    border-radius: 6px;
+}
+
+.main-navigation a:hover {
+    color: #fff;
+    background-color: rgba(110, 118, 129, 0.1);
+}
+
+.main-navigation .current-menu-item a {
+    color: #fff;
+    background-color: rgba(110, 118, 129, 0.2);
+}
+
+/* Contenedor Principal */
+.site-wrapper {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    min-height: calc(100vh - 200px);
+}
+
+.content-area {
+    padding: 32px 0;
+}
+
+/* Layout para posts individuales con sidebar */
+.single-post-wrapper {
+    display: flex;
+    gap: 32px;
+    padding: 32px 0;
+    align-items: flex-start;
+}
+
+.single-post-content {
+    flex: 0 0 75%;
+    max-width: 75%;
+    min-width: 0;
+}
+
+.single-post-sidebar {
+    flex: 0 0 25%;
+    max-width: 25%;
+    min-width: 0;
+}
+
+/* Entradas del Blog */
+.post-list {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 24px;
+}
+
+@media (min-width: 768px) {
+    .post-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .post-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.post-item {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 24px;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+}
+
+.post-item:hover {
+    transform: translateY(-4px);
+    border-color: var(--github-accent);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.post-header {
+    margin-bottom: 16px;
+}
+
+.post-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.post-excerpt {
+    color: var(--github-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 24px;
+    flex-grow: 1;
+    font-size: 14px;
+}
+
+.post-footer {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--github-border);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.post-meta {
+    font-size: 12px;
+    color: var(--github-text-secondary);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.post-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.post-title a {
+    color: var(--github-accent);
+    text-decoration: none;
+}
+
+.post-title a:hover {
+    color: var(--github-text-primary);
+}
+
+.post-meta {
+    font-size: 12px;
+    color: var(--github-text-secondary);
+    margin-bottom: 16px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.post-meta svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+    vertical-align: middle;
+}
+
+.post-excerpt {
+    color: var(--github-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 16px;
+}
+
+/* Categorías estilo GitHub */
+.post-categories {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    align-items: center;
+}
+
+.post-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--github-text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    transition: color 0.2s;
+}
+
+.post-category:hover {
+    color: var(--github-accent);
+}
+
+.repo-language-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: var(--category-color, #586e75);
+    flex-shrink: 0;
+}
+
+.category-name {
+    font-size: 12px;
+    font-weight: 400;
+    color: inherit;
+}
+
+.post-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.tag {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--github-accent);
+    background-color: rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    border-radius: 3px;
+    text-decoration: none;
+}
+
+.tag:hover {
+    background-color: rgba(88, 166, 255, 0.2);
+    border-color: var(--github-accent);
+}
+
+/* Entrada Individual */
+.single-post {
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 40px;
+    margin-bottom: 32px;
+    width: 100%;
+}
+
+.entry-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--github-border);
+}
+
+.entry-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--github-text-primary);
+    line-height: 1.25;
+}
+
+.entry-content {
+    color: var(--github-text-primary);
+    line-height: 1.8;
+}
+
+.entry-content h1,
+.entry-content h2,
+.entry-content h3,
+.entry-content h4,
+.entry-content h5,
+.entry-content h6 {
+    margin-top: 24px;
+    margin-bottom: 16px;
+    font-weight: 600;
+    color: var(--github-text-primary);
+}
+
+.entry-content h1 {
+    font-size: 32px;
+    border-bottom: 1px solid var(--github-border);
+    padding-bottom: 8px;
+}
+
+.entry-content h2 {
+    font-size: 24px;
+    border-bottom: 1px solid var(--github-border);
+    padding-bottom: 8px;
+}
+
+.entry-content h3 {
+    font-size: 20px;
+}
+
+.entry-content p {
+    margin-bottom: 16px;
+}
+
+.entry-content code {
+    font-family: var(--github-font-mono);
+    font-size: 85%;
+    background-color: var(--github-bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--github-text-primary);
+}
+
+.entry-content pre {
+    background-color: var(--github-bg-tertiary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    margin-bottom: 16px;
+}
+
+.entry-content pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+}
+
+.copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: transparent;
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    transition: background-color 0.2s, border-color 0.2s;
+    opacity: 0;
+}
+
+.entry-content pre:hover .copy-button {
+    opacity: 1;
+}
+
+.copy-button:hover {
+    background-color: var(--github-bg-secondary);
+    border-color: var(--github-text-secondary);
+}
+
+.copy-button svg {
+    width: 14px;
+    height: 14px;
+    fill: var(--github-text-secondary);
+}
+
+.copy-button.copied {
+    border-color: var(--github-success);
+}
+
+.copy-button.copied svg {
+    fill: var(--github-success);
+}
+
+/* Reading Time */
+.post-reading-time {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--github-text-secondary);
+}
+
+.post-reading-time svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.entry-content a {
+    color: var(--github-accent);
+    text-decoration: none;
+}
+
+.entry-content a:hover {
+    text-decoration: underline;
+}
+
+.entry-content blockquote {
+    border-left: 4px solid var(--github-accent);
+    padding-left: 16px;
+    margin: 16px 0;
+    color: var(--github-text-secondary);
+}
+
+.entry-content ul,
+.entry-content ol {
+    margin-left: 24px;
+    margin-bottom: 16px;
+}
+
+.entry-content li {
+    margin-bottom: 8px;
+}
+
+.entry-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid var(--github-border);
+    margin: 16px 0;
+}
+
+.entry-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+}
+
+.entry-content table th,
+.entry-content table td {
+    border: 1px solid var(--github-border);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+.entry-content table th {
+    background-color: var(--github-bg-tertiary);
+    font-weight: 600;
+}
+
+/* Páginas */
+.page-content {
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 32px;
+}
+
+/* Footer */
+.site-footer {
+    background-color: var(--github-bg-primary);
+    border-top: 1px solid var(--github-border);
+    padding: 24px 24px;
+    margin-top: 64px;
+}
+
+.footer-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+.footer-links {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.footer-menu {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+}
+
+.footer-menu li {
+    display: inline-block;
+    margin: 0;
+}
+
+.footer-links a,
+.footer-menu a {
+    color: var(--github-text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover,
+.footer-menu a:hover {
+    color: var(--github-accent);
+    text-decoration: underline;
+}
+
+/* Sidebar */
+.sidebar {
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 32px;
+}
+
+/* Single Post - Tech Tutorial Layout */
+.single-post-hero {
+    background-color: var(--github-bg-secondary);
+    background-image: radial-gradient(circle at top right, rgba(88, 166, 255, 0.05) 0%, transparent 40%);
+    border-bottom: 1px solid var(--github-border);
+    padding: 64px 0;
+    margin-bottom: 32px;
+}
+
+.hero-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px;
+    text-align: center;
+}
+
+.single-post-hero .entry-title {
+    font-size: 40px;
+    margin: 24px 0;
+    line-height: 1.2;
+}
+
+.single-post-hero .post-meta {
+    justify-content: center;
+    font-size: 14px;
+}
+
+.single-post-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 48px;
+    max-width: 1200px;
+    /* Increased max-width */
+    margin: 0 auto;
+    position: relative;
+}
+
+@media (min-width: 1024px) {
+    .single-post-grid {
+        grid-template-columns: minmax(0, 1fr) 320px;
+        /* Increased sidebar width */
+    }
+}
+
+.single-post-content {
+    min-width: 0;
+    /* Prevent overflow */
+}
+
+/* Reset legacy flex/width constraints when inside grid */
+.single-post-grid .single-post-content,
+.single-post-grid .single-post-sidebar {
+    flex: unset;
+    max-width: none;
+    width: 100%;
+}
+
+.single-post-article {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+}
+
+.entry-content {
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+.entry-content p {
+    margin-bottom: 24px;
+}
+
+.entry-content h2 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-top: 56px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--github-border);
+    position: relative;
+    color: var(--github-text-primary);
+}
+
+.entry-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background-color: var(--github-accent);
+}
+
+.entry-content h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 40px;
+    margin-bottom: 16px;
+    color: var(--github-text-primary);
+    display: flex;
+    align-items: center;
+}
+
+.entry-content h3::before {
+    content: '#';
+    color: var(--github-accent);
+    margin-right: 8px;
+    opacity: 0.6;
+    font-weight: 400;
+}
+
+/* Images */
+.entry-content img {
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--github-border);
+}
+
+/* Links */
+.entry-content a:not(.tag):not(.post-category) {
+    color: var(--github-accent);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.entry-content a:not(.tag):not(.post-category):hover {
+    border-bottom-color: var(--github-accent);
+}
+
+/* Alerts / Blockquotes */
+.entry-content blockquote {
+    border-left: 4px solid var(--github-accent);
+    background-color: rgba(88, 166, 255, 0.1);
+    padding: 16px 24px;
+    border-radius: 0 6px 6px 0;
+    margin: 32px 0;
+    color: var(--github-text-primary);
+    font-style: normal;
+}
+
+.entry-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+/* Table of Contents */
+.toc-container {
+    position: sticky;
+    top: 24px;
+    padding: 24px;
+    background-color: rgba(22, 27, 34, 0.8);
+    /* Slight transparency */
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--github-border);
+    border-radius: 8px;
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.toc-title {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 16px;
+    color: var(--github-text-secondary);
+}
+
+.toc-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.toc-nav li {
+    margin-bottom: 8px;
+}
+
+.toc-nav a {
+    color: var(--github-text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    display: block;
+    padding: 4px 0;
+    border-left: 2px solid transparent;
+    padding-left: 12px;
+    transition: all 0.2s;
+}
+
+.toc-nav a:hover,
+.toc-nav a.active {
+    color: var(--github-accent);
+    border-left-color: var(--github-accent);
+}
+
+.toc-nav .toc-h3 {
+    padding-left: 24px;
+}
+
+/* Steps List */
+.entry-content ol {
+    counter-reset: tutorial-steps;
+    list-style: none;
+    margin-left: 0;
+}
+
+.entry-content ol li {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 24px;
+}
+
+.entry-content ol li::before {
+    counter-increment: tutorial-steps;
+    content: counter(tutorial-steps);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    background-color: var(--github-bg-tertiary);
+    border: 1px solid var(--github-border);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 26px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--github-text-primary);
+}
+
+/* Sidebar adjustments */
+.single-post-sidebar .widget {
+    margin-top: 32px;
+}
+
+.single-post-sidebar {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    position: static;
+    /* Reset sticky from previous styles */
+}
+
+.widget {
+    margin-bottom: 32px;
+}
+
+.widget:last-child {
+    margin-bottom: 0;
+}
+
+.widget-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--github-text-primary);
+    border-bottom: 1px solid var(--github-border);
+    padding-bottom: 8px;
+}
+
+.widget ul {
+    list-style: none;
+    margin-left: 0;
+}
+
+.widget li {
+    margin-bottom: 8px;
+}
+
+.widget a {
+    color: var(--github-accent);
+    text-decoration: none;
+}
+
+.widget a:hover {
+    text-decoration: underline;
+}
+
+/* Formularios */
+input[type="text"],
+input[type="email"],
+input[type="search"]:not(.AppHeader-search-input),
+input[type="password"],
+textarea,
+select {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: var(--github-bg-tertiary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    color: var(--github-text-primary);
+    font-family: var(--github-font-sans);
+    font-size: 14px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+button,
+.button,
+input[type="submit"] {
+    background-color: var(--github-success);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover,
+.button:hover,
+input[type="submit"]:hover {
+    background-color: #2ea043;
+}
+
+/* Búsqueda */
+.search-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.search-form input[type="search"] {
+    flex: 1;
+}
+
+.search-form button {
+    white-space: nowrap;
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 32px;
+    flex-wrap: wrap;
+}
+
+.pagination a,
+.pagination span {
+    padding: 8px 12px;
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    color: var(--github-text-secondary);
+    text-decoration: none;
+    background-color: var(--github-bg-secondary);
+    transition: all 0.2s;
+}
+
+.pagination a:hover {
+    border-color: var(--github-accent);
+    color: var(--github-accent);
+}
+
+.pagination .current {
+    background-color: var(--github-accent);
+    border-color: var(--github-accent);
+    color: white;
+}
+
+/* 404 */
+.error-404 {
+    text-align: center;
+    padding: 64px 24px;
+}
+
+.error-404 h1 {
+    font-size: 64px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--github-text-secondary);
+}
+
+.error-404 p {
+    font-size: 18px;
+    color: var(--github-text-secondary);
+    margin-bottom: 32px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .header-container {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .main-navigation {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .site-wrapper {
+        padding: 0 16px;
+    }
+
+    .single-post-wrapper {
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .single-post-content {
+        flex: 1;
+        max-width: 100%;
+    }
+
+    .single-post-sidebar {
+        flex: 1;
+        max-width: 100%;
+        position: relative;
+        top: 0;
+    }
+
+    .single-post,
+    .page-content {
+        padding: 24px;
+    }
+
+    .entry-title {
+        font-size: 24px;
+    }
+
+    .footer-container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* Utilidades */
+.text-center {
+    text-align: center;
+}
+
+.mt-16 {
+    margin-top: 16px;
+}
+
+.mb-16 {
+    margin-bottom: 16px;
+}
+
+.hidden {
+    display: none;
+}

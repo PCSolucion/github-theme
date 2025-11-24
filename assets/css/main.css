@@ -1,0 +1,621 @@
+/* Estilos adicionales para GitHub Theme */
+
+.archive-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--github-border);
+}
+
+.archive-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--github-text-primary);
+    margin-bottom: 8px;
+}
+
+.archive-description {
+    color: var(--github-text-secondary);
+    font-size: 16px;
+    margin-top: 8px;
+}
+
+.search-header {
+    margin-bottom: 32px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--github-border);
+}
+
+.search-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--github-text-primary);
+    margin-bottom: 16px;
+}
+
+.search-term {
+    color: var(--github-accent);
+}
+
+.post-image {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin-bottom: 16px;
+}
+
+.post-thumbnail {
+    margin-bottom: 16px;
+}
+
+.post-thumbnail a {
+    display: block;
+}
+
+.post-footer {
+    margin-top: 16px;
+}
+
+.no-posts {
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 48px 24px;
+    text-align: center;
+    color: var(--github-text-secondary);
+}
+
+.entry-image {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    margin-bottom: 24px;
+}
+
+.entry-footer {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--github-border);
+}
+
+.tags-label {
+    color: var(--github-text-secondary);
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.page-links {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--github-border);
+}
+
+.page-links a {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 4px;
+    background-color: var(--github-bg-tertiary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    color: var(--github-accent);
+    text-decoration: none;
+}
+
+.page-links a:hover {
+    border-color: var(--github-accent);
+}
+
+.error-actions {
+    margin-top: 32px;
+}
+
+.search-form-container {
+    margin-top: 32px;
+}
+
+/* Navegación entre posts */
+.post-navigation {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--github-border);
+}
+
+.nav-links {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.nav-previous,
+.nav-next {
+    flex: 1;
+}
+
+.nav-previous a,
+.nav-next a {
+    display: block;
+    padding: 16px;
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    color: var(--github-text-primary);
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.nav-previous a:hover,
+.nav-next a:hover {
+    border-color: var(--github-accent);
+    color: var(--github-accent);
+}
+
+.nav-subtitle {
+    display: block;
+    font-size: 12px;
+    color: var(--github-text-secondary);
+    margin-bottom: 4px;
+}
+
+.nav-title {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--github-text-primary);
+}
+
+/* Comentarios */
+.comments-area {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--github-border);
+}
+
+.comments-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: var(--github-text-primary);
+}
+
+.comment-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.comment {
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 16px;
+}
+
+.comment-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.comment-author .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--github-border);
+}
+
+.comment-author cite {
+    font-style: normal;
+    font-weight: 600;
+    color: var(--github-text-primary);
+}
+
+.comment-meta {
+    font-size: 12px;
+    color: var(--github-text-secondary);
+}
+
+.comment-content {
+    color: var(--github-text-primary);
+    line-height: 1.6;
+    margin-top: 12px;
+}
+
+.comment-reply-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 12px;
+    background-color: var(--github-bg-tertiary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    color: var(--github-accent);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.comment-reply-link:hover {
+    border-color: var(--github-accent);
+    background-color: rgba(88, 166, 255, 0.1);
+}
+
+/* Formulario de comentarios */
+.comment-respond {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--github-border);
+}
+
+.comment-reply-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--github-text-primary);
+}
+
+.comment-form label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--github-text-secondary);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.comment-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.comment-form .form-submit {
+    margin-top: 16px;
+}
+
+/* Mejoras responsive */
+@media (max-width: 768px) {
+    .nav-links {
+        flex-direction: column;
+    }
+    
+    .nav-previous,
+    .nav-next {
+        width: 100%;
+    }
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--github-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--github-border);
+    border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--github-text-tertiary);
+}
+
+/* Selección de texto */
+::selection {
+    background-color: rgba(88, 166, 255, 0.3);
+    color: var(--github-text-primary);
+}
+
+::-moz-selection {
+    background-color: rgba(88, 166, 255, 0.3);
+    color: var(--github-text-primary);
+}
+
+/* Tabla de Contribuciones estilo GitHub */
+.contributions-container {
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 32px;
+    margin-left: 5%;
+    margin-right: 5%;
+    max-width: 90%;
+}
+
+.contributions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.contributions-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--github-text-primary);
+    margin: 0;
+}
+
+.contributions-year-selector {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.year-link {
+    color: var(--github-text-secondary);
+    text-decoration: none;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: color 0.2s, background-color 0.2s;
+}
+
+.year-link:hover {
+    color: var(--github-text-primary);
+    background-color: var(--github-bg-tertiary);
+}
+
+.year-link.active {
+    color: #ffffff;
+    background-color: #008ec2;
+    font-weight: 400;
+}
+
+.contributions-calendar {
+    overflow-x: auto;
+}
+
+.contributions-months {
+    display: flex;
+    gap: 2.5px;
+    margin-bottom: 4px;
+    margin-left: 0;
+    width: 100%;
+    height: 19px;
+    position: relative;
+    align-items: flex-start;
+    box-sizing: border-box;
+}
+
+.month-spacer {
+    width: 114px;
+    flex-shrink: 0;
+    height: 19px;
+    box-sizing: border-box;
+}
+
+.month-label {
+    display: inline-flex;
+    width: 13px; /* Ancho exacto de contributions-week (13px) */
+    min-width: 13px;
+    height: 19px;
+    font-size: 13.5px;
+    color: var(--github-text-secondary);
+    align-items: center;
+    justify-content: flex-start;
+    font-family: var(--github-font-sans);
+    text-align: left;
+    white-space: nowrap;
+    overflow: visible;
+    position: relative;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.month-label:not(.empty) {
+    min-width: 13px;
+    width: 13px;
+    justify-content: flex-start;
+}
+
+.month-label.empty {
+    width: 13px;
+    min-width: 13px;
+}
+
+.contributions-grid {
+    display: flex;
+    gap: 2.5px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    margin-left: 0;
+}
+
+.contributions-weekdays {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+    margin-right: 4px;
+    flex-shrink: 0;
+    width: 110px;
+    padding-right: 0;
+}
+
+.weekday-label {
+    display: inline-flex;
+    width: 110px;
+    height: 13px;
+    font-size: 12.5px;
+    color: var(--github-text-secondary);
+    align-items: center;
+    justify-content: flex-start;
+    font-family: var(--github-font-sans);
+    text-align: left;
+    box-sizing: border-box;
+}
+
+.contributions-week {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5px;
+    width: 13px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.contribution-cell {
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background-color: #161b22;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.contribution-cell:hover {
+    border-color: var(--github-border);
+}
+
+.contribution-cell.empty {
+    background-color: transparent;
+    border: none;
+    cursor: default;
+}
+
+/* Niveles de intensidad basados en GitHub */
+.contribution-cell.none {
+    background-color: #161b22;
+}
+
+.contribution-cell.low {
+    background-color: #0e4429;
+}
+
+.contribution-cell.medium {
+    background-color: #006d32;
+}
+
+.contribution-cell.high {
+    background-color: #26a641;
+}
+
+.contribution-cell.very-high {
+    background-color: #39d353;
+}
+
+/* Leyenda */
+.contributions-legend {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--github-text-secondary);
+    margin-top: 8px;
+}
+
+.legend-label {
+    font-size: 12px;
+    color: var(--github-text-secondary);
+}
+
+.legend-cells {
+    display: flex;
+    gap: 3px;
+}
+
+.legend-cell {
+    width: 13px;
+    height: 13px;
+    border-radius: 2px;
+    background-color: #161b22;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.legend-cell.none {
+    background-color: #161b22;
+}
+
+.legend-cell.low {
+    background-color: #0e4429;
+}
+
+.legend-cell.medium {
+    background-color: #006d32;
+}
+
+.legend-cell.high {
+    background-color: #26a641;
+}
+
+.legend-cell.very-high {
+    background-color: #39d353;
+}
+
+/* Responsive para contribuciones */
+@media (max-width: 768px) {
+    .contributions-container {
+        padding: 16px;
+        margin-left: 2%;
+        margin-right: 2%;
+        max-width: 96%;
+    }
+    
+    .contributions-weekdays {
+        width: 95px;
+        margin-right: 0;
+    }
+    
+    .weekday-label {
+        width: 95px;
+        min-width: 95px;
+        font-size: 10px;
+        height: 12px;
+    }
+    
+    .contributions-months {
+        margin-left: 0;
+        width: 100%;
+        height: 18px;
+    }
+    
+    .month-spacer {
+        width: 95px;
+        height: 18px;
+    }
+    
+    .month-label {
+        font-size: 11px;
+        width: 12px;
+        min-width: 12px;
+        height: 18px;
+    }
+    
+    .month-label.empty {
+        width: 12px;
+        min-width: 12px;
+    }
+    
+    .contribution-cell {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .contributions-week {
+        width: 12px;
+        gap: 2px;
+    }
+    
+    .contributions-grid {
+        gap: 2px;
+    }
+    
+    .contributions-months {
+        gap: 2px;
+    }
+    
+    .legend-cell {
+        width: 12px;
+        height: 12px;
+    }
+}
+

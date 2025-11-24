@@ -1,0 +1,9 @@
+# WordPress
+.DS_Store
+node_modules/
+dist/
+*.log
+.vscode/
+.idea/
+*.swp
+Thumbs.db
