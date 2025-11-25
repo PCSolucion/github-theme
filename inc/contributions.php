@@ -271,8 +271,8 @@ function github_theme_render_contributions_table() {
     // Grid principal con días y semanas
     echo '<div class="contributions-grid">';
     
-    // Días de la semana (etiquetas verticales)
-    $weekdays = array('Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo');
+    // Días de la semana (solo iniciales)
+    $weekdays = array('L', 'M', 'X', 'J', 'V', 'S', 'D');
     echo '<div class="contributions-weekdays">';
     foreach ($weekdays as $day) {
         echo '<span class="weekday-label">' . esc_html($day) . '</span>';

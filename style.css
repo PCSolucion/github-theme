@@ -265,18 +265,38 @@ body.single-post .site-header {
 .post-item {
     display: flex;
     flex-direction: column;
-    background-color: var(--github-bg-secondary);
-    border: 1px solid var(--github-border);
-    border-radius: 6px;
-    padding: 24px;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    border-radius: 12px;
+    padding: 28px;
+    transition: all 0.3s ease;
     height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.post-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--github-accent) 0%, rgba(88, 166, 255, 0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.post-item:hover::before {
+    opacity: 1;
 }
 
 .post-item:hover {
-    transform: translateY(-4px);
-    border-color: var(--github-accent);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transform: translateY(-6px);
+    border-color: rgba(88, 166, 255, 0.4);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.3);
+    background: linear-gradient(135deg, rgba(22, 27, 34, 1) 0%, rgba(13, 17, 23, 1) 100%);
 }
 
 .post-header {
@@ -286,8 +306,33 @@ body.single-post .site-header {
 .post-title {
     font-size: 20px;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
     line-height: 1.4;
+    position: relative;
+    padding-left: 20px;
+}
+
+.post-title::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: var(--github-accent);
+    font-size: 16px;
+    transition: transform 0.25s ease;
+}
+
+.post-item:hover .post-title::before {
+    transform: translateX(4px);
+}
+
+.post-title a {
+    color: var(--github-text-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.post-title a:hover {
+    color: var(--github-accent);
 }
 
 .post-excerpt {
@@ -301,7 +346,7 @@ body.single-post .site-header {
 .post-footer {
     margin-top: auto;
     padding-top: 16px;
-    border-top: 1px solid var(--github-border);
+    border-top: 1px solid rgba(88, 166, 255, 0.15);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -316,47 +361,22 @@ body.single-post .site-header {
     flex-wrap: wrap;
 }
 
-.post-title {
-    font-size: 18px;
-    font-weight: 600;
-    margin-bottom: 8px;
-}
-
-.post-title a {
-    color: var(--github-accent);
-    text-decoration: none;
-}
-
-.post-title a:hover {
-    color: var(--github-text-primary);
-}
-
-.post-meta {
-    font-size: 12px;
-    color: var(--github-text-secondary);
-    margin-bottom: 16px;
-    display: flex;
-    gap: 16px;
-    align-items: center;
-}
-
 .post-meta svg {
     width: 16px;
     height: 16px;
     fill: currentColor;
     vertical-align: middle;
+    transition: fill 0.2s ease;
 }
 
-.post-excerpt {
-    color: var(--github-text-secondary);
-    line-height: 1.6;
-    margin-bottom: 16px;
+.post-meta span:hover svg {
+    fill: var(--github-accent);
 }
 
 /* Categorías estilo GitHub */
 .post-categories {
     display: flex;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
     margin-bottom: 12px;
     align-items: center;
@@ -369,11 +389,19 @@ body.single-post .site-header {
     color: var(--github-text-secondary);
     text-decoration: none;
     font-size: 12px;
-    transition: color 0.2s;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.08) 0%, rgba(88, 166, 255, 0.02) 100%);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    border-radius: 16px;
+    transition: all 0.25s ease;
 }
 
 .post-category:hover {
     color: var(--github-accent);
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.15) 0%, rgba(88, 166, 255, 0.05) 100%);
+    border-color: rgba(88, 166, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(88, 166, 255, 0.2);
 }
 
 .repo-language-color {
@@ -486,12 +514,20 @@ body.single-post .site-header {
 }
 
 .entry-content pre {
-    background-color: var(--github-bg-tertiary);
-    border: 1px solid var(--github-border);
-    border-radius: 6px;
-    padding: 16px;
+    position: relative;
+    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    border-radius: 8px;
+    padding: 20px;
     overflow-x: auto;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.entry-content pre:hover {
+    border-color: rgba(88, 166, 255, 0.4);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.2);
 }
 
 .entry-content pre code {
@@ -502,19 +538,19 @@ body.single-post .site-header {
 
 .copy-button {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background-color: transparent;
-    border: 1px solid var(--github-border);
+    top: 12px;
+    right: 12px;
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(88, 166, 255, 0.05) 100%);
+    border: 1px solid rgba(88, 166, 255, 0.3);
     border-radius: 6px;
-    padding: 4px;
+    padding: 6px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    transition: background-color 0.2s, border-color 0.2s;
+    width: 32px;
+    height: 32px;
+    transition: all 0.25s ease;
     opacity: 0;
 }
 
@@ -523,8 +559,10 @@ body.single-post .site-header {
 }
 
 .copy-button:hover {
-    background-color: var(--github-bg-secondary);
-    border-color: var(--github-text-secondary);
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.2) 0%, rgba(88, 166, 255, 0.1) 100%);
+    border-color: var(--github-accent);
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
 }
 
 .copy-button svg {
@@ -751,20 +789,42 @@ body.single-post .site-header {
     font-weight: 700;
     margin-top: 56px;
     margin-bottom: 24px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid var(--github-border);
+    padding: 16px 24px;
     position: relative;
     color: var(--github-text-primary);
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.08) 0%, rgba(88, 166, 255, 0.02) 100%);
+    border-left: 4px solid var(--github-accent);
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 2px 8px rgba(88, 166, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.entry-content h2:hover {
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.12) 0%, rgba(88, 166, 255, 0.04) 100%);
+    box-shadow: 0 4px 12px rgba(88, 166, 255, 0.15);
+    transform: translateX(4px);
+}
+
+.entry-content h2::before {
+    content: "📌";
+    position: absolute;
+    left: -32px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    opacity: 0.7;
+    filter: grayscale(0.3);
 }
 
 .entry-content h2::after {
     content: '';
     position: absolute;
-    bottom: -2px;
+    bottom: 0;
     left: 0;
-    width: 60px;
+    right: 0;
     height: 2px;
-    background-color: var(--github-accent);
+    background: linear-gradient(90deg, var(--github-accent) 0%, transparent 100%);
+    opacity: 0.5;
 }
 
 .entry-content h3 {
@@ -772,47 +832,95 @@ body.single-post .site-header {
     font-weight: 600;
     margin-top: 40px;
     margin-bottom: 16px;
+    padding: 12px 20px 12px 16px;
     color: var(--github-text-primary);
     display: flex;
     align-items: center;
+    background: linear-gradient(90deg, rgba(88, 166, 255, 0.05) 0%, transparent 100%);
+    border-left: 3px solid rgba(88, 166, 255, 0.5);
+    border-radius: 0 6px 6px 0;
+    transition: all 0.25s ease;
+}
+
+.entry-content h3:hover {
+    background: linear-gradient(90deg, rgba(88, 166, 255, 0.08) 0%, transparent 100%);
+    border-left-color: var(--github-accent);
+    transform: translateX(2px);
 }
 
 .entry-content h3::before {
-    content: '#';
+    content: '▸';
     color: var(--github-accent);
-    margin-right: 8px;
-    opacity: 0.6;
-    font-weight: 400;
+    margin-right: 12px;
+    font-weight: 700;
+    font-size: 18px;
+    transition: transform 0.25s ease;
+}
+
+.entry-content h3:hover::before {
+    transform: translateX(4px);
 }
 
 /* Images */
 .entry-content img {
     border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
-    border: 1px solid var(--github-border);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
+    border: 1px solid rgba(88, 166, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.entry-content img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.3);
+    border-color: rgba(88, 166, 255, 0.4);
 }
 
 /* Links */
 .entry-content a:not(.tag):not(.post-category) {
     color: var(--github-accent);
     text-decoration: none;
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.2s;
+    background-image: linear-gradient(90deg, var(--github-accent) 0%, rgba(88, 166, 255, 0.5) 100%);
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    transition: all 0.3s ease;
+    padding-bottom: 2px;
 }
 
 .entry-content a:not(.tag):not(.post-category):hover {
-    border-bottom-color: var(--github-accent);
+    background-size: 100% 2px;
+    color: #79c0ff;
 }
 
 /* Alerts / Blockquotes */
 .entry-content blockquote {
-    border-left: 4px solid var(--github-accent);
-    background-color: rgba(88, 166, 255, 0.1);
-    padding: 16px 24px;
-    border-radius: 0 6px 6px 0;
+    position: relative;
+    border-left: 4px solid;
+    border-image: linear-gradient(180deg, var(--github-accent) 0%, rgba(88, 166, 255, 0.3) 100%) 1;
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.12) 0%, rgba(88, 166, 255, 0.04) 100%);
+    padding: 20px 24px 20px 56px;
+    border-radius: 0 8px 8px 0;
     margin: 32px 0;
     color: var(--github-text-primary);
     font-style: normal;
+    box-shadow: 0 2px 8px rgba(88, 166, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.entry-content blockquote:hover {
+    background: linear-gradient(135deg, rgba(88, 166, 255, 0.15) 0%, rgba(88, 166, 255, 0.06) 100%);
+    box-shadow: 0 4px 12px rgba(88, 166, 255, 0.15);
+    transform: translateX(2px);
+}
+
+.entry-content blockquote::before {
+    content: "💡";
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    font-size: 20px;
+    filter: grayscale(0.2);
 }
 
 .entry-content blockquote p:last-child {
