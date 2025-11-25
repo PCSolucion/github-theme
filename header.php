@@ -20,7 +20,7 @@
     <div class="header-container">
         <div class="site-branding">
             <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo" rel="home">
-                <img src="https://res.cloudinary.com/pcsolucion/image/upload/v1616730181/Pcsolucion-LiukinTheme/logo.svg" alt="<?php bloginfo('name'); ?>" class="site-logo-image" />
+                <img src="<?php echo get_template_directory_uri(); ?>/assets/img/logo.svg" alt="<?php bloginfo('name'); ?>" class="site-logo-image" />
             </a>
         </div>
         

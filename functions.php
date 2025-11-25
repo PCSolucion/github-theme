@@ -248,4 +248,25 @@ function github_theme_estimated_reading_time() {
     
     return $time . ' min de lectura';
 }
+// Desactivar el editor Gutenberg
+add_filter('use_block_editor_for_post', '__return_false', 10);
 
+// Desactivar para tipos de contenido personalizados
+add_filter('use_block_editor_for_post_type', '__return_false', 10);
+
+// Activar Thickbox en WordPress
+function activar_lightbox_thickbox() {
+    // Cargar los scripts y estilos de Thickbox
+    wp_enqueue_script('thickbox');
+    wp_enqueue_style('thickbox');
+    
+    // Agregar clase thickbox a imágenes enlazadas
+    ?>
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        $('a[href$=".jpg"], a[href$=".jpeg"], a[href$=".png"], a[href$=".gif"]').addClass('thickbox');
+    });
+    </script>
+    <?php
+}
+add_action('wp_footer', 'activar_lightbox_thickbox');
