@@ -315,7 +315,6 @@
 /* Tabla de Contribuciones estilo GitHub */
 .contributions-container {
     background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border: 1px solid rgba(88, 166, 255, 0.2);
     border-radius: 12px;
     padding: 28px;
     margin-bottom: 32px;
@@ -326,16 +325,6 @@
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
-}
-
-.contributions-container::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--github-accent) 0%, rgba(88, 166, 255, 0.3) 100%);
 }
 
 .contributions-container:hover {
