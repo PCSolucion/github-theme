@@ -144,6 +144,8 @@ body.single-post .site-header {
     gap: 16px;
     align-items: center;
     background-color: transparent;
+    position: relative;
+    /* Added for magic line positioning */
 }
 
 .main-navigation ul,
@@ -156,6 +158,8 @@ body.single-post .site-header {
     margin: 0;
     padding: 0;
     background-color: transparent;
+    position: relative;
+    /* Ensure menu items are relative to this if needed */
 }
 
 .main-navigation li {
@@ -173,16 +177,38 @@ body.single-post .site-header {
     background-color: transparent;
     padding: 10px 12px;
     border-radius: 6px;
+    position: relative;
+    z-index: 1;
 }
 
 .main-navigation a:hover {
     color: #fff;
-    background-color: rgba(110, 118, 129, 0.1);
+    background-color: transparent;
 }
 
 .main-navigation .current-menu-item a {
     color: #fff;
     background-color: rgba(110, 118, 129, 0.2);
+}
+
+/* Magic Line (Bouncing Dot) */
+.magic-line {
+    position: absolute;
+    bottom: -6px;
+    /* Moved even lower */
+    left: 0;
+    width: 8px;
+    /* Increased size by another 15% (7px * 1.15 = 8.05px -> 8px) */
+    height: 8px;
+    background-color: #008ec2;
+    /* Requested color */
+    transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    /* Cleaner horizontal bounce */
+    pointer-events: none;
+    border-radius: 50%;
+    z-index: 10;
+    display: none;
+    opacity: 0;
 }
 
 /* Contenedor Principal */

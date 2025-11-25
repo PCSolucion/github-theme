@@ -171,24 +171,119 @@
 
     generateTOC();
 
+    // Magic Line Effect (Ping Pong Animation)
+    function initMagicLine() {
+        var $nav = $('.main-navigation');
+        var $line = $('<div class="magic-line"></div>');
+        var $activeItem = $nav.find('.current-menu-item a');
+        var $items = $nav.find('a');
+
+        if ($nav.length === 0) return;
+
+        $nav.append($line);
+        $line.show();
+
+        var currentLeft = 0;
+        var targetLeft = 0;
+        var isAnimating = false;
+        var animationStart = 0;
+        var startLeft = 0;
+        var duration = 600;
+
+        // Initial Position
+        if ($activeItem.length) {
+            var navOffset = $nav.offset().left;
+            var elOffset = $activeItem.offset().left;
+            var elWidth = $activeItem.outerWidth();
+            var dotWidth = 8;
+            currentLeft = (elOffset - navOffset) + (elWidth / 2) - (dotWidth / 2);
+            targetLeft = currentLeft;
+
+            $line.css({
+                'left': currentLeft + 'px',
+                'opacity': '1',
+                'bottom': '-6px'
+            });
+        } else {
+            $line.css('opacity', '0');
+        }
+
+        function animate(timestamp) {
+            if (!animationStart) animationStart = timestamp;
+            var progress = Math.min((timestamp - animationStart) / duration, 1);
+
+            var ease = 1 - Math.pow(1 - progress, 4);
+            var newLeft = startLeft + (targetLeft - startLeft) * ease;
+            var bounceHeight = 30;
+            var y = -bounceHeight * (4 * ease * (1 - ease));
+
+            $line.css({
+                'left': newLeft + 'px',
+                'transform': 'translateY(' + y + 'px)'
+            });
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                isAnimating = false;
+                currentLeft = targetLeft;
+                $line.css('transform', 'translateY(0px)');
+            }
+        }
+
+        function moveLine($el) {
+            if ($el.length) {
+                var navOffset = $nav.offset().left;
+                var elOffset = $el.offset().left;
+                var elWidth = $el.outerWidth();
+                var dotWidth = 8;
+
+                var newTarget = (elOffset - navOffset) + (elWidth / 2) - (dotWidth / 2);
+
+                if (newTarget !== targetLeft) {
+                    var currentVisualLeft = parseFloat($line.css('left'));
+                    startLeft = isNaN(currentVisualLeft) ? newTarget : currentVisualLeft;
+
+                    targetLeft = newTarget;
+                    animationStart = 0;
+                    isAnimating = true;
+                    $line.css('opacity', '1');
+                    requestAnimationFrame(animate);
+                }
+            } else {
+                $line.css('opacity', '0');
+            }
+        }
+
+        // Hover Events - Only return to active when leaving entire nav
+        $items.on('mouseenter', function () {
+            moveLine($(this));
+        });
+
+        $nav.on('mouseleave', function () {
+            if ($activeItem.length) {
+                moveLine($activeItem);
+            } else {
+                $line.css('opacity', '0');
+            }
+        });
+
+        // Update on resize
+        $(window).on('resize', function () {
+            if ($activeItem.length) {
+                var navOffset = $nav.offset().left;
+                var elOffset = $activeItem.offset().left;
+                var elWidth = $activeItem.outerWidth();
+                var dotWidth = 8;
+                var pos = (elOffset - navOffset) + (elWidth / 2) - (dotWidth / 2);
+
+                $line.css('left', pos + 'px');
+                currentLeft = pos;
+                targetLeft = pos;
+            }
+        });
+    }
+
+    initMagicLine();
+
 })(jQuery);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
