@@ -286,4 +286,56 @@
 
     initMagicLine();
 
+    // Verificar estado del stream de Twitch
+    function checkTwitchStream() {
+        var $streamBar = $('.twitch-stream-bar');
+        var channel = $streamBar.data('channel');
+
+        if (!channel) return;
+
+        // Calcular el offset base según si hay admin bar de WordPress
+        var hasAdminBar = $('body').hasClass('admin-bar');
+        var adminBarHeight = 0;
+
+        if (hasAdminBar) {
+            // La admin bar tiene 32px en desktop y 46px en móvil
+            adminBarHeight = ($(window).width() > 782) ? 32 : 46;
+        }
+
+        // Usar la API de Twitch (requiere Client ID)
+        // Como alternativa, usamos un método que verifica si el canal está en vivo
+        // mediante el endpoint público de Twitch
+
+        fetch('https://decapi.me/twitch/uptime/' + channel)
+            .then(response => response.text())
+            .then(data => {
+                // Si el canal está offline, la API devuelve un mensaje de error
+                // Si está online, devuelve el tiempo de uptime
+                if (data && !data.includes('offline') && !data.includes('error')) {
+                    // El canal está en vivo
+                    $streamBar.fadeIn(400);
+                    // Ajustar el top del header (admin bar + barra de twitch)
+                    var headerTop = adminBarHeight + 40;
+                    $('.site-header').css('top', headerTop + 'px');
+                } else {
+                    // El canal está offline
+                    $streamBar.hide();
+                    // Solo el admin bar si existe
+                    $('.site-header').css('top', adminBarHeight + 'px');
+                }
+            })
+            .catch(error => {
+                console.log('No se pudo verificar el estado del stream');
+                // En caso de error, ocultar la barra
+                $streamBar.hide();
+                $('.site-header').css('top', adminBarHeight + 'px');
+            });
+    }
+
+    // Verificar el estado del stream al cargar la página
+    checkTwitchStream();
+
+    // Verificar cada 2 minutos si el estado cambió
+    setInterval(checkTwitchStream, 120000);
+
 })(jQuery);

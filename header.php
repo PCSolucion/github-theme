@@ -16,6 +16,17 @@
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
+<!-- Barra de notificación de Twitch Stream -->
+<div class="twitch-stream-bar" data-channel="liiukiin" style="display: none;">
+    <a href="https://www.twitch.tv/liiukiin" target="_blank" rel="noopener noreferrer" class="twitch-stream-link">
+        <svg class="twitch-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+        </svg>
+        <span class="twitch-text">🔴 En directo en Twitch</span>
+        <span class="twitch-cta">Ver stream →</span>
+    </a>
+</div>
+
 <header class="site-header">
     <div class="header-container">
         <div class="site-branding">
