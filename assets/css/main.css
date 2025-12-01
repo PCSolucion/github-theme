@@ -324,7 +324,7 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
     transition: all 0.3s ease;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .contributions-container:hover {
@@ -339,6 +339,8 @@
     margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 1px solid rgba(88, 166, 255, 0.15);
+    position: relative;
+    z-index: 1;
 }
 
 .contributions-title {
@@ -387,6 +389,7 @@
 
 .contributions-calendar {
     overflow-x: auto;
+    overflow-y: visible;
 }
 
 .contributions-months {
@@ -399,6 +402,7 @@
     position: relative;
     align-items: flex-start;
     box-sizing: border-box;
+    z-index: 1;
 }
 
 .month-spacer {
@@ -446,6 +450,7 @@
     justify-content: flex-start;
     flex-wrap: nowrap;
     margin-left: 0;
+    overflow: visible;
 }
 
 .contributions-weekdays {
@@ -480,6 +485,7 @@
     width: 13px;
     flex-shrink: 0;
     box-sizing: border-box;
+    overflow: visible;
 }
 
 .contribution-cell {
@@ -495,12 +501,9 @@
     box-sizing: border-box;
 }
 
-.contribution-cell::before {
-    content: attr(title);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(-8px);
+/* Tooltip controlado por JS */
+.github-tooltip {
+    position: fixed;
     background: linear-gradient(135deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.98) 100%);
     color: var(--github-text-primary);
     padding: 8px 12px;
@@ -509,61 +512,48 @@
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 1000;
+    transition: opacity 0.1s ease;
+    z-index: 999999;
     border: 1px solid rgba(88, 166, 255, 0.3);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, -100%);
+    /* Por defecto centrado y arriba */
+    margin-top: -10px;
+    /* Espacio extra */
 }
 
-.contribution-cell::after {
+.github-tooltip.bottom {
+    transform: translate(-50%, 0);
+    margin-top: 10px;
+}
+
+/* Flechita del tooltip (opcional, un poco complejo con fixed, simplificamos sin flecha o con pseudo elemento si es necesario) */
+.github-tooltip::after {
     content: "";
     position: absolute;
-    bottom: 100%;
     left: 50%;
-    transform: translateX(-50%) translateY(-2px);
+    transform: translateX(-50%);
     border: 5px solid transparent;
-    border-top-color: rgba(22, 27, 34, 0.98);
-    opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
-    z-index: 999;
 }
 
-.contribution-cell:hover::before {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-12px);
-}
-
-.contribution-cell:hover::after {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-6px);
-}
-
-/* Tooltip hacia abajo para la primera fila (lunes) */
-.contributions-week .contribution-cell:first-child::before {
-    bottom: auto;
+/* Flecha abajo (tooltip arriba) */
+.github-tooltip:not(.bottom)::after {
     top: 100%;
-    transform: translateX(-50%) translateY(8px);
+    border-top-color: rgba(22, 27, 34, 0.98);
 }
 
-.contributions-week .contribution-cell:first-child::after {
-    bottom: auto;
-    top: 100%;
-    transform: translateX(-50%) translateY(2px);
-    border-top-color: transparent;
+/* Flecha arriba (tooltip abajo) */
+.github-tooltip.bottom::after {
+    bottom: 100%;
     border-bottom-color: rgba(22, 27, 34, 0.98);
 }
 
-.contributions-week .contribution-cell:first-child:hover::before {
-    transform: translateX(-50%) translateY(12px);
-}
 
-.contributions-week .contribution-cell:first-child:hover::after {
-    transform: translateX(-50%) translateY(6px);
-}
 
 .contribution-cell:hover {
     border-color: var(--github-accent);
+    z-index: 100000;
 }
 
 .contribution-cell.empty {

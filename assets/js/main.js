@@ -338,4 +338,56 @@
     // Verificar cada 2 minutos si el estado cambió
     setInterval(checkTwitchStream, 120000);
 
+    // Tooltip dinámico para el calendario de contribuciones
+    function initContributionsTooltip() {
+        var $tooltip = $('<div id="github-tooltip" class="github-tooltip"></div>');
+        $('body').append($tooltip);
+
+        $(document).on('mouseenter', '.contribution-cell[data-tooltip]', function () {
+            var text = $(this).data('tooltip');
+            if (!text) return;
+
+            $tooltip.text(text).css('opacity', '1');
+        });
+
+        $(document).on('mouseleave', '.contribution-cell[data-tooltip]', function () {
+            $tooltip.css('opacity', '0');
+        });
+
+        $(document).on('mousemove', '.contribution-cell[data-tooltip]', function (e) {
+            var tooltipHeight = $tooltip.outerHeight();
+            var tooltipWidth = $tooltip.outerWidth();
+            var offset = 15; // Espacio entre cursor/elemento y tooltip
+
+            // Posición por defecto: Arriba del cursor
+            var top = e.clientY - offset;
+            var left = e.clientX;
+
+            // Verificar si choca con el borde superior
+            // Si la posición top menos la altura del tooltip es menor que 0 (o un margen seguro)
+            if (top - tooltipHeight < 10) {
+                // Mostrar abajo
+                $tooltip.addClass('bottom');
+                top = e.clientY + offset;
+            } else {
+                // Mostrar arriba
+                $tooltip.removeClass('bottom');
+            }
+
+            // Verificar bordes laterales (opcional, pero buena práctica)
+            if (left - (tooltipWidth / 2) < 10) {
+                left = (tooltipWidth / 2) + 10;
+            } else if (left + (tooltipWidth / 2) > $(window).width() - 10) {
+                left = $(window).width() - 10 - (tooltipWidth / 2);
+            }
+
+            $tooltip.css({
+                'top': top + 'px',
+                'left': left + 'px'
+            });
+        });
+    }
+
+    initContributionsTooltip();
+
 })(jQuery);

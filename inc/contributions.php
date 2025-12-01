@@ -286,7 +286,7 @@ function github_theme_render_contributions_table() {
             if ($day === null) {
                 echo '<div class="contribution-cell empty"></div>';
             } else {
-                echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" title="' . esc_attr($day['tooltip']) . '" data-date="' . esc_attr($day['date']) . '" data-count="' . esc_attr($day['count']) . '"></div>';
+                echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" data-tooltip="' . esc_attr($day['tooltip']) . '" data-date="' . esc_attr($day['date']) . '" data-count="' . esc_attr($day['count']) . '"></div>';
             }
         }
         echo '</div>';
