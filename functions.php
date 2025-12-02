@@ -50,6 +50,26 @@ function github_theme_setup() {
 add_action('after_setup_theme', 'github_theme_setup');
 
 /**
+ * Menú por defecto si no hay menú configurado
+ */
+function github_theme_default_menu() {
+    echo '<ul class="nav-menu">';
+    echo '<li><a href="' . esc_url(home_url('/')) . '">Inicio</a></li>';
+    if (get_option('show_on_front') == 'page') {
+        $page_for_posts = get_option('page_for_posts');
+        if ($page_for_posts) {
+            echo '<li><a href="' . esc_url(get_permalink($page_for_posts)) . '">Blog</a></li>';
+        }
+    }
+    wp_list_pages(array(
+        'title_li' => '',
+        'exclude' => get_option('page_on_front'),
+    ));
+    echo '</ul>';
+}
+
+
+/**
  * Estilos y scripts del tema
  */
 function github_theme_scripts() {
@@ -520,24 +540,28 @@ add_filter('use_block_editor_for_post', '__return_false', 10);
 // Desactivar para tipos de contenido personalizados
 add_filter('use_block_editor_for_post_type', '__return_false', 10);
 
-// Activar Thickbox en WordPress
+/**
+ * Activar Thickbox en WordPress
+ */
 function activar_lightbox_thickbox() {
     // Cargar los scripts y estilos de Thickbox
     wp_enqueue_script('thickbox');
     wp_enqueue_style('thickbox');
     
-    // Agregar clase thickbox a imágenes enlazadas
-    ?>
-    <script type="text/javascript">
+    // Agregar clase thickbox a imágenes enlazadas usando wp_add_inline_script
+    // Soporta formatos: JPG, JPEG, PNG, GIF, WebP, AVIF, SVG
+    $inline_script = "
     jQuery(document).ready(function($) {
-        $('a[href$=".jpg"], a[href$=".jpeg"], a[href$=".png"], a[href$=".gif"]').addClass('thickbox');
+        $('a[href$=\".jpg\"], a[href$=\".jpeg\"], a[href$=\".png\"], a[href$=\".gif\"], a[href$=\".webp\"], a[href$=\".avif\"], a[href$=\".svg\"], a[href$=\".JPG\"], a[href$=\".JPEG\"], a[href$=\".PNG\"]').addClass('thickbox');
     });
-    </script>
-    <?php
+    ";
+    
+    wp_add_inline_script('thickbox', $inline_script);
 }
-add_action('wp_footer', 'activar_lightbox_thickbox');
-remove_action('wp_head', 'wp_generator');
-add_filter('the_generator', '__return_empty_string');
+add_action('wp_enqueue_scripts', 'activar_lightbox_thickbox');
+
+
+// Seguridad: Ocultar usuarios en REST API y sitemap
 add_filter('xmlrpc_enabled', '__return_false');
 add_filter( 'rest_endpoints', function( $endpoints ) {
     if ( isset( $endpoints['/wp/v2/users'] ) ) {
@@ -549,4 +573,72 @@ add_filter( 'rest_endpoints', function( $endpoints ) {
     return $endpoints;
 });
 add_filter( 'wp_sitemaps_users_enabled', '__return_false' );
+
+/**
+ * Rate limiting para búsquedas (prevenir spam)
+ */
+function github_theme_search_rate_limit() {
+    // Solo aplicar en búsquedas
+    if (!is_search()) {
+        return;
+    }
+    
+    // Obtener IP del usuario
+    $user_ip = $_SERVER['REMOTE_ADDR'];
+    
+    // Sanitizar IP para usar como clave de transient
+    $transient_key = 'search_limit_' . md5($user_ip);
+    
+    // Obtener número de búsquedas realizadas
+    $search_count = get_transient($transient_key);
+    
+    // Límite: 10 búsquedas por minuto
+    $max_searches = 10;
+    $time_window = 60; // segundos
+    
+    if ($search_count === false) {
+        // Primera búsqueda, iniciar contador
+        set_transient($transient_key, 1, $time_window);
+    } elseif ($search_count >= $max_searches) {
+        // Límite excedido, mostrar error
+        wp_die(
+            '<h1>Demasiadas búsquedas</h1>' .
+            '<p>Has excedido el límite de búsquedas. Por favor, espera un momento antes de intentarlo de nuevo.</p>' .
+            '<p><a href="' . esc_url(home_url('/')) . '">Volver al inicio</a></p>',
+            'Límite de búsquedas excedido',
+            array(
+                'response' => 429,
+                'back_link' => true
+            )
+        );
+    } else {
+        // Incrementar contador
+        set_transient($transient_key, $search_count + 1, $time_window);
+    }
+}
+add_action('template_redirect', 'github_theme_search_rate_limit', 1);
+
+/**
+ * Limpiar query de búsqueda para prevenir inyección SQL
+ */
+function github_theme_sanitize_search_query($query) {
+    if ($query->is_search && !is_admin()) {
+        // Limpiar el término de búsqueda
+        $search_term = get_search_query();
+        
+        // Eliminar caracteres peligrosos
+        $search_term = strip_tags($search_term);
+        $search_term = preg_replace('/[^\p{L}\p{N}\s\-_]/u', '', $search_term);
+        
+        // Limitar longitud (máximo 100 caracteres)
+        $search_term = substr($search_term, 0, 100);
+        
+        // Actualizar query
+        if (!empty($search_term)) {
+            $query->set('s', $search_term);
+        }
+    }
+    return $query;
+}
+add_filter('pre_get_posts', 'github_theme_sanitize_search_query');
 

@@ -68,25 +68,3 @@
         </nav>
     </div>
 </header>
-
-<?php
-/**
- * Menú por defecto si no hay menú configurado
- */
-function github_theme_default_menu() {
-    echo '<ul class="nav-menu">';
-    echo '<li><a href="' . esc_url(home_url('/')) . '">Inicio</a></li>';
-    if (get_option('show_on_front') == 'page') {
-        $page_for_posts = get_option('page_for_posts');
-        if ($page_for_posts) {
-            echo '<li><a href="' . esc_url(get_permalink($page_for_posts)) . '">Blog</a></li>';
-        }
-    }
-    wp_list_pages(array(
-        'title_li' => '',
-        'exclude' => get_option('page_on_front'),
-    ));
-    echo '</ul>';
-}
-?>
-
