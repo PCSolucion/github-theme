@@ -10,6 +10,12 @@
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <?php if (function_exists('github_theme_meta_description')) : ?>
+    <meta name="description" content="<?php echo esc_attr(github_theme_meta_description()); ?>">
+    <?php endif; ?>
+    <?php if (function_exists('github_theme_social_meta_tags')) : ?>
+    <?php github_theme_social_meta_tags(); ?>
+    <?php endif; ?>
     <link rel="profile" href="https://gmpg.org/xfn/11">
     <?php wp_head(); ?>
 </head>
