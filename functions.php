@@ -665,4 +665,11 @@ function github_theme_fix_pre_tags($content) {
     return $content;
 }
 add_filter('the_content', 'github_theme_fix_pre_tags', 9); // Prioridad 9 para que se ejecute antes que wpautop
-
+function ofuscar_email_menu( $atts, $item, $args, $depth ) {
+    if ( isset( $atts['href'] ) && preg_match( '/^mailto:/i', $atts['href'] ) ) {
+        $email = preg_replace( '/^mailto:(.*)/i', '$1', $atts['href'] );
+        $atts['href'] = 'mailto:' . antispambot( $email, 1 );
+    }
+    return $atts;
+}
+add_filter( 'nav_menu_link_attributes', 'ofuscar_email_menu', 10, 4 );
