@@ -1109,13 +1109,15 @@ body.single-post .site-header {
 /* Table of Contents */
 .toc-container {
     position: sticky;
-    top: 24px;
+    top: 86px;
+    /* 62px (altura aprox del header) + 24px de margen */
     padding: 0;
     background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(88, 166, 255, 0.2);
     border-radius: 12px;
-    max-height: calc(100vh - 48px);
+    max-height: calc(100vh - 110px);
+    /* Ajustado para compensar el nuevo top */
     overflow: hidden;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
     transition: all 0.3s ease;
@@ -1149,7 +1151,8 @@ body.single-post .site-header {
 
 .toc-nav {
     padding: 16px 0;
-    max-height: calc(100vh - 140px);
+    max-height: calc(100vh - 200px);
+    /* Ajustado: 86px top + 60px título + 54px margen */
     overflow-y: auto;
 }
 
@@ -1275,6 +1278,22 @@ body.single-post .site-header {
 .toc-nav .toc-h3.active {
     padding-left: 60px;
 }
+
+/* Ajustes cuando hay admin bar de WordPress */
+.admin-bar .toc-container {
+    top: 118px;
+    /* 32px admin bar + 62px header + 24px margen */
+    max-height: calc(100vh - 142px);
+}
+
+@media screen and (max-width: 782px) {
+    .admin-bar .toc-container {
+        top: 132px;
+        /* 46px admin bar + 62px header + 24px margen */
+        max-height: calc(100vh - 156px);
+    }
+}
+
 
 /* Steps List */
 .entry-content ol {

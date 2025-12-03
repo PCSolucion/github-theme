@@ -81,7 +81,7 @@ function github_theme_scripts() {
     
     // Scripts principales
     wp_enqueue_script('github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), '1.0.0', true);
-    
+
     // Comentarios (si es necesario)
     if (is_singular() && comments_open() && get_option('thread_comments')) {
         wp_enqueue_script('comment-reply');
@@ -641,4 +641,28 @@ function github_theme_sanitize_search_query($query) {
     return $query;
 }
 add_filter('pre_get_posts', 'github_theme_sanitize_search_query');
+
+/**
+ * Limpiar etiquetas p y br dentro de bloques pre
+ * WordPress a veces envuelve el contenido de <pre> en <p>, lo que rompe el formato de código
+ */
+function github_theme_fix_pre_tags($content) {
+    // Buscar todos los bloques <pre>...</pre> y limpiar su interior
+    $content = preg_replace_callback('/<pre([^>]*)>(.*?)<\/pre>/is', function($matches) {
+        $pre_attrs = $matches[1]; // Atributos del pre (class, etc.)
+        $inner_content = $matches[2]; // Contenido dentro del pre
+        
+        // Eliminar <p> y </p>
+        $inner_content = str_replace(['<p>', '</p>'], '', $inner_content);
+        
+        // Reemplazar <br> y <br/> con saltos de línea
+        $inner_content = str_replace(['<br>', '<br/>', '<br />'], "\n", $inner_content);
+        
+        // Reconstruir el pre limpio
+        return '<pre' . $pre_attrs . '>' . $inner_content . '</pre>';
+    }, $content);
+    
+    return $content;
+}
+add_filter('the_content', 'github_theme_fix_pre_tags', 9); // Prioridad 9 para que se ejecute antes que wpautop
 
