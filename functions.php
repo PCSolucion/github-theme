@@ -665,6 +665,7 @@ function github_theme_fix_pre_tags($content) {
     return $content;
 }
 add_filter('the_content', 'github_theme_fix_pre_tags', 9); // Prioridad 9 para que se ejecute antes que wpautop
+
 function ofuscar_email_menu( $atts, $item, $args, $depth ) {
     if ( isset( $atts['href'] ) && preg_match( '/^mailto:/i', $atts['href'] ) ) {
         $email = preg_replace( '/^mailto:(.*)/i', '$1', $atts['href'] );
@@ -673,3 +674,64 @@ function ofuscar_email_menu( $atts, $item, $args, $depth ) {
     return $atts;
 }
 add_filter( 'nav_menu_link_attributes', 'ofuscar_email_menu', 10, 4 );
+
+/**
+ * ==========================================
+ * MEJORAS DE SEGURIDAD ADICIONALES
+ * ==========================================
+ */
+
+/**
+ * Cabeceras de seguridad HTTP
+ * Protege contra XSS, Clickjacking y otros ataques
+ */
+function github_security_headers() {
+    if (!is_admin()) {
+        // Protección contra XSS
+        header('X-XSS-Protection: 1; mode=block');
+        // Protección contra Clickjacking (evita que carguen tu web en un iframe)
+        header('X-Frame-Options: SAMEORIGIN');
+        // Prevenir que el navegador adivine el tipo de contenido
+        header('X-Content-Type-Options: nosniff');
+        // Política de Referrer estricta
+        header('Referrer-Policy: strict-origin-when-cross-origin');
+        // Strict Transport Security (HSTS) - Descomentar si usas HTTPS
+        // header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+    }
+}
+add_action('send_headers', 'github_security_headers');
+
+/**
+ * Ocultar versión de WordPress en scripts y estilos
+ * Dificulta saber qué versión exacta usas (seguridad por oscuridad)
+ */
+function github_remove_version_scripts_styles($src) {
+    if (strpos($src, 'ver=')) {
+        $src = remove_query_arg('ver', $src);
+    }
+    return $src;
+}
+add_filter('style_loader_src', 'github_remove_version_scripts_styles', 9999);
+add_filter('script_loader_src', 'github_remove_version_scripts_styles', 9999);
+
+/**
+ * Mensajes de error de login genéricos
+ * No revelar si el usuario existe o si la contraseña es incorrecta
+ */
+function github_no_wordpress_errors(){
+    return 'Algo salió mal. Por favor, inténtalo de nuevo.';
+}
+add_filter( 'login_errors', 'github_no_wordpress_errors' );
+
+/**
+ * Bloquear enumeración de autores por query string
+ * Evita que descubran nombres de usuario probando ?author=1, ?author=2, etc.
+ */
+function github_block_author_query() {
+    if (is_admin()) return;
+    if (isset($_GET['author']) || isset($_GET['author_name'])) {
+        wp_redirect(home_url());
+        exit;
+    }
+}
+add_action('template_redirect', 'github_block_author_query');
