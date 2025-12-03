@@ -564,12 +564,16 @@ add_action('wp_enqueue_scripts', 'activar_lightbox_thickbox');
 // Seguridad: Ocultar usuarios en REST API y sitemap
 add_filter('xmlrpc_enabled', '__return_false');
 add_filter( 'rest_endpoints', function( $endpoints ) {
-    if ( isset( $endpoints['/wp/v2/users'] ) ) {
-        unset( $endpoints['/wp/v2/users'] );
-    }
-    if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) {
-        unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
-    }
+    // Ocultar usuarios (Enumeración)
+    if ( isset( $endpoints['/wp/v2/users'] ) ) unset( $endpoints['/wp/v2/users'] );
+    if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+    
+    // Ocultar listado de Posts y Páginas (Information Disclosure)
+    if ( isset( $endpoints['/wp/v2/posts'] ) ) unset( $endpoints['/wp/v2/posts'] );
+    if ( isset( $endpoints['/wp/v2/posts/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/posts/(?P<id>[\d]+)'] );
+    if ( isset( $endpoints['/wp/v2/pages'] ) ) unset( $endpoints['/wp/v2/pages'] );
+    if ( isset( $endpoints['/wp/v2/pages/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/pages/(?P<id>[\d]+)'] );
+
     return $endpoints;
 });
 add_filter( 'wp_sitemaps_users_enabled', '__return_false' );
@@ -724,14 +728,33 @@ function github_no_wordpress_errors(){
 add_filter( 'login_errors', 'github_no_wordpress_errors' );
 
 /**
- * Bloquear enumeración de autores por query string
- * Evita que descubran nombres de usuario probando ?author=1, ?author=2, etc.
+ * Bloquear enumeración de autores
+ * 1. Bloquea ?author=N (Query String)
+ * 2. Bloquea /author/username/ (Archivos de autor)
+ * 3. Elimina información de autor en oEmbed
  */
-function github_block_author_query() {
+function github_block_user_enumeration() {
     if (is_admin()) return;
+
+    // 1. Bloquear enumeración por query string (?author=1)
+    // IMPORTANTE: La prioridad 1 en el hook asegura que esto corra ANTES que redirect_canonical
     if (isset($_GET['author']) || isset($_GET['author_name'])) {
         wp_redirect(home_url());
         exit;
     }
+
+    // 2. Bloquear acceso directo a archivos de autor (/author/nombre-usuario)
+    if (is_author()) {
+        wp_redirect(home_url());
+        exit;
+    }
 }
-add_action('template_redirect', 'github_block_author_query');
+// Prioridad 1 es CRÍTICA para ganar a redirect_canonical de WordPress (que tiene prioridad 10)
+add_action('template_redirect', 'github_block_user_enumeration', 1);
+
+// 3. Eliminar info de autor en oEmbed API (otro vector de enumeración)
+add_filter('oembed_response_data', function($data) {
+    if (isset($data['author_name'])) unset($data['author_name']);
+    if (isset($data['author_url'])) unset($data['author_url']);
+    return $data;
+});
