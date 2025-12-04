@@ -113,6 +113,31 @@ function github_theme_defer_scripts($tag, $handle, $src) {
 add_filter('script_loader_tag', 'github_theme_defer_scripts', 10, 3);
 
 /**
+ * Cargar CSS no crítico de forma asíncrona
+ * Evita que CSS como Thickbox bloquee la renderización inicial
+ */
+function github_theme_async_styles($html, $handle, $href, $media) {
+    // Lista de estilos que pueden cargarse de forma asíncrona
+    $async_styles = array(
+        'thickbox'
+    );
+    
+    if (in_array($handle, $async_styles)) {
+        // Cargar con media="print" y luego cambiar a "all" con JavaScript
+        // Esto evita que bloquee la renderización inicial
+        $html = str_replace("media='all'", "media='print' onload='this.media=\"all\"'", $html);
+        $html = str_replace('media="all"', 'media="print" onload="this.media=\'all\'"', $html);
+        
+        // Agregar noscript fallback para usuarios sin JavaScript
+        $noscript = '<noscript><link rel="stylesheet" href="' . esc_url($href) . '"></noscript>';
+        $html .= $noscript;
+    }
+    
+    return $html;
+}
+add_filter('style_loader_tag', 'github_theme_async_styles', 10, 4);
+
+/**
  * Registrar áreas de widgets
  */
 function github_theme_widgets_init() {
@@ -564,7 +589,20 @@ add_filter('use_block_editor_for_post', '__return_false', 10);
 add_filter('use_block_editor_for_post_type', '__return_false', 10);
 
 /**
- * Activar Thickbox en WordPress
+ * Desactivar Dashicons en el frontend
+ * Dashicons solo se necesita en el admin, esto ahorra ~34.9 KiB y 290ms
+ */
+function github_dequeue_dashicons() {
+    if (!is_admin() && !is_user_logged_in()) {
+        wp_dequeue_style('dashicons');
+        wp_deregister_style('dashicons');
+    }
+}
+add_action('wp_enqueue_scripts', 'github_dequeue_dashicons', 999);
+
+/**
+ * Activar Thickbox en WordPress con carga optimizada
+ * Se carga de forma asíncrona para no bloquear la renderización inicial
  */
 function activar_lightbox_thickbox() {
     // Cargar los scripts y estilos de Thickbox
