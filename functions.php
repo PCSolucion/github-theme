@@ -73,14 +73,17 @@ function github_theme_default_menu() {
  * Estilos y scripts del tema
  */
 function github_theme_scripts() {
-    // Estilos principales
-    wp_enqueue_style('github-theme-style', get_stylesheet_uri(), array(), '1.0.0');
+    // Estilos principales con versión basada en tiempo de modificación del archivo
+    $style_version = filemtime(get_template_directory() . '/style.css');
+    wp_enqueue_style('github-theme-style', get_stylesheet_uri(), array(), $style_version);
     
-    // Estilos adicionales
-    wp_enqueue_style('github-theme-main', get_template_directory_uri() . '/assets/css/main.css', array(), '1.0.0');
+    // Estilos adicionales con versión basada en tiempo de modificación
+    $main_css_version = filemtime(get_template_directory() . '/assets/css/main.css');
+    wp_enqueue_style('github-theme-main', get_template_directory_uri() . '/assets/css/main.css', array(), $main_css_version);
     
-    // Scripts principales
-    wp_enqueue_script('github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), '1.0.0', true);
+    // Scripts principales con defer para mejorar rendimiento
+    $main_js_version = filemtime(get_template_directory() . '/assets/js/main.js');
+    wp_enqueue_script('github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), $main_js_version, true);
 
     // Comentarios (si es necesario)
     if (is_singular() && comments_open() && get_option('thread_comments')) {
@@ -88,6 +91,26 @@ function github_theme_scripts() {
     }
 }
 add_action('wp_enqueue_scripts', 'github_theme_scripts');
+
+/**
+ * Agregar atributo defer a scripts no críticos
+ * Mejora el rendimiento al no bloquear el renderizado
+ */
+function github_theme_defer_scripts($tag, $handle, $src) {
+    // Lista de scripts que pueden cargarse con defer
+    $defer_scripts = array(
+        'github-theme-main',
+        'thickbox',
+        'jquery-migrate'
+    );
+    
+    if (in_array($handle, $defer_scripts)) {
+        return str_replace(' src', ' defer src', $tag);
+    }
+    
+    return $tag;
+}
+add_filter('script_loader_tag', 'github_theme_defer_scripts', 10, 3);
 
 /**
  * Registrar áreas de widgets
@@ -758,3 +781,183 @@ add_filter('oembed_response_data', function($data) {
     if (isset($data['author_url'])) unset($data['author_url']);
     return $data;
 });
+
+/**
+ * ==========================================
+ * OPTIMIZACIONES DE RENDIMIENTO LIGHTHOUSE
+ * ==========================================
+ */
+
+/**
+ * Habilitar compresión GZIP para reducir tamaño de archivos
+ * Ahorro estimado: 70-85% del tamaño de archivos de texto
+ */
+function github_enable_gzip_compression() {
+    if (!is_admin()) {
+        // Verificar si la compresión no está ya habilitada
+        if (!ini_get('zlib.output_compression') && 'ob_gzhandler' != ini_get('output_handler')) {
+            // Iniciar compresión de salida
+            if (extension_loaded('zlib')) {
+                if (!headers_sent()) {
+                    ini_set('zlib.output_compression', 'On');
+                    ini_set('zlib.output_compression_level', '6'); // Nivel de compresión (1-9)
+                }
+            }
+        }
+    }
+}
+add_action('init', 'github_enable_gzip_compression', 1);
+
+/**
+ * Configurar cabeceras de caché del navegador
+ * Reduce solicitudes al servidor en visitas repetidas
+ */
+function github_browser_cache_headers() {
+    if (!is_admin()) {
+        // Caché para recursos estáticos (1 año)
+        if (preg_match('/\.(jpg|jpeg|png|gif|webp|svg|ico|css|js|woff|woff2|ttf|otf)$/i', $_SERVER['REQUEST_URI'])) {
+            header('Cache-Control: public, max-age=31536000, immutable');
+            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
+        }
+        // Caché para HTML (1 hora)
+        elseif (preg_match('/\.(html|htm|php)$/i', $_SERVER['REQUEST_URI']) || !preg_match('/\./', $_SERVER['REQUEST_URI'])) {
+            header('Cache-Control: public, max-age=3600, must-revalidate');
+        }
+        
+        // Deshabilitar ETags para mejor caché
+        header_remove('ETag');
+        header_remove('Pragma');
+    }
+}
+add_action('send_headers', 'github_browser_cache_headers', 1);
+
+/**
+ * Agregar preconnect y dns-prefetch para recursos externos
+ * Reduce latencia al conectar con dominios externos
+ */
+function github_resource_hints() {
+    // Preconnect a Google Fonts si se usan
+    echo '<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>' . "\n";
+    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+    
+    // DNS Prefetch para otros recursos comunes
+    echo '<link rel="dns-prefetch" href="//www.google-analytics.com">' . "\n";
+    echo '<link rel="dns-prefetch" href="//www.googletagmanager.com">' . "\n";
+}
+add_action('wp_head', 'github_resource_hints', 1);
+
+/**
+ * Habilitar lazy loading nativo para imágenes
+ * Mejora el rendimiento al cargar imágenes solo cuando son visibles
+ */
+function github_add_lazy_loading($content) {
+    // Solo en el contenido del post
+    if (is_singular() && in_the_loop() && is_main_query()) {
+        // Agregar loading="lazy" a todas las imágenes que no lo tengan
+        $content = preg_replace('/<img((?![^>]*loading=)[^>]*)>/i', '<img$1 loading="lazy">', $content);
+    }
+    return $content;
+}
+add_filter('the_content', 'github_add_lazy_loading', 20);
+
+/**
+ * Agregar loading="lazy" a imágenes destacadas
+ */
+function github_lazy_load_featured_images($attr) {
+    $attr['loading'] = 'lazy';
+    return $attr;
+}
+add_filter('wp_get_attachment_image_attributes', 'github_lazy_load_featured_images');
+
+/**
+ * Optimizar consultas de WordPress
+ * Reduce el número de consultas a la base de datos
+ */
+function github_optimize_queries() {
+    // Deshabilitar emojis (ahorra 2 solicitudes HTTP)
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    remove_action('admin_print_scripts', 'print_emoji_detection_script');
+    remove_action('admin_print_styles', 'print_emoji_styles');
+    
+    // Deshabilitar embeds de WordPress (ahorra 1 solicitud)
+    remove_action('wp_head', 'wp_oembed_add_discovery_links');
+    remove_action('wp_head', 'wp_oembed_add_host_js');
+    
+    // Deshabilitar REST API links en el head
+    remove_action('wp_head', 'rest_output_link_wp_head');
+    remove_action('template_redirect', 'rest_output_link_header', 11);
+}
+add_action('init', 'github_optimize_queries');
+
+/**
+ * Limitar revisiones de posts para reducir tamaño de BD
+ */
+if (!defined('WP_POST_REVISIONS')) {
+    define('WP_POST_REVISIONS', 3);
+}
+
+/**
+ * Aumentar tiempo de autosave para reducir consultas
+ */
+if (!defined('AUTOSAVE_INTERVAL')) {
+    define('AUTOSAVE_INTERVAL', 300); // 5 minutos
+}
+
+/**
+ * Deshabilitar Heartbeat API en el frontend
+ * Reduce solicitudes AJAX innecesarias
+ */
+function github_disable_heartbeat() {
+    // Deshabilitar completamente en el frontend
+    if (!is_admin()) {
+        wp_deregister_script('heartbeat');
+    }
+    // Modificar intervalo en el admin (de 15s a 60s)
+    else {
+        add_filter('heartbeat_settings', function($settings) {
+            $settings['interval'] = 60;
+            return $settings;
+        });
+    }
+}
+add_action('init', 'github_disable_heartbeat', 1);
+
+/**
+ * Optimizar carga de jQuery
+ * Mover jQuery al footer cuando sea posible
+ */
+function github_optimize_jquery() {
+    if (!is_admin()) {
+        // Mover jQuery al footer
+        wp_scripts()->add_data('jquery', 'group', 1);
+        wp_scripts()->add_data('jquery-core', 'group', 1);
+        wp_scripts()->add_data('jquery-migrate', 'group', 1);
+    }
+}
+add_action('wp_enqueue_scripts', 'github_optimize_jquery', 100);
+
+/**
+ * Agregar sugerencias de recursos (preload para CSS crítico)
+ */
+function github_preload_critical_assets() {
+    // Preload del CSS principal
+    echo '<link rel="preload" href="' . get_stylesheet_uri() . '" as="style">' . "\n";
+    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
+}
+add_action('wp_head', 'github_preload_critical_assets', 1);
+
+/**
+ * Deshabilitar Google Fonts si no se usan
+ * Descomenta esta función si no usas Google Fonts
+ */
+/*
+function github_disable_google_fonts() {
+    wp_dequeue_style('wp-block-library');
+    wp_dequeue_style('wp-block-library-theme');
+    wp_dequeue_style('wc-block-style');
+    wp_dequeue_style('global-styles');
+}
+add_action('wp_enqueue_scripts', 'github_disable_google_fonts', 100);
+*/
+
