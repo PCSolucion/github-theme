@@ -95,30 +95,17 @@ add_action('wp_enqueue_scripts', 'github_theme_scripts');
 /**
  * Agregar atributo defer a scripts no críticos
  * Mejora el rendimiento al no bloquear el renderizado
- * IMPORTANTE: Añadimos defer a jQuery para romper la cadena de solicitudes críticas
  */
 function github_theme_defer_scripts($tag, $handle, $src) {
-    // No aplicar en admin
-    if (is_admin()) {
-        return $tag;
-    }
-    
-    // Lista de scripts que deben cargarse con defer
-    // Incluimos jQuery y todos sus dependientes para romper la cadena crítica
+    // Lista de scripts que pueden cargarse con defer
     $defer_scripts = array(
-        'jquery',
-        'jquery-core',
-        'jquery-migrate',
         'github-theme-main',
         'thickbox',
-        'comment-reply'
+        'jquery-migrate'
     );
     
     if (in_array($handle, $defer_scripts)) {
-        // Evitar duplicar el atributo defer si ya existe
-        if (strpos($tag, ' defer') === false) {
-            $tag = str_replace(' src', ' defer src', $tag);
-        }
+        return str_replace(' src', ' defer src', $tag);
     }
     
     return $tag;
@@ -976,36 +963,17 @@ add_action('init', 'github_disable_heartbeat', 1);
 
 /**
  * Optimizar carga de jQuery
- * 1. Mover jQuery al footer para no bloquear renderizado
- * 2. Desregistrar jquery-migrate (no necesario en producción)
- * 3. Agregar preload hint para jQuery
+ * Mover jQuery al footer cuando sea posible
  */
 function github_optimize_jquery() {
     if (!is_admin()) {
         // Mover jQuery al footer
         wp_scripts()->add_data('jquery', 'group', 1);
         wp_scripts()->add_data('jquery-core', 'group', 1);
-        
-        // Desregistrar jquery-migrate (no necesario en producción, ahorra ~4KB)
-        // Solo si no hay plugins que lo requieran
-        wp_deregister_script('jquery-migrate');
+        wp_scripts()->add_data('jquery-migrate', 'group', 1);
     }
 }
 add_action('wp_enqueue_scripts', 'github_optimize_jquery', 100);
-
-/**
- * Agregar preload para jQuery para reducir latencia de cadena crítica
- * El preload permite que el navegador comience a descargar jQuery
- * antes de que el parser HTML lo encuentre
- */
-function github_preload_jquery() {
-    if (!is_admin()) {
-        // Obtener la URL de jQuery desde WordPress
-        $jquery_url = includes_url('js/jquery/jquery.min.js');
-        echo '<link rel="preload" href="' . esc_url($jquery_url) . '" as="script">' . "\n";
-    }
-}
-add_action('wp_head', 'github_preload_jquery', 1);
 
 /**
  * Agregar sugerencias de recursos (preload para CSS crítico)
@@ -1016,18 +984,3 @@ function github_preload_critical_assets() {
     echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
 }
 add_action('wp_head', 'github_preload_critical_assets', 1);
-
-/**
- * Deshabilitar Google Fonts si no se usan
- * Descomenta esta función si no usas Google Fonts
- */
-/*
-function github_disable_google_fonts() {
-    wp_dequeue_style('wp-block-library');
-    wp_dequeue_style('wp-block-library-theme');
-    wp_dequeue_style('wc-block-style');
-    wp_dequeue_style('global-styles');
-}
-add_action('wp_enqueue_scripts', 'github_disable_google_fonts', 100);
-*/
-
