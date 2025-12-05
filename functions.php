@@ -135,7 +135,8 @@ function github_theme_async_styles($html, $handle, $href, $media) {
     
     return $html;
 }
-add_filter('style_loader_tag', 'github_theme_async_styles', 10, 4);
+// Desactivado temporalmente - causaba error de JavaScript con onload
+// add_filter('style_loader_tag', 'github_theme_async_styles', 10, 4);
 
 /**
  * Registrar áreas de widgets
