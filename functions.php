@@ -641,6 +641,78 @@ add_filter( 'rest_endpoints', function( $endpoints ) {
 add_filter( 'wp_sitemaps_users_enabled', '__return_false' );
 
 /**
+ * Sanitizar parámetros de la REST API para prevenir inyecciones
+ * Protege contra inyección SQL y XSS en query strings
+ */
+add_filter('rest_request_before_callbacks', function($response, $handler, $request) {
+    // Obtener todos los parámetros de la petición
+    $params = $request->get_params();
+    
+    // Lista de parámetros permitidos para la REST API
+    $allowed_params = array('id', 'page', 'per_page', 'search', 'slug', 'status', 'context');
+    
+    foreach ($params as $key => $value) {
+        // Sanitizar claves (nombres de parámetros)
+        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $key)) {
+            return new WP_Error(
+                'invalid_param',
+                'Parámetro no válido detectado.',
+                array('status' => 400)
+            );
+        }
+        
+        // Sanitizar valores - detectar patrones de inyección SQL
+        if (is_string($value)) {
+            // Patrones sospechosos de SQL injection
+            $sql_patterns = array(
+                '/(\bunion\b.*\bselect\b)/i',
+                '/(\bselect\b.*\bfrom\b)/i',
+                '/(\binsert\b.*\binto\b)/i',
+                '/(\bdelete\b.*\bfrom\b)/i',
+                '/(\bdrop\b.*\btable\b)/i',
+                '/(\bupdate\b.*\bset\b)/i',
+                '/(\/\*.*\*\/)/i',
+                '/(--)/i',
+                '/(;)/i',
+                '/(\bexec\b)/i',
+                '/(\bxp_\w+)/i',
+            );
+            
+            foreach ($sql_patterns as $pattern) {
+                if (preg_match($pattern, $value)) {
+                    return new WP_Error(
+                        'security_blocked',
+                        'Petición bloqueada por seguridad.',
+                        array('status' => 403)
+                    );
+                }
+            }
+            
+            // Patrones de XSS
+            $xss_patterns = array(
+                '/(<script)/i',
+                '/(javascript:)/i',
+                '/(onclick)/i',
+                '/(onerror)/i',
+                '/(onload)/i',
+            );
+            
+            foreach ($xss_patterns as $pattern) {
+                if (preg_match($pattern, $value)) {
+                    return new WP_Error(
+                        'security_blocked',
+                        'Petición bloqueada por seguridad.',
+                        array('status' => 403)
+                    );
+                }
+            }
+        }
+    }
+    
+    return $response;
+}, 10, 3);
+
+/**
  * Rate limiting para búsquedas (prevenir spam)
  */
 function github_theme_search_rate_limit() {
