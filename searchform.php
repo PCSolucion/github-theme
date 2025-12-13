@@ -15,9 +15,12 @@
         id="search-field" 
         class="search-field" 
         placeholder="<?php esc_attr_e('Buscar...', 'github-theme'); ?>" 
-        value="<?php echo get_search_query(); ?>" 
+        value="<?php echo esc_attr(get_search_query()); ?>" 
         name="s" 
         required 
+        maxlength="100"
+        pattern="[^*()\|&amp;!]*"
+        title="No se permiten caracteres especiales como *, (, ), |, &amp;"
     />
     <button type="submit" class="search-submit">
         <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="16" height="16">
@@ -26,23 +29,3 @@
         <span class="screen-reader-text"><?php esc_html_e('Buscar', 'github-theme'); ?></span>
     </button>
 </form>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

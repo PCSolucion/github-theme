@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * GitHub Theme Functions
  *
@@ -757,23 +757,124 @@ function github_theme_search_rate_limit() {
 add_action('template_redirect', 'github_theme_search_rate_limit', 1);
 
 /**
- * Limpiar query de búsqueda para prevenir inyección SQL
+ * ==========================================
+ * PROTECCIÓN CONTRA INYECCIÓN LDAP
+ * ==========================================
+ * Bloquea caracteres típicos de inyección LDAP:
+ * - Paréntesis: ( )
+ * - Asteriscos: *
+ * - Caracteres NUL: \x00 o %00
+ * - Backslash: \
+ * - Pipe: |
+ * - Ampersand: &
+ */
+function github_theme_block_ldap_injection() {
+    // Solo procesar si hay parámetros GET
+    if (empty($_GET)) {
+        return;
+    }
+    
+    // Obtener la query string completa
+    $query_string = isset($_SERVER['QUERY_STRING']) ? urldecode($_SERVER['QUERY_STRING']) : '';
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : '';
+    
+    // Patrones de inyección LDAP a bloquear
+    $ldap_patterns = array(
+        '/\x00/',                    // Caracteres NUL
+        '/%00/',                     // NUL codificado
+        '/\*\)/',                    // *) - patrón típico de LDAP injection
+        '/\(\|/',                    // (| - patrón OR en LDAP
+        '/\(\&/',                    // (& - patrón AND en LDAP
+        '/\)\)/',                    // )) - cierre de múltiples filtros
+        '/\(\*/',                    // (* - wildcard en filtro
+        '/\\\\[0-9a-fA-F]{2}/',    // Escape hex de LDAP
+        '/uid=\*/',                  // Enumeración de usuarios LDAP
+        '/cn=\*/',                   // Common name wildcard
+        '/objectclass=\*/',          // Object class enumeration
+    );
+    
+    // Verificar query string y URI
+    foreach ($ldap_patterns as $pattern) {
+        if (preg_match($pattern, $query_string) || preg_match($pattern, $request_uri)) {
+            // Log del intento (opcional, descomentar si quieres registrar)
+            // error_log('LDAP Injection attempt blocked from IP: ' . $_SERVER['REMOTE_ADDR'] . ' - Pattern: ' . $pattern);
+            
+            // Responder con error 400 Bad Request
+            status_header(400);
+            wp_die(
+                '<h1>Solicitud no válida</h1>' .
+                '<p>La solicitud contiene caracteres no permitidos.</p>' .
+                '<p><a href="' . esc_url(home_url('/')) . '">Volver al inicio</a></p>',
+                'Solicitud no válida',
+                array(
+                    'response' => 400,
+                    'back_link' => true
+                )
+            );
+        }
+    }
+    
+    // Verificar específicamente el parámetro de búsqueda 's'
+    if (isset($_GET['s'])) {
+        $search = $_GET['s'];
+        
+        // Caracteres prohibidos en búsqueda LDAP
+        $forbidden_chars = array('*', '(', ')', '\\', chr(0), '|', '&', '!');
+        
+        foreach ($forbidden_chars as $char) {
+            if (strpos($search, $char) !== false) {
+                // Redirigir a búsqueda limpia o mostrar error
+                $clean_search = str_replace($forbidden_chars, '', $search);
+                $clean_search = trim($clean_search);
+                
+                if (!empty($clean_search)) {
+                    // Redirigir a búsqueda limpia
+                    wp_safe_redirect(add_query_arg('s', urlencode($clean_search), home_url('/')));
+                    exit;
+                } else {
+                    // Si no queda nada después de limpiar, redirigir al inicio
+                    wp_safe_redirect(home_url('/'));
+                    exit;
+                }
+            }
+        }
+    }
+}
+// Ejecutar muy temprano, antes que cualquier otra cosa
+add_action('init', 'github_theme_block_ldap_injection', 0);
+
+/**
+ * Limpiar query de búsqueda para prevenir inyección SQL y LDAP
  */
 function github_theme_sanitize_search_query($query) {
     if ($query->is_search && !is_admin()) {
         // Limpiar el término de búsqueda
         $search_term = get_search_query();
         
-        // Eliminar caracteres peligrosos
+        // Eliminar caracteres peligrosos - ser más restrictivo
+        // Solo permitir letras, números, espacios, guiones y guiones bajos
         $search_term = strip_tags($search_term);
-        $search_term = preg_replace('/[^\p{L}\p{N}\s\-_]/u', '', $search_term);
+        
+        // Eliminar caracteres de inyección LDAP específicamente
+        $search_term = str_replace(array('*', '(', ')', '\\', '|', '&', '!', chr(0)), '', $search_term);
+        
+        // Eliminar cualquier otro carácter especial
+        $search_term = preg_replace('/[^\p{L}\p{N}\s\-_\.]/u', '', $search_term);
         
         // Limitar longitud (máximo 100 caracteres)
         $search_term = substr($search_term, 0, 100);
         
+        // Normalizar espacios múltiples
+        $search_term = preg_replace('/\s+/', ' ', $search_term);
+        $search_term = trim($search_term);
+        
         // Actualizar query
         if (!empty($search_term)) {
             $query->set('s', $search_term);
+        } else {
+            // Si la búsqueda queda vacía después de sanitizar, cancelar la búsqueda
+            $query->set('s', '');
+            $query->is_search = false;
         }
     }
     return $query;

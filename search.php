@@ -16,7 +16,7 @@ get_header();
                 printf(
                     /* translators: %s: término de búsqueda */
                     esc_html__('Resultados de búsqueda para: %s', 'github-theme'),
-                    '<span class="search-term">' . get_search_query() . '</span>'
+                    '<span class="search-term">' . esc_html(get_search_query()) . '</span>'
                 );
                 ?>
             </h1>
