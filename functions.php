@@ -270,7 +270,33 @@ function github_theme_get_logo_url() {
  * Obtener color para una categoría (similar a GitHub repo-language-color)
  */
 function github_theme_get_category_color($category_id) {
-    // Colores estilo GitHub para lenguajes/proyectos
+    // Obtener el objeto de categoría para verificar el slug
+    $category = get_category($category_id);
+    
+    if ($category && !is_wp_error($category)) {
+        $slug = $category->slug;
+        
+        // Mapa de colores personalizados por categoría
+        $category_colors = array(
+            'css'          => '#563d7c', // Purple CSS
+            'gameplays'    => '#db6b00', // Orange Gameplay
+            'linux'        => '#f1e05a', // Yellow Linux
+            'noticias'     => '#24292e', // Dark Grey News
+            'programacion' => '#f34b7d', // Pink Code
+            'seguridad'    => '#d73a49', // Red Security
+            'streaming'    => '#9146ff', // Twitch Purple
+            'tecnologia'   => '#0366d6', // Tech Blue
+            'videojuegos'  => '#2ea44f', // Green Gaming
+            'windows'      => '#0078d7', // Windows Blue
+            'wordpress'    => '#21759b', // WordPress Blue
+        );
+
+        if (array_key_exists($slug, $category_colors)) {
+            return $category_colors[$slug];
+        }
+    }
+
+    // Colores estilo GitHub para lenguajes/proyectos (Fallback)
     $colors = array(
         '#f34b7d', // JavaScript/TypeScript
         '#3178c6', // TypeScript
@@ -622,6 +648,29 @@ function activar_lightbox_thickbox() {
 }
 add_action('wp_enqueue_scripts', 'activar_lightbox_thickbox');
 
+/**
+ * Seguridad: Evitar Fingerprinting (Huella Digital)
+ * Oculta la versión de WordPress del código fuente, feeds RSS, scripts y estilos.
+ */
+function github_remove_version_info() {
+    // 1. Eliminar meta tag generator del header
+    remove_action('wp_head', 'wp_generator');
+    // 2. Eliminar versión de los feeds RSS
+    add_filter('the_generator', '__return_empty_string');
+}
+add_action('init', 'github_remove_version_info');
+
+/**
+ * Eliminar parámetro de versión (?ver=x.x) de scripts y estilos
+ * Dificulta saber qué versión de WP o plugins se está usando
+ */
+function github_remove_ver_css_js( $src ) {
+    if ( strpos( $src, 'ver=' ) )
+        $src = remove_query_arg( 'ver', $src );
+    return $src;
+}
+add_filter( 'style_loader_src', 'github_remove_ver_css_js', 9999 );
+add_filter( 'script_loader_src', 'github_remove_ver_css_js', 9999 );
 
 // Seguridad: Ocultar usuarios en REST API y sitemap
 add_filter('xmlrpc_enabled', '__return_false');
@@ -647,7 +696,6 @@ add_filter( 'wp_sitemaps_users_enabled', '__return_false' );
 add_filter('rest_request_before_callbacks', function($response, $handler, $request) {
     // Obtener todos los parámetros de la petición
     $params = $request->get_params();
-    
     // Lista de parámetros permitidos para la REST API
     $allowed_params = array('id', 'page', 'per_page', 'search', 'slug', 'status', 'context');
     
@@ -914,49 +962,6 @@ function ofuscar_email_menu( $atts, $item, $args, $depth ) {
 }
 add_filter( 'nav_menu_link_attributes', 'ofuscar_email_menu', 10, 4 );
 
-/**
- * ==========================================
- * MEJORAS DE SEGURIDAD ADICIONALES
- * ==========================================
- */
-
-/**
- * Cabeceras de seguridad HTTP
- * Protege contra XSS, Clickjacking y otros ataques
- */
-function github_security_headers() {
-    if (!is_admin()) {
-        // Protección contra XSS
-        header('X-XSS-Protection: 1; mode=block');
-        // Protección contra Clickjacking (evita que carguen tu web en un iframe)
-        header('X-Frame-Options: SAMEORIGIN');
-        // Prevenir que el navegador adivine el tipo de contenido
-        header('X-Content-Type-Options: nosniff');
-        // Política de Referrer estricta
-        header('Referrer-Policy: strict-origin-when-cross-origin');
-        // Strict Transport Security (HSTS) - Descomentar si usas HTTPS
-        // header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-    }
-}
-add_action('send_headers', 'github_security_headers');
-
-/**
- * Ocultar versión de WordPress en scripts y estilos
- * Dificulta saber qué versión exacta usas (seguridad por oscuridad)
- */
-function github_remove_version_scripts_styles($src) {
-    if (strpos($src, 'ver=')) {
-        $src = remove_query_arg('ver', $src);
-    }
-    return $src;
-}
-add_filter('style_loader_src', 'github_remove_version_scripts_styles', 9999);
-add_filter('script_loader_src', 'github_remove_version_scripts_styles', 9999);
-
-/**
- * Mensajes de error de login genéricos
- * No revelar si el usuario existe o si la contraseña es incorrecta
- */
 function github_no_wordpress_errors(){
     return 'Algo salió mal. Por favor, inténtalo de nuevo.';
 }
@@ -993,70 +998,6 @@ add_filter('oembed_response_data', function($data) {
     if (isset($data['author_url'])) unset($data['author_url']);
     return $data;
 });
-
-/**
- * ==========================================
- * OPTIMIZACIONES DE RENDIMIENTO LIGHTHOUSE
- * ==========================================
- */
-
-/**
- * Habilitar compresión GZIP para reducir tamaño de archivos
- * Ahorro estimado: 70-85% del tamaño de archivos de texto
- */
-function github_enable_gzip_compression() {
-    if (!is_admin()) {
-        // Verificar si la compresión no está ya habilitada
-        if (!ini_get('zlib.output_compression') && 'ob_gzhandler' != ini_get('output_handler')) {
-            // Iniciar compresión de salida
-            if (extension_loaded('zlib')) {
-                if (!headers_sent()) {
-                    ini_set('zlib.output_compression', 'On');
-                    ini_set('zlib.output_compression_level', '6'); // Nivel de compresión (1-9)
-                }
-            }
-        }
-    }
-}
-add_action('init', 'github_enable_gzip_compression', 1);
-
-/**
- * Configurar cabeceras de caché del navegador
- * Reduce solicitudes al servidor en visitas repetidas
- */
-function github_browser_cache_headers() {
-    if (!is_admin()) {
-        // Caché para recursos estáticos (1 año)
-        if (preg_match('/\.(jpg|jpeg|png|gif|webp|svg|ico|css|js|woff|woff2|ttf|otf)$/i', $_SERVER['REQUEST_URI'])) {
-            header('Cache-Control: public, max-age=31536000, immutable');
-            header('Expires: ' . gmdate('D, d M Y H:i:s', time() + 31536000) . ' GMT');
-        }
-        // Caché para HTML (1 hora)
-        elseif (preg_match('/\.(html|htm|php)$/i', $_SERVER['REQUEST_URI']) || !preg_match('/\./', $_SERVER['REQUEST_URI'])) {
-            header('Cache-Control: public, max-age=3600, must-revalidate');
-        }
-        
-        // Deshabilitar ETags para mejor caché
-        header_remove('ETag');
-        header_remove('Pragma');
-    }
-}
-add_action('send_headers', 'github_browser_cache_headers', 1);
-
-/**
- * Agregar preconnect y dns-prefetch para recursos externos
- * Reduce latencia al conectar con dominios externos
- */
-function github_resource_hints() {
-    // Preconnect a Google Fonts si se usan
-    echo '<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>' . "\n";
-    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-    
-    // DNS Prefetch para otros recursos comunes
-    echo '<link rel="dns-prefetch" href="//www.google-analytics.com">' . "\n";
-    echo '<link rel="dns-prefetch" href="//www.googletagmanager.com">' . "\n";
-}
-add_action('wp_head', 'github_resource_hints', 1);
 
 /**
  * Habilitar lazy loading nativo para imágenes
