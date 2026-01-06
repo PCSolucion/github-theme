@@ -33,53 +33,46 @@ function github_theme_get_available_years() {
  * @param int|null $year Año para obtener datos. Null para año actual.
  * @return array Array de contribuciones [fecha => cantidad]
  */
-function github_theme_get_contributions_data($year = null) {
+/**
+ * Obtener datos de contribuciones (posts por fecha) para un año específico
+ * Retorna un array con los posts agrupados por fecha
+ * 
+ * @param int|null $year Año para obtener datos. Null para año actual.
+ * @param int|null $category_id ID de categoría para filtrar.
+ * @return array Array de contribuciones [fecha => ['count' => int, 'titles' => array]]
+ */
+function github_theme_get_contributions_data($year = null, $category_id = null) {
     global $wpdb;
     
-    // Si no se especifica año, usar el año actual
     if ($year === null) {
         $year = intval(date('Y'));
     }
     
-    // Intentar obtener del cache (transient)
-    $transient_key = 'github_theme_contrib_' . $year;
-    $cached_data = get_transient($transient_key);
-    
-    if ($cached_data !== false) {
-        return $cached_data;
-    }
-    
-    $start_date = $year . '-01-01';
-    $end_date = $year . '-12-31';
-    
-    // Si es el año actual, solo hasta hoy
-    if ($year == intval(date('Y'))) {
-        $end_date = date('Y-m-d');
-    }
-    
-    // Obtener todos los posts publicados en el año especificado
+    // Query SUPER SIMPLE - Solo año, sin fechas
     $posts = $wpdb->get_results($wpdb->prepare(
-        "SELECT DATE(post_date) as post_date, COUNT(*) as count
+        "SELECT DATE(post_date) as post_date, post_title
         FROM {$wpdb->posts}
         WHERE post_status = 'publish'
         AND post_type = 'post'
         AND YEAR(post_date) = %d
-        AND DATE(post_date) >= %s
-        AND DATE(post_date) <= %s
-        GROUP BY DATE(post_date)
         ORDER BY post_date ASC",
-        $year,
-        $start_date,
-        $end_date
+        $year
     ));
     
     $contributions = array();
-    foreach ($posts as $post) {
-        $contributions[$post->post_date] = intval($post->count);
+    if ($posts) {
+        foreach ($posts as $post) {
+            $date = $post->post_date;
+            if (!isset($contributions[$date])) {
+                $contributions[$date] = array(
+                    'count' => 0,
+                    'titles' => array()
+                );
+            }
+            $contributions[$date]['count']++;
+            $contributions[$date]['titles'][] = $post->post_title;
+        }
     }
-    
-    // Guardar en cache por 12 horas
-    set_transient($transient_key, $contributions, 12 * HOUR_IN_SECONDS);
     
     return $contributions;
 }
@@ -93,6 +86,8 @@ function github_theme_clear_contributions_cache($post_id) {
     }
     
     $year = get_the_date('Y', $post_id);
+    
+    // Limpiar cache del año
     delete_transient('github_theme_contrib_' . $year);
     
     // También limpiar el año actual por si acaso
@@ -107,7 +102,7 @@ add_action('delete_post', 'github_theme_clear_contributions_cache');
  * Generar la tabla de contribuciones estilo GitHub
  */
 function github_theme_render_contributions_table() {
-    // Obtener año seleccionado (por defecto año actual)
+    // Obtener año seleccionado (sin filtro de categoría)
     $selected_year = isset($_GET['contrib_year']) ? intval($_GET['contrib_year']) : intval(date('Y'));
     
     // Obtener años disponibles
@@ -118,25 +113,27 @@ function github_theme_render_contributions_table() {
         $selected_year = $available_years[0];
     }
     
-    $contributions = github_theme_get_contributions_data($selected_year);
+    // Obtener datos SIN filtro de categoría
+    $contributions = github_theme_get_contributions_data($selected_year, null);
     
-    // Crear array con todos los días del año seleccionado (siempre el año completo)
+    // Calcular total de contribuciones
+    $total_contributions = 0;
+    foreach ($contributions as $day_data) {
+        $total_contributions += $day_data['count'];
+    }
+    
+    // Crear array con todos los días del año seleccionado
     $year_start = new DateTime($selected_year . '-01-01');
     $year_end = new DateTime($selected_year . '-12-31');
     
-    $current_date = clone $year_start;
-    
-    // Obtener el día de la semana del primer día (0 = domingo, 6 = sábado)
-    $first_day_week = intval($current_date->format('w'));
-    
-    // Ajustar para que la semana comience en lunes (GitHub style)
-    // 0 = Domingo -> 6, 1 = Lunes -> 0, etc.
+    // Ajustar para que la primera semana comience en lunes
+    $first_day_week = intval($year_start->format('w'));
     $first_day_week = ($first_day_week == 0) ? 6 : $first_day_week - 1;
     
-    // Organizar días por semanas (cada semana es una columna)
+    // Organizar días por semanas
     $weeks = array();
     
-    // Agregar días vacíos al inicio si la semana no comienza en lunes
+    // Días vacíos al inicio si no comienza en lunes
     if ($first_day_week > 0) {
         $weeks[0] = array();
         for ($i = 0; $i < $first_day_week; $i++) {
@@ -145,22 +142,29 @@ function github_theme_render_contributions_table() {
     }
     
     $week_index = isset($weeks[0]) ? 0 : -1;
+    $current_date = clone $year_start;
     
     while ($current_date <= $year_end) {
         if (!isset($weeks[$week_index])) {
             $weeks[$week_index] = array();
         }
         
-        // Si la semana tiene 7 días, empezar nueva semana
         if (count($weeks[$week_index]) >= 7) {
             $week_index++;
             $weeks[$week_index] = array();
         }
         
         $date_str = $current_date->format('Y-m-d');
-        $count = isset($contributions[$date_str]) ? $contributions[$date_str] : 0;
         
-        // Determinar nivel de intensidad
+        // Buscar datos de contribuciones para este día
+        $count = 0;
+        $titles = array();
+        if (isset($contributions[$date_str])) {
+            $count = $contributions[$date_str]['count'];
+            $titles = $contributions[$date_str]['titles'];
+        }
+        
+        // Determinar color según cantidad
         $intensity = 'none';
         if ($count > 0) {
             if ($count == 1) {
@@ -174,21 +178,21 @@ function github_theme_render_contributions_table() {
             }
         }
         
-        $date_formatted = $current_date->format('d/m/Y');
-        $tooltip = $count > 0 ? sprintf('%d %s el %s', $count, $count == 1 ? 'post' : 'posts', $date_formatted) : 'Sin posts el ' . $date_formatted;
+        $tooltip = $count > 0 ? $count . ' post' . ($count == 1 ? '' : 's') . ' el ' . $current_date->format('d/m/Y') : 'Sin posts el ' . $current_date->format('d/m/Y');
+        $tooltip_titles = $count > 0 ? implode('|||', $titles) : '';
         
         $weeks[$week_index][] = array(
             'date' => $date_str,
             'count' => $count,
             'intensity' => $intensity,
             'tooltip' => $tooltip,
-            'date_formatted' => $date_formatted
+            'titles' => $tooltip_titles
         );
         
         $current_date->modify('+1 day');
     }
     
-    // Completar la última semana con días vacíos si es necesario
+    // Completar última semana si es necesario
     if (isset($weeks[$week_index]) && count($weeks[$week_index]) < 7) {
         while (count($weeks[$week_index]) < 7) {
             $weeks[$week_index][] = null;
@@ -228,33 +232,40 @@ function github_theme_render_contributions_table() {
     }
     
     echo '<div class="contributions-container">';
-    echo '<div class="contributions-header">';
-    echo '<h2 class="contributions-title">Actividad</h2>';
     
-    // Selector de años a la derecha
+    // Header simplificado - solo título y selector de años
+    echo '<div class="contributions-header">';
+    echo '<div class="header-left">';
+    echo '<h2 class="contributions-title">Actividad</h2>';
+    echo '</div>';
+    
+    echo '<div class="header-right">';
+    
+    // Selector de años
     if (!empty($available_years)) {
         echo '<div class="contributions-year-selector">';
         foreach ($available_years as $year) {
             $active_class = ($year == $selected_year) ? ' active' : '';
-            $current_url = add_query_arg('contrib_year', $year);
+            // Eliminar filtro de categoría de la URL
+            $current_url = add_query_arg('contrib_year', $year, remove_query_arg('contrib_cat'));
             echo '<a href="' . esc_url($current_url) . '" class="year-link' . esc_attr($active_class) . '">' . esc_html($year) . '</a>';
         }
         echo '</div>';
     }
+    echo '</div>'; // End header-right
+    echo '</div>'; // End contributions-header
     
-    echo '</div>';
     echo '<div class="contributions-calendar">';
     
-    // Etiquetas de meses en la parte superior
+    // Etiquetas de meses
     echo '<div class="contributions-months">';
-    echo '<div class="month-spacer"></div>'; // Espacio para los días de la semana
+    echo '<div class="month-spacer"></div>';
     $week_col = 0;
     $last_shown_month = 0;
     
     foreach ($weeks as $week_idx => $week) {
         if (isset($month_positions[$week_col])) {
             $month_num = $month_positions[$week_col];
-            // Solo mostrar si es un mes diferente al último mostrado
             if ($month_num != $last_shown_month) {
                 echo '<span class="month-label">' . esc_html($months[$month_num]) . '</span>';
                 $last_shown_month = $month_num;
@@ -268,10 +279,10 @@ function github_theme_render_contributions_table() {
     }
     echo '</div>';
     
-    // Grid principal con días y semanas
+    // Grid principal
     echo '<div class="contributions-grid">';
     
-    // Días de la semana (solo iniciales)
+    // Días de la semana
     $weekdays = array('L', 'M', 'X', 'J', 'V', 'S', 'D');
     echo '<div class="contributions-weekdays">';
     foreach ($weekdays as $day) {
@@ -279,20 +290,38 @@ function github_theme_render_contributions_table() {
     }
     echo '</div>';
     
-    // Renderizar semanas como columnas
+    // Renderizar semanas
     foreach ($weeks as $week) {
         echo '<div class="contributions-week">';
         foreach ($week as $day) {
             if ($day === null) {
                 echo '<div class="contribution-cell empty"></div>';
             } else {
-                echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" data-tooltip="' . esc_attr($day['tooltip']) . '" data-date="' . esc_attr($day['date']) . '" data-count="' . esc_attr($day['count']) . '"></div>';
+                // Colores inline para asegurar que se vean
+                $bg_colors = array(
+                    'none' => '#161b22',
+                    'low' => '#0a3069',
+                    'medium' => '#1158c7',
+                    'high' => '#388bfd',
+                    'very-high' => '#58a6ff'
+                );
+                $bg_color = isset($bg_colors[$day['intensity']]) ? $bg_colors[$day['intensity']] : '#161b22';
+                
+                echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" 
+                      style="background-color: ' . $bg_color . ';"
+                      data-tooltip="' . esc_attr($day['tooltip']) . '" 
+                      data-titles="' . esc_attr($day['titles']) . '" 
+                      data-date="' . esc_attr($day['date']) . '" 
+                      data-count="' . esc_attr($day['count']) . '"></div>';
             }
         }
         echo '</div>';
     }
     
     echo '</div>';
+    
+    // Footer solo con Leyenda (sin rachas)
+    echo '<div class="contributions-footer">';
     
     // Leyenda
     echo '<div class="contributions-legend">';
@@ -307,6 +336,8 @@ function github_theme_render_contributions_table() {
     echo '<span class="legend-label">Más</span>';
     echo '</div>';
     
-    echo '</div>';
-    echo '</div>';
+    echo '</div>'; // End contributions-footer
+    
+    echo '</div>'; // End contributions-calendar
+    echo '</div>'; // End contributions-container
 }

@@ -119,7 +119,9 @@
     // Generar Tabla de Contenidos (TOC)
     function generateTOC() {
         var $tocContainer = $('#table-of-contents');
-        var $headings = $('.entry-content h2, .entry-content h3');
+        var $headings = $('.entry-content h2, .entry-content h3').filter(function () {
+            return $(this).text().trim().length > 0;
+        });
 
         if ($headings.length === 0 || $tocContainer.length === 0) {
             $('.toc-container').hide();
@@ -345,9 +347,22 @@
 
         $(document).on('mouseenter', '.contribution-cell[data-tooltip]', function () {
             var text = $(this).data('tooltip');
+            var titles = $(this).data('titles');
+
             if (!text) return;
 
-            $tooltip.text(text).css('opacity', '1');
+            var content = '<div style="font-weight:600; margin-bottom:4px;">' + text + '</div>';
+
+            if (titles) {
+                var titleList = titles.split('|||');
+                content += '<div style="font-size:11px; color:#8b949e; border-top:1px solid rgba(255,255,255,0.1); padding-top:4px; margin-top:4px;">';
+                titleList.forEach(function (title) {
+                    content += '<div style="margin-bottom:2px;">• ' + title + '</div>';
+                });
+                content += '</div>';
+            }
+
+            $tooltip.html(content).css('opacity', '1');
         });
 
         $(document).on('mouseleave', '.contribution-cell[data-tooltip]', function () {
@@ -387,6 +402,66 @@
             });
         });
     }
+
+    // Fixes visuales: Enlaces con imágenes y Encabezados vacíos
+    function fixVisuals() {
+        // 1. Quitar subrayado/borde a enlaces que contienen imágenes
+        $('.entry-content a').has('img').addClass('image-link').css({
+            'border': 'none',
+            'text-decoration': 'none',
+            'background': 'none',
+            'padding': '0'
+        });
+
+        // 2. Ocultar encabezados vacíos (que solo tienen espacios)
+        $('.entry-content h2, .entry-content h3, .entry-content h4').each(function () {
+            if ($(this).text().trim().length === 0) {
+                $(this).hide(); // Ocultar completamente
+                $(this).addClass('hidden-heading'); // Clase auxiliar
+            }
+        });
+    }
+
+    // Mejoras para bloques de código: Etiquetas de lenguaje y Números de línea
+    function enhanceCodeBlocks() {
+        $('pre code').each(function () {
+            var $code = $(this);
+            var $pre = $code.parent();
+
+            // 1. Detectar lenguaje
+            var classes = $code.attr('class') || '';
+            var langMatch = classes.match(/language-([a-z0-9]+)|lang-([a-z0-9]+)/);
+            var lang = langMatch ? (langMatch[1] || langMatch[2]) : '';
+
+            if (lang) {
+                // Añadir etiqueta de lenguaje
+                var $label = $('<div class="code-language-label"></div>').text(lang);
+                $pre.append($label);
+            }
+
+            // 2. Añadir números de línea
+            var text = $code.text();
+            // Contar líneas (split por \n). Si termina en \n, no contar la última línea vacía si es solo un salto
+            var lines = text.split('\n');
+            if (lines.length > 0 && lines[lines.length - 1] === '') {
+                lines.pop();
+            }
+            var lineCount = lines.length;
+
+            if (lineCount > 1) {
+                var $lineNumbers = $('<span aria-hidden="true" class="line-numbers-rows"></span>');
+                for (var i = 0; i < lineCount; i++) {
+                    $lineNumbers.append('<span></span>');
+                }
+                $pre.prepend($lineNumbers);
+                $pre.addClass('line-numbers'); // Clase para estilos específicos si se necesita
+            }
+        });
+    }
+
+    enhanceCodeBlocks();
+
+    fixVisuals();
 
     initContributionsTooltip();
 

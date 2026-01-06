@@ -74,15 +74,18 @@ function github_theme_default_menu() {
  */
 function github_theme_scripts() {
     // Estilos principales con versión basada en tiempo de modificación del archivo
-    $style_version = filemtime(get_template_directory() . '/style.css');
+    $style_file = get_template_directory() . '/style.css';
+    $style_version = file_exists($style_file) ? filemtime($style_file) : '1.0.0';
     wp_enqueue_style('github-theme-style', get_stylesheet_uri(), array(), $style_version);
     
     // Estilos adicionales con versión basada en tiempo de modificación
-    $main_css_version = filemtime(get_template_directory() . '/assets/css/main.css');
+    $main_css_file = get_template_directory() . '/assets/css/main.css';
+    $main_css_version = file_exists($main_css_file) ? filemtime($main_css_file) : '1.0.0';
     wp_enqueue_style('github-theme-main', get_template_directory_uri() . '/assets/css/main.css', array(), $main_css_version);
     
     // Scripts principales con defer para mejorar rendimiento
-    $main_js_version = filemtime(get_template_directory() . '/assets/js/main.js');
+    $main_js_file = get_template_directory() . '/assets/js/main.js';
+    $main_js_version = file_exists($main_js_file) ? filemtime($main_js_file) : '1.0.0';
     wp_enqueue_script('github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), $main_js_version, true);
 
     // Comentarios (si es necesario)
@@ -1080,15 +1083,15 @@ add_action('init', 'github_disable_heartbeat', 1);
  * Optimizar carga de jQuery
  * Mover jQuery al footer cuando sea posible
  */
-function github_optimize_jquery() {
-    if (!is_admin()) {
-        // Mover jQuery al footer
-        wp_scripts()->add_data('jquery', 'group', 1);
-        wp_scripts()->add_data('jquery-core', 'group', 1);
-        wp_scripts()->add_data('jquery-migrate', 'group', 1);
-    }
-}
-add_action('wp_enqueue_scripts', 'github_optimize_jquery', 100);
+// function github_optimize_jquery() {
+//     if (!is_admin()) {
+//         // Mover jQuery al footer
+//         wp_scripts()->add_data('jquery', 'group', 1);
+//         wp_scripts()->add_data('jquery-core', 'group', 1);
+//         wp_scripts()->add_data('jquery-migrate', 'group', 1);
+//     }
+// }
+// add_action('wp_enqueue_scripts', 'github_optimize_jquery', 100);
 
 /**
  * Agregar sugerencias de recursos (preload para CSS crítico)
@@ -1099,3 +1102,19 @@ function github_preload_critical_assets() {
     echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
 }
 add_action('wp_head', 'github_preload_critical_assets', 1);
+
+/**
+ * Aumentar límites de subida para evitar error "enlace caducado"
+ */
+@ini_set('upload_max_size', '128M');
+@ini_set('post_max_size', '128M');
+@ini_set('max_execution_time', '300');
+@ini_set('max_input_time', '300');
+
+// Aumentar límite de memoria si es necesario
+if (!defined('WP_MEMORY_LIMIT')) {
+    define('WP_MEMORY_LIMIT', '256M');
+}
+if (!defined('WP_MAX_MEMORY_LIMIT')) {
+    define('WP_MAX_MEMORY_LIMIT', '512M');
+}

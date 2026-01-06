@@ -10,15 +10,19 @@ get_header();
 
 <div class="site-wrapper">
     <main class="content-area">
+
+
         <?php 
         // Mostrar tabla de contribuciones antes de los posts
         if (is_home() || is_front_page()) {
+            echo '<div id="contributions">';
             github_theme_render_contributions_table();
+            echo '</div>';
         }
         ?>
         
         <?php if (have_posts()) : ?>
-            <div class="post-list">
+            <div id="latest-posts" class="post-list">
                 <?php while (have_posts()) : the_post(); ?>
                     <article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
                         <header class="post-header">
