@@ -820,6 +820,11 @@ add_action('template_redirect', 'github_theme_search_rate_limit', 1);
  * - Ampersand: &
  */
 function github_theme_block_ldap_injection() {
+    // NO ejecutar en el área de administración
+    if (is_admin()) {
+        return;
+    }
+    
     // Solo procesar si hay parámetros GET
     if (empty($_GET)) {
         return;
@@ -891,8 +896,8 @@ function github_theme_block_ldap_injection() {
         }
     }
 }
-// Ejecutar muy temprano, antes que cualquier otra cosa
-add_action('init', 'github_theme_block_ldap_injection', 0);
+// Ejecutar en template_redirect para asegurar que is_admin() funcione correctamente
+add_action('template_redirect', 'github_theme_block_ldap_injection', 0);
 
 /**
  * Limpiar query de búsqueda para prevenir inyección SQL y LDAP
@@ -1048,17 +1053,11 @@ add_action('init', 'github_optimize_queries');
 
 /**
  * Limitar revisiones de posts para reducir tamaño de BD
+ * NOTA: Estas constantes deben definirse en wp-config.php, no aquí
+ * Si quieres activarlas, añade esto a tu wp-config.php:
+ * define('WP_POST_REVISIONS', 3);
+ * define('AUTOSAVE_INTERVAL', 300);
  */
-if (!defined('WP_POST_REVISIONS')) {
-    define('WP_POST_REVISIONS', 3);
-}
-
-/**
- * Aumentar tiempo de autosave para reducir consultas
- */
-if (!defined('AUTOSAVE_INTERVAL')) {
-    define('AUTOSAVE_INTERVAL', 300); // 5 minutos
-}
 
 /**
  * Deshabilitar Heartbeat API en el frontend
@@ -1105,16 +1104,17 @@ add_action('wp_head', 'github_preload_critical_assets', 1);
 
 /**
  * Aumentar límites de subida para evitar error "enlace caducado"
+ * NOTA: ini_set puede no funcionar en todos los servidores.
+ * Mejor configurar en php.ini o .htaccess
  */
-@ini_set('upload_max_size', '128M');
-@ini_set('post_max_size', '128M');
-@ini_set('max_execution_time', '300');
-@ini_set('max_input_time', '300');
+// @ini_set('upload_max_size', '128M');
+// @ini_set('post_max_size', '128M');
+// @ini_set('max_execution_time', '300');
+// @ini_set('max_input_time', '300');
 
-// Aumentar límite de memoria si es necesario
-if (!defined('WP_MEMORY_LIMIT')) {
-    define('WP_MEMORY_LIMIT', '256M');
-}
-if (!defined('WP_MAX_MEMORY_LIMIT')) {
-    define('WP_MAX_MEMORY_LIMIT', '512M');
-}
+/**
+ * NOTA: WP_MEMORY_LIMIT debe definirse en wp-config.php, no aquí
+ * Si quieres activarlo, añade esto a tu wp-config.php:
+ * define('WP_MEMORY_LIMIT', '256M');
+ * define('WP_MAX_MEMORY_LIMIT', '512M');
+ */
