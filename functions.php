@@ -678,15 +678,16 @@ add_filter( 'script_loader_src', 'github_remove_ver_css_js', 9999 );
 // Seguridad: Ocultar usuarios en REST API y sitemap
 add_filter('xmlrpc_enabled', '__return_false');
 add_filter( 'rest_endpoints', function( $endpoints ) {
-    // Ocultar usuarios (Enumeración)
-    if ( isset( $endpoints['/wp/v2/users'] ) ) unset( $endpoints['/wp/v2/users'] );
-    if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
-    
-    // Ocultar listado de Posts y Páginas (Information Disclosure)
-    if ( isset( $endpoints['/wp/v2/posts'] ) ) unset( $endpoints['/wp/v2/posts'] );
-    if ( isset( $endpoints['/wp/v2/posts/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/posts/(?P<id>[\d]+)'] );
-    if ( isset( $endpoints['/wp/v2/pages'] ) ) unset( $endpoints['/wp/v2/pages'] );
-    if ( isset( $endpoints['/wp/v2/pages/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/pages/(?P<id>[\d]+)'] );
+    // Solo ocultar endpoints sensibles para usuarios NO logueados
+    // Los usuarios logueados necesitan la REST API para el editor de WordPress
+    if ( !is_user_logged_in() ) {
+        // Ocultar usuarios (Enumeración)
+        if ( isset( $endpoints['/wp/v2/users'] ) ) unset( $endpoints['/wp/v2/users'] );
+        if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+        
+        // NOTA: NO ocultar posts y pages ya que rompe el editor de WordPress
+        // Incluso para usuarios no logueados, esto puede causar problemas con embeds
+    }
 
     return $endpoints;
 });
@@ -1060,21 +1061,17 @@ add_action('init', 'github_optimize_queries');
  */
 
 /**
- * Deshabilitar Heartbeat API en el frontend
- * Reduce solicitudes AJAX innecesarias
+ * Optimizar Heartbeat API
+ * Reducir frecuencia en lugar de deshabilitarlo para evitar problemas con el editor
  */
 function github_disable_heartbeat() {
-    // Deshabilitar completamente en el frontend
-    if (!is_admin()) {
-        wp_deregister_script('heartbeat');
-    }
-    // Modificar intervalo en el admin (de 15s a 60s)
-    else {
-        add_filter('heartbeat_settings', function($settings) {
-            $settings['interval'] = 60;
-            return $settings;
-        });
-    }
+    // Modificar intervalo del heartbeat en lugar de deshabilitarlo
+    // Deshabilitarlo causa pantalla blanca al publicar/programar posts
+    add_filter('heartbeat_settings', function($settings) {
+        // Reducir frecuencia a 60 segundos (por defecto es 15-60s dependiendo de la actividad)
+        $settings['interval'] = 60;
+        return $settings;
+    });
 }
 add_action('init', 'github_disable_heartbeat', 1);
 
