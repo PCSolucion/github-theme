@@ -18,7 +18,7 @@ Tags: dark, minimal, github-inspired, modern, clean
     --github-bg-tertiary: #191919;
     --github-border: #262626;
     --github-text-primary: #ededed;
-    --github-text-secondary: #a0a0a0;
+    --github-text-secondary: #6e6e6e;
     --github-text-tertiary: #666666;
     --github-accent: #ededed;
     --github-accent-hover: #ffffff;
@@ -49,7 +49,7 @@ body {
     background-color: var(--github-bg-primary);
     color: var(--github-text-primary);
     line-height: 1.6;
-    font-size: 16px;
+    font-size: 14px;
     letter-spacing: -0.011em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -456,9 +456,9 @@ body.single-post .site-header {
     flex-direction: column;
     background: var(--github-bg-secondary);
     border: 1px solid var(--github-border);
-    border-radius: 8px;
-    padding: 28px;
-    transition: border-color 0.2s ease;
+    border-radius: 6px;
+    padding: 20px;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
     height: 100%;
     position: relative;
     overflow: hidden;
@@ -469,7 +469,8 @@ body.single-post .site-header {
 }
 
 .post-item:hover {
-    border-color: #444444;
+    background-color: #161616;
+    border-color: #333333;
 }
 
 .post-header {
@@ -477,31 +478,20 @@ body.single-post .site-header {
 }
 
 .post-title {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 600;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     line-height: 1.4;
-    position: relative;
-    padding-left: 20px;
+    font-family: var(--github-font-mono);
+    letter-spacing: -0.02em;
 }
 
-.post-title::before {
-    content: "▸";
-    position: absolute;
-    left: 0;
-    color: var(--github-accent);
-    font-size: 16px;
-    transition: transform 0.25s ease;
-}
 
-.post-item:hover .post-title::before {
-    transform: translateX(4px);
-}
 
 .post-title a {
     color: var(--github-text-primary);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: color 0.2s ease;
 }
 
 .post-title a:hover {
@@ -511,18 +501,18 @@ body.single-post .site-header {
 .post-excerpt {
     color: var(--github-text-secondary);
     line-height: 1.6;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     flex-grow: 1;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .post-footer {
     margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid var(--github-border);
+    padding-top: 12px;
+    border-top: 1px solid #1a1a1a;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
 }
 
 .post-meta {
@@ -566,7 +556,7 @@ body.single-post .site-header {
     padding: 4px 10px;
     background: var(--github-accent-subtle);
     border: 1px solid var(--github-border);
-    border-radius: 16px;
+    border-radius: 4px;
     transition: all 0.2s ease;
 }
 
@@ -606,7 +596,7 @@ body.single-post .site-header {
     color: var(--github-text-secondary);
     background-color: var(--github-accent-subtle);
     border: 1px solid var(--github-border);
-    border-radius: 2em;
+    border-radius: 4px;
     text-decoration: none;
     font-family: var(--github-font-mono);
     transition: all 0.2s ease;
@@ -657,6 +647,7 @@ body.single-post .site-header {
     font-weight: 600;
     color: var(--github-text-primary);
     letter-spacing: -0.02em;
+    font-family: var(--github-font-mono);
 }
 
 .entry-content h1 {
@@ -952,8 +943,9 @@ body.single-post .site-header {
 .footer-menu a {
     color: var(--github-text-secondary);
     text-decoration: none;
-    font-size: 12px;
+    font-size: 11px;
     transition: color 0.2s;
+    font-family: var(--github-font-mono);
 }
 
 .footer-links a:hover,
@@ -993,6 +985,7 @@ body.single-post .site-header {
     line-height: 1.2;
     letter-spacing: -0.02em;
     color: #ffffff;
+    font-family: var(--github-font-mono);
 }
 
 .single-post-hero .post-meta {
@@ -1356,12 +1349,15 @@ body.single-post .site-header {
 }
 
 .widget-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 16px;
     color: var(--github-text-primary);
     border-bottom: 1px solid var(--github-border);
     padding-bottom: 8px;
+    font-family: var(--github-font-mono);
+    text-transform: lowercase;
+    letter-spacing: -0.01em;
 }
 
 .widget ul {
@@ -1442,108 +1438,6 @@ input[type="submit"]:hover {
     white-space: nowrap;
 }
 
-/* Paginación */
-.pagination {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    align-items: center;
-    margin-top: 48px;
-    margin-bottom: 32px;
-    flex-wrap: wrap;
-}
-
-.pagination a,
-.pagination span {
-    min-width: 44px;
-    height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 16px;
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px;
-    color: var(--github-text-secondary);
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.03);
-    position: relative;
-    overflow: hidden;
-}
-
-.pagination a::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, var(--github-accent) 0%, rgba(255, 255, 255, 0.15) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.pagination a:hover::before {
-    opacity: 1;
-}
-
-.pagination a:hover {
-    transform: translateY(-3px);
-    border-color: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
-    background: linear-gradient(135deg, rgba(22, 27, 34, 1) 0%, rgba(13, 17, 23, 1) 100%);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15);
-}
-
-.pagination .current {
-    background: linear-gradient(135deg, var(--github-accent) 0%, #0077a8 100%);
-    border-color: var(--github-accent);
-    color: #ffffff;
-    font-weight: 600;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.1);
-    cursor: default;
-}
-
-.pagination .dots {
-    border: none;
-    background: transparent;
-    box-shadow: none;
-    color: var(--github-text-tertiary);
-    cursor: default;
-}
-
-/* Estilos especiales para botones prev/next */
-.pagination .prev,
-.pagination .next {
-    font-weight: 600;
-    padding: 0 20px;
-    gap: 8px;
-}
-
-.pagination .prev:hover,
-.pagination .next:hover {
-    color: var(--github-accent);
-}
-
-/* Animación de entrada */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.pagination {
-    animation: fadeInUp 0.5s ease-out;
-}
 
 /* 404 */
 .error-404 {
@@ -1633,48 +1527,8 @@ input[type="submit"]:hover {
    Mejoras Visuales - Animations & Cards
    ========================================= */
 
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(30px);
-    }
+/* Animations removed for minimalist load */
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.post-item {
-    animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-    opacity: 0;
-    /* Start hidden */
-}
-
-.post-item:nth-child(1) {
-    animation-delay: 0.1s;
-}
-
-.post-item:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.post-item:nth-child(3) {
-    animation-delay: 0.3s;
-}
-
-.post-item:nth-child(4) {
-    animation-delay: 0.4s;
-}
-
-.post-item:nth-child(5) {
-    animation-delay: 0.5s;
-}
-
-.post-item:nth-child(6) {
-    animation-delay: 0.6s;
-}
 
 /* Enhanced Post Item Styles */
 .post-item {
@@ -2052,8 +1906,9 @@ button:active {
 
 .pagination .page-numbers.current {
     background-color: var(--github-accent);
-    color: #ffffff;
+    color: var(--github-bg-primary);
     border-color: var(--github-accent);
+    font-weight: 600;
 }
 
 .pagination .page-numbers.prev,
@@ -2078,12 +1933,17 @@ button:active {
 .search-slash {
     position: absolute;
     left: 10px; /* Ajuste fino */
-    color: #666666; /* Mismo color que placeholder */
+    color: #6e7681; /* Mismo color que placeholder */
     /* font-weight: 700; (Removed as requested) */
     font-size: 1em; /* Tamaño normal */
     pointer-events: none;
     z-index: 2;
     line-height: normal; /* Alinear con texto */
+    transition: color 0.3s ease;
+}
+
+.AppHeader-search-input:focus ~ .search-slash {
+    color: #8b949e;
 }
 
 .AppHeader-search-input {

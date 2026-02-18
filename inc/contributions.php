@@ -297,18 +297,8 @@ function github_theme_render_contributions_table() {
             if ($day === null) {
                 echo '<div class="contribution-cell empty"></div>';
             } else {
-                // Colores inline para asegurar que se vean
-                $bg_colors = array(
-                    'none' => '#161b22',
-                    'low' => '#0a3069',
-                    'medium' => '#1158c7',
-                    'high' => '#388bfd',
-                    'very-high' => '#58a6ff'
-                );
-                $bg_color = isset($bg_colors[$day['intensity']]) ? $bg_colors[$day['intensity']] : '#161b22';
                 
                 echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" 
-                      style="background-color: ' . $bg_color . ';"
                       data-tooltip="' . esc_attr($day['tooltip']) . '" 
                       data-titles="' . esc_attr($day['titles']) . '" 
                       data-date="' . esc_attr($day['date']) . '" 

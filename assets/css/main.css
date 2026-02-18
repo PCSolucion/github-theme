@@ -7,10 +7,13 @@
 }
 
 .archive-title {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 600;
     color: var(--github-text-primary);
     margin-bottom: 8px;
+    font-family: var(--github-font-mono);
+    text-transform: lowercase;
+    letter-spacing: -0.03em;
 }
 
 .archive-description {
@@ -26,10 +29,13 @@
 }
 
 .search-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     color: var(--github-text-primary);
     margin-bottom: 16px;
+    font-family: var(--github-font-mono);
+    text-transform: lowercase;
+    letter-spacing: -0.02em;
 }
 
 .search-term {
@@ -153,16 +159,20 @@
 
 .nav-subtitle {
     display: block;
-    font-size: 12px;
+    font-size: 11px;
     color: var(--github-text-secondary);
     margin-bottom: 4px;
+    font-family: var(--github-font-mono);
+    text-transform: lowercase;
 }
 
 .nav-title {
     display: block;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--github-text-primary);
+    font-family: var(--github-font-mono);
+    text-transform: lowercase;
 }
 
 /* Comentarios */
@@ -173,10 +183,13 @@
 }
 
 .comments-title {
-    font-size: 24px;
+    font-size: 20px;
     font-weight: 600;
     margin-bottom: 24px;
     color: var(--github-text-primary);
+    font-family: var(--github-font-mono);
+    text-transform: lowercase;
+    letter-spacing: -0.02em;
 }
 
 .comment-list {
@@ -238,8 +251,8 @@
 }
 
 .comment-reply-link:hover {
-    border-color: var(--github-accent);
-    background-color: rgba(88, 166, 255, 0.1);
+    border-color: #444444;
+    background-color: var(--github-accent-subtle);
 }
 
 /* Formulario de comentarios */
@@ -287,8 +300,8 @@
 
 /* Scrollbar personalizado */
 ::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
+    width: 7px;
+    height: 7px;
 }
 
 ::-webkit-scrollbar-track {
@@ -296,12 +309,12 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--github-border);
-    border-radius: 6px;
+    background: #1e1e1e;
+    border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--github-text-tertiary);
+    background: #333333;
 }
 
 /* Selección de texto */
@@ -433,7 +446,7 @@
 
 .comment-reply-link:hover {
     border-color: var(--github-accent);
-    background-color: rgba(88, 166, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.06);
 }
 
 /* Formulario de comentarios */
@@ -479,55 +492,35 @@
     }
 }
 
-/* Scrollbar personalizado */
-::-webkit-scrollbar {
-    width: 12px;
-    height: 12px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--github-bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--github-border);
-    border-radius: 6px;
-}
-
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--github-text-tertiary);
-}
+/* Scrollbar personalizado (duplicado eliminado — ver bloque principal arriba) */
 
 /* Selección de texto */
 ::selection {
-    background-color: rgba(88, 166, 255, 0.3);
+    background-color: rgba(237, 237, 237, 0.2);
     color: var(--github-text-primary);
 }
 
 ::-moz-selection {
-    background-color: rgba(88, 166, 255, 0.3);
+    background-color: rgba(237, 237, 237, 0.2);
     color: var(--github-text-primary);
 }
 
 /* =========================================
-   CONTRIBUTIONS TABLE - GITHUB STYLE
+   CONTRIBUTIONS TABLE - npmx.dev STYLE
    ========================================= */
 
 /* Container principal */
 .contributions-container {
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border: 1px solid rgba(88, 166, 255, 0.15);
-    border-radius: 12px;
-    padding: 24px;
+    background: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    padding: 20px 24px;
     margin-bottom: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.08);
-    transition: all 0.3s ease;
+    transition: border-color 0.2s ease;
 }
 
 .contributions-container:hover {
-    border-color: rgba(88, 166, 255, 0.25);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.12);
+    border-color: #333333;
 }
 
 /* Header */
@@ -553,39 +546,46 @@
 }
 
 .contributions-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--github-text-primary);
-    margin: 0;
-}
-
-/* Year Selector */
-.contributions-year-selector {
-    display: flex;
-    gap: 8px;
-}
-
-.year-link {
-    padding: 6px 12px;
     font-size: 13px;
     font-weight: 500;
     color: var(--github-text-secondary);
+    margin: 0;
+    font-family: var(--github-font-mono);
+    letter-spacing: 0.02em;
+    text-transform: lowercase;
+}
+
+/* Year Selector — kbd style */
+.contributions-year-selector {
+    display: flex;
+    gap: 4px;
+}
+
+.year-link {
+    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--github-font-mono);
+    color: var(--github-text-tertiary);
     text-decoration: none;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    background: transparent;
-    border: 1px solid transparent;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+    background: var(--github-bg-primary);
+    border: 1px solid var(--github-border);
+    line-height: 1.6;
 }
 
 .year-link:hover {
     color: var(--github-text-primary);
-    background: rgba(88, 166, 255, 0.08);
+    border-color: #444444;
+    background: var(--github-bg-tertiary);
 }
 
 .year-link.active {
-    color: var(--github-accent);
-    background: rgba(88, 166, 255, 0.12);
-    border-color: rgba(88, 166, 255, 0.3);
+    color: var(--github-text-primary);
+    background: var(--github-bg-tertiary);
+    border-color: #555555;
+    font-weight: 600;
 }
 
 /* Calendar Container */
@@ -608,8 +608,9 @@
 }
 
 .month-label {
-    font-size: 12px;
-    color: var(--github-text-secondary);
+    font-size: 10px;
+    font-family: var(--github-font-mono);
+    color: var(--github-text-tertiary);
     width: 14px;
     min-width: 14px;
     text-align: left;
@@ -638,7 +639,8 @@
 }
 
 .weekday-label {
-    font-size: 11px;
+    font-size: 10px;
+    font-family: var(--github-font-mono);
     color: var(--github-text-tertiary);
     height: 14px;
     line-height: 14px;
@@ -658,14 +660,14 @@
 .contribution-cell {
     width: 14px;
     height: 14px;
-    border-radius: 3px;
-    transition: all 0.15s ease;
+    border-radius: 2px;
+    transition: all 0.12s ease;
     cursor: default;
 }
 
 .contribution-cell:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 8px rgba(88, 166, 255, 0.5);
+    transform: scale(1.25);
+    outline: 1px solid rgba(237, 237, 237, 0.4);
     z-index: 10;
 }
 
@@ -678,9 +680,9 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-top: 16px;
-    padding-top: 12px;
-    border-top: 1px solid rgba(88, 166, 255, 0.1);
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid var(--github-border);
 }
 
 /* Legend */
@@ -688,11 +690,12 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: 11px;
+    font-family: var(--github-font-mono);
 }
 
 .legend-label {
-    color: var(--github-text-secondary);
+    color: var(--github-text-tertiary);
     font-weight: 400;
 }
 
@@ -704,49 +707,49 @@
 .legend-cell {
     width: 14px;
     height: 14px;
-    border-radius: 3px;
+    border-radius: 2px;
 }
 
-/* Intensity Colors - IMPORTANT para que se apliquen siempre */
+/* Intensity Colors — Monochrome scale (npmx.dev style) */
 .contribution-cell.none {
-    background-color: #161b22 !important;
+    background-color: #1a1a1a;
 }
 
 .contribution-cell.low {
-    background-color: #0a3069 !important;
+    background-color: #2e2e2e;
 }
 
 .contribution-cell.medium {
-    background-color: #1158c7 !important;
+    background-color: #555555;
 }
 
 .contribution-cell.high {
-    background-color: #388bfd !important;
+    background-color: #909090;
 }
 
 .contribution-cell.very-high {
-    background-color: #58a6ff !important;
+    background-color: #ededed;
 }
 
-/* Legend Colors */
+/* Legend Colors — Monochrome */
 .legend-cell.none {
-    background-color: #161b22 !important;
+    background-color: #1a1a1a;
 }
 
 .legend-cell.low {
-    background-color: #0a3069 !important;
+    background-color: #2e2e2e;
 }
 
 .legend-cell.medium {
-    background-color: #1158c7 !important;
+    background-color: #555555;
 }
 
 .legend-cell.high {
-    background-color: #388bfd !important;
+    background-color: #909090;
 }
 
 .legend-cell.very-high {
-    background-color: #58a6ff !important;
+    background-color: #ededed;
 }
 
 /* Discreet Dropdown */
@@ -877,7 +880,7 @@
 /* Hero Section for Single Posts */
 .single-post-hero {
     background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border-bottom: 1px solid rgba(88, 166, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding: 48px 0;
     margin-bottom: 32px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
@@ -967,7 +970,7 @@
 
 .toc-container {
     background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%) !important;
-    border: 1px solid rgba(88, 166, 255, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 8px !important;
     padding: 24px !important;
     margin-bottom: 24px !important;
@@ -977,7 +980,7 @@
 }
 
 .toc-container:hover {
-    border-color: rgba(88, 166, 255, 0.4) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4) !important;
 }
 
@@ -987,7 +990,7 @@
     color: var(--github-text-primary) !important;
     margin-bottom: 16px !important;
     padding-bottom: 12px !important;
-    border-bottom: 1px solid rgba(88, 166, 255, 0.2) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
     display: flex !important;
     align-items: center !important;
     gap: 8px !important;
@@ -1035,7 +1038,7 @@
 
 .toc-nav a:hover {
     color: var(--github-accent) !important;
-    background: rgba(88, 166, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.06) !important;
 }
 
 .toc-nav a:hover::before {
@@ -1045,7 +1048,7 @@
 
 .toc-nav a.active {
     color: var(--github-accent) !important;
-    background: rgba(88, 166, 255, 0.15) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
     border-left: 2px solid var(--github-accent) !important;
     font-weight: 500 !important;
 }
@@ -1095,50 +1098,34 @@
 }
 
 /* =========================================
-   CONTRIBUTIONS TOOLTIP
+   CONTRIBUTIONS TOOLTIP — npmx.dev style
    ========================================= */
 
 .github-tooltip {
     position: fixed;
     z-index: 9999;
-    padding: 10px 14px;
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.98) 100%);
-    border: 1px solid rgba(88, 166, 255, 0.3);
-    border-radius: 8px;
-    color: var(--github-text-primary, #e6edf3);
-    font-size: 13px;
+    padding: 8px 12px;
+    background: var(--github-bg-primary);
+    border: 1px solid var(--github-border);
+    border-radius: 4px;
+    color: var(--github-text-primary);
+    font-size: 12px;
+    font-family: var(--github-font-mono);
     font-weight: 400;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.15s ease;
-    max-width: 320px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(88, 166, 255, 0.15);
+    transition: opacity 0.12s ease;
+    max-width: 280px;
+    box-shadow: none;
     transform: translateX(-50%) translateY(-100%);
     white-space: normal;
-    line-height: 1.4;
+    line-height: 1.5;
 }
 
-/* Flecha del tooltip (arriba) */
-.github-tooltip::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 6px 6px 0 6px;
-    border-style: solid;
-    border-color: rgba(88, 166, 255, 0.3) transparent transparent transparent;
-}
-
+/* Sin flechas — estilo flat */
+.github-tooltip::after,
 .github-tooltip::before {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 5px 5px 0 5px;
-    border-style: solid;
-    border-color: rgba(22, 27, 34, 0.98) transparent transparent transparent;
+    display: none;
 }
 
 /* Tooltip abajo (cuando no cabe arriba) */
@@ -1146,18 +1133,4 @@
     transform: translateX(-50%) translateY(0);
 }
 
-.github-tooltip.bottom::after {
-    bottom: auto;
-    top: -6px;
-    border-width: 0 6px 6px 6px;
-    border-color: transparent transparent rgba(88, 166, 255, 0.3) transparent;
-}
-
-.github-tooltip.bottom::before {
-    bottom: auto;
-    top: -5px;
-    border-width: 0 5px 5px 5px;
-    border-color: transparent transparent rgba(22, 27, 34, 0.98) transparent;
-}
-
-/* Cache busting - Updated: 2026-01-07 06:08 - Added tooltip styles for contributions table */
+/* Cache busting - Updated: 2026-02-18 - npmx.dev monochrome redesign */
