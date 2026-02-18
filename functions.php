@@ -10,12 +10,12 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * efinir la versión del tema para control decaché (Cache Busting)
+ * Definir la versión del tema para control de caché (Cache Busting)
  */
 define('GITHUB_THEME_VERSION', wp_get_theme()->get('Version') ?: '1.0.0');
 
 /**
- * Configuración del tem
+ * Configuración del tema
  */
 function github_theme_setup() {
     // Soporte para título automático
@@ -364,285 +364,9 @@ function activar_lightbox_thickbox() {
 add_action('wp_enqueue_scripts', 'activar_lightbox_thickbox');
 
 /**
- * Seguridad y Limpieza: Eliminar información innecesaria del head
- * Oculta la versión de WordPress, enlaces a servicios externos no usados y feeds
+ * Incluir funciones de Seguridad y Limpieza
  */
-function github_remove_version_info() {
-    // 1. Eliminar meta tags innecesarias del header
-    remove_action('wp_head', 'wp_generator');
-    remove_action('wp_head', 'wlwmanifest_link');
-    remove_action('wp_head', 'rsd_link');
-    remove_action('wp_head', 'wp_shortlink_wp_head');
-    
-    // 2. Eliminar versión de los feeds RSS
-    add_filter('the_generator', '__return_empty_string');
-}
-add_action('init', 'github_remove_version_info');
-
-
-
-// Seguridad: Ocultar usuarios en REST API y sitemap
-add_filter('xmlrpc_enabled', '__return_false');
-add_filter( 'rest_endpoints', function( $endpoints ) {
-    // Solo ocultar endpoints sensibles para usuarios NO logueados
-    // Los usuarios logueados necesitan la REST API para el editor de WordPress
-    if ( !is_user_logged_in() ) {
-        // Ocultar usuarios (Enumeración)
-        if ( isset( $endpoints['/wp/v2/users'] ) ) unset( $endpoints['/wp/v2/users'] );
-        if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
-        
-        // NOTA: NO ocultar posts y pages ya que rompe el editor de WordPress
-        // Incluso para usuarios no logueados, esto puede causar problemas con embeds
-    }
-
-    return $endpoints;
-});
-add_filter( 'wp_sitemaps_users_enabled', '__return_false' );
-
-/**
- * Sanitizar parámetros de la REST API para prevenir inyecciones
- * Protege contra inyección SQL y XSS en query strings
- */
-add_filter('rest_request_before_callbacks', function($response, $handler, $request) {
-    // Obtener todos los parámetros de la petición
-    $params = $request->get_params();
-    // Lista de parámetros permitidos para la REST API
-    $allowed_params = array('id', 'page', 'per_page', 'search', 'slug', 'status', 'context');
-    
-    foreach ($params as $key => $value) {
-        // Sanitizar claves (nombres de parámetros)
-        if (!preg_match('/^[a-zA-Z0-9_-]+$/', $key)) {
-            return new WP_Error(
-                'invalid_param',
-                'Parámetro no válido detectado.',
-                array('status' => 400)
-            );
-        }
-        
-        // Sanitizar valores - detectar patrones de inyección SQL
-        if (is_string($value)) {
-            // Patrones sospechosos de SQL injection
-            $sql_patterns = array(
-                '/(\bunion\b.*\bselect\b)/i',
-                '/(\bselect\b.*\bfrom\b)/i',
-                '/(\binsert\b.*\binto\b)/i',
-                '/(\bdelete\b.*\bfrom\b)/i',
-                '/(\bdrop\b.*\btable\b)/i',
-                '/(\bupdate\b.*\bset\b)/i',
-                '/(\/\*.*\*\/)/i',
-                '/(--)/i',
-                '/(;)/i',
-                '/(\bexec\b)/i',
-                '/(\bxp_\w+)/i',
-            );
-            
-            foreach ($sql_patterns as $pattern) {
-                if (preg_match($pattern, $value)) {
-                    return new WP_Error(
-                        'security_blocked',
-                        'Petición bloqueada por seguridad.',
-                        array('status' => 403)
-                    );
-                }
-            }
-            
-            // Patrones de XSS
-            $xss_patterns = array(
-                '/(<script)/i',
-                '/(javascript:)/i',
-                '/(onclick)/i',
-                '/(onerror)/i',
-                '/(onload)/i',
-            );
-            
-            foreach ($xss_patterns as $pattern) {
-                if (preg_match($pattern, $value)) {
-                    return new WP_Error(
-                        'security_blocked',
-                        'Petición bloqueada por seguridad.',
-                        array('status' => 403)
-                    );
-                }
-            }
-        }
-    }
-    
-    return $response;
-}, 10, 3);
-
-/**
- * Rate limiting para búsquedas (prevenir spam)
- */
-function github_theme_search_rate_limit() {
-    // Solo aplicar en búsquedas
-    if (!is_search()) {
-        return;
-    }
-    
-    // Obtener IP del usuario
-    $user_ip = $_SERVER['REMOTE_ADDR'];
-    
-    // Sanitizar IP para usar como clave de transient
-    $transient_key = 'search_limit_' . md5($user_ip);
-    
-    // Obtener número de búsquedas realizadas
-    $search_count = get_transient($transient_key);
-    
-    // Límite: 10 búsquedas por minuto
-    $max_searches = 10;
-    $time_window = 60; // segundos
-    
-    if ($search_count === false) {
-        // Primera búsqueda, iniciar contador
-        set_transient($transient_key, 1, $time_window);
-    } elseif ($search_count >= $max_searches) {
-        // Límite excedido, mostrar error
-        wp_die(
-            '<h1>Demasiadas búsquedas</h1>' .
-            '<p>Has excedido el límite de búsquedas. Por favor, espera un momento antes de intentarlo de nuevo.</p>' .
-            '<p><a href="' . esc_url(home_url('/')) . '">Volver al inicio</a></p>',
-            'Límite de búsquedas excedido',
-            array(
-                'response' => 429,
-                'back_link' => true
-            )
-        );
-    } else {
-        // Incrementar contador
-        set_transient($transient_key, $search_count + 1, $time_window);
-    }
-}
-add_action('template_redirect', 'github_theme_search_rate_limit', 1);
-
-/**
- * ==========================================
- * PROTECCIÓN CONTRA INYECCIÓN LDAP
- * ==========================================
- * Bloquea caracteres típicos de inyección LDAP:
- * - Paréntesis: ( )
- * - Asteriscos: *
- * - Caracteres NUL: \x00 o %00
- * - Backslash: \
- * - Pipe: |
- * - Ampersand: &
- */
-function github_theme_block_ldap_injection() {
-    // NO ejecutar en el área de administración
-    if (is_admin()) {
-        return;
-    }
-    
-    // Solo procesar si hay parámetros GET
-    if (empty($_GET)) {
-        return;
-    }
-    
-    // Obtener la query string completa
-    $query_string = isset($_SERVER['QUERY_STRING']) ? urldecode($_SERVER['QUERY_STRING']) : '';
-    $request_uri = isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : '';
-    
-    // Patrones de inyección LDAP a bloquear
-    $ldap_patterns = array(
-        '/\x00/',                    // Caracteres NUL
-        '/%00/',                     // NUL codificado
-        '/\*\)/',                    // *) - patrón típico de LDAP injection
-        '/\(\|/',                    // (| - patrón OR en LDAP
-        '/\(\&/',                    // (& - patrón AND en LDAP
-        '/\)\)/',                    // )) - cierre de múltiples filtros
-        '/\(\*/',                    // (* - wildcard en filtro
-        '/\\\\[0-9a-fA-F]{2}/',    // Escape hex de LDAP
-        '/uid=\*/',                  // Enumeración de usuarios LDAP
-        '/cn=\*/',                   // Common name wildcard
-        '/objectclass=\*/',          // Object class enumeration
-    );
-    
-    // Verificar query string y URI
-    foreach ($ldap_patterns as $pattern) {
-        if (preg_match($pattern, $query_string) || preg_match($pattern, $request_uri)) {
-            // Log del intento (opcional, descomentar si quieres registrar)
-            // error_log('LDAP Injection attempt blocked from IP: ' . $_SERVER['REMOTE_ADDR'] . ' - Pattern: ' . $pattern);
-            
-            // Responder con error 400 Bad Request
-            status_header(400);
-            wp_die(
-                '<h1>Solicitud no válida</h1>' .
-                '<p>La solicitud contiene caracteres no permitidos.</p>' .
-                '<p><a href="' . esc_url(home_url('/')) . '">Volver al inicio</a></p>',
-                'Solicitud no válida',
-                array(
-                    'response' => 400,
-                    'back_link' => true
-                )
-            );
-        }
-    }
-    
-    // Verificar específicamente el parámetro de búsqueda 's'
-    if (isset($_GET['s'])) {
-        $search = $_GET['s'];
-        
-        // Caracteres prohibidos en búsqueda LDAP
-        $forbidden_chars = array('*', '(', ')', '\\', chr(0), '|', '&', '!');
-        
-        foreach ($forbidden_chars as $char) {
-            if (strpos($search, $char) !== false) {
-                // Redirigir a búsqueda limpia o mostrar error
-                $clean_search = str_replace($forbidden_chars, '', $search);
-                $clean_search = trim($clean_search);
-                
-                if (!empty($clean_search)) {
-                    // Redirigir a búsqueda limpia
-                    wp_safe_redirect(add_query_arg('s', urlencode($clean_search), home_url('/')));
-                    exit;
-                } else {
-                    // Si no queda nada después de limpiar, redirigir al inicio
-                    wp_safe_redirect(home_url('/'));
-                    exit;
-                }
-            }
-        }
-    }
-}
-// Ejecutar en template_redirect para asegurar que is_admin() funcione correctamente
-add_action('template_redirect', 'github_theme_block_ldap_injection', 0);
-
-/**
- * Limpiar query de búsqueda para prevenir inyección SQL y LDAP
- */
-function github_theme_sanitize_search_query($query) {
-    if ($query->is_search && !is_admin()) {
-        // Limpiar el término de búsqueda
-        $search_term = get_search_query();
-        
-        // Eliminar caracteres peligrosos - ser más restrictivo
-        // Solo permitir letras, números, espacios, guiones y guiones bajos
-        $search_term = strip_tags($search_term);
-        
-        // Eliminar caracteres de inyección LDAP específicamente
-        $search_term = str_replace(array('*', '(', ')', '\\', '|', '&', '!', chr(0)), '', $search_term);
-        
-        // Eliminar cualquier otro carácter especial
-        $search_term = preg_replace('/[^\p{L}\p{N}\s\-_\.]/u', '', $search_term);
-        
-        // Limitar longitud (máximo 100 caracteres)
-        $search_term = substr($search_term, 0, 100);
-        
-        // Normalizar espacios múltiples
-        $search_term = preg_replace('/\s+/', ' ', $search_term);
-        $search_term = trim($search_term);
-        
-        // Actualizar query
-        if (!empty($search_term)) {
-            $query->set('s', $search_term);
-        } else {
-            // Si la búsqueda queda vacía después de sanitizar, cancelar la búsqueda
-            $query->set('s', '');
-            $query->is_search = false;
-        }
-    }
-    return $query;
-}
-add_filter('pre_get_posts', 'github_theme_sanitize_search_query');
+require get_template_directory() . '/inc/security.php';
 
 /**
  * Limpiar etiquetas p y br dentro de bloques pre
@@ -668,51 +392,7 @@ function github_theme_fix_pre_tags($content) {
 }
 add_filter('the_content', 'github_theme_fix_pre_tags', 9); // Prioridad 9 para que se ejecute antes que wpautop
 
-function ofuscar_email_menu( $atts, $item, $args, $depth ) {
-    if ( isset( $atts['href'] ) && preg_match( '/^mailto:/i', $atts['href'] ) ) {
-        $email = preg_replace( '/^mailto:(.*)/i', '$1', $atts['href'] );
-        $atts['href'] = 'mailto:' . antispambot( $email, 1 );
-    }
-    return $atts;
-}
-add_filter( 'nav_menu_link_attributes', 'ofuscar_email_menu', 10, 4 );
 
-function github_no_wordpress_errors(){
-    return 'Algo salió mal. Por favor, inténtalo de nuevo.';
-}
-add_filter( 'login_errors', 'github_no_wordpress_errors' );
-
-/**
- * Bloquear enumeración de autores
- * 1. Bloquea ?author=N (Query String)
- * 2. Bloquea /author/username/ (Archivos de autor)
- * 3. Elimina información de autor en oEmbed
- */
-function github_block_user_enumeration() {
-    if (is_admin()) return;
-
-    // 1. Bloquear enumeración por query string (?author=1)
-    // IMPORTANTE: La prioridad 1 en el hook asegura que esto corra ANTES que redirect_canonical
-    if (isset($_GET['author']) || isset($_GET['author_name'])) {
-        wp_redirect(home_url());
-        exit;
-    }
-
-    // 2. Bloquear acceso directo a archivos de autor (/author/nombre-usuario)
-    if (is_author()) {
-        wp_redirect(home_url());
-        exit;
-    }
-}
-// Prioridad 1 es CRÍTICA para ganar a redirect_canonical de WordPress (que tiene prioridad 10)
-add_action('template_redirect', 'github_block_user_enumeration', 1);
-
-// 3. Eliminar info de autor en oEmbed API (otro vector de enumeración)
-add_filter('oembed_response_data', function($data) {
-    if (isset($data['author_name'])) unset($data['author_name']);
-    if (isset($data['author_url'])) unset($data['author_url']);
-    return $data;
-});
 
 /**
  * Habilitar lazy loading nativo para imágenes
@@ -758,18 +438,7 @@ function github_optimize_queries() {
 }
 add_action('init', 'github_optimize_queries');
 
-/**
- * Limitar revisiones de posts para reducir tamaño de BD
- * NOTA: Estas constantes deben definirse en wp-config.php, no aquí
- * Si quieres activarlas, añade esto a tu wp-config.php:
- * define('WP_POST_REVISIONS', 3);
- * define('AUTOSAVE_INTERVAL', 300);
- */
 
-/**
- * Optimizar Heartbeat API
- * Reducir frecuencia en lugar de deshabilitarlo para evitar problemas con el editor
- */
 function github_disable_heartbeat() {
     // Modificar intervalo del heartbeat en lugar de deshabilitarlo
     // Deshabilitarlo causa pantalla blanca al publicar/programar posts
@@ -781,23 +450,7 @@ function github_disable_heartbeat() {
 }
 add_action('init', 'github_disable_heartbeat', 1);
 
-/**
- * Optimizar carga de jQuery
- * Mover jQuery al footer cuando sea posible
- */
-// function github_optimize_jquery() {
-//     if (!is_admin()) {
-//         // Mover jQuery al footer
-//         wp_scripts()->add_data('jquery', 'group', 1);
-//         wp_scripts()->add_data('jquery-core', 'group', 1);
-//         wp_scripts()->add_data('jquery-migrate', 'group', 1);
-//     }
-// }
-// add_action('wp_enqueue_scripts', 'github_optimize_jquery', 100);
 
-/**
- * Agregar sugerencias de recursos (preload para CSS crítico)
- */
 function github_preload_critical_assets() {
     // Preload del CSS principal
     echo '<link rel="preload" href="' . get_stylesheet_uri() . '" as="style">' . "\n";
@@ -805,19 +458,3 @@ function github_preload_critical_assets() {
 }
 add_action('wp_head', 'github_preload_critical_assets', 1);
 
-/**
- * Aumentar límites de subida para evitar error "enlace caducado"
- * NOTA: ini_set puede no funcionar en todos los servidores.
- * Mejor configurar en php.ini o .htaccess
- */
-// @ini_set('upload_max_size', '128M');
-// @ini_set('post_max_size', '128M');
-// @ini_set('max_execution_time', '300');
-// @ini_set('max_input_time', '300');
-
-/**
- * NOTA: WP_MEMORY_LIMIT debe definirse en wp-config.php, no aquí
- * Si quieres activarlo, añade esto a tu wp-config.php:
- * define('WP_MEMORY_LIMIT', '256M');
- * define('WP_MAX_MEMORY_LIMIT', '512M');
- */
