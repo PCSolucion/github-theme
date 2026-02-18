@@ -1,8 +1,8 @@
 <?php
 /**
- * Template para archivos (categorías, etiquetas, fechas, etc.)
+ * Template para archivos (categoría, etiquetas, fechas, etc.)
  *
- * @package GitHubTheme
+ * @package GitHubThem
  */
 
 get_header();

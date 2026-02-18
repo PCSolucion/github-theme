@@ -10,7 +10,12 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Configuración del tema
+ * efinir la versión del tema para control decaché (Cache Busting)
+ */
+define('GITHUB_THEME_VERSION', wp_get_theme()->get('Version') ?: '1.0.0');
+
+/**
+ * Configuración del tem
  */
 function github_theme_setup() {
     // Soporte para título automático
@@ -73,20 +78,17 @@ function github_theme_default_menu() {
  * Estilos y scripts del tema
  */
 function github_theme_scripts() {
-    // Estilos principales con versión basada en tiempo de modificación del archivo
-    $style_file = get_template_directory() . '/style.css';
-    $style_version = file_exists($style_file) ? filemtime($style_file) : '1.0.0';
-    wp_enqueue_style('github-theme-style', get_stylesheet_uri(), array(), $style_version);
+    // Fuentes de Google Fonts: Inter para la interfaz y JetBrains Mono para código/metadatos
+    wp_enqueue_style('github-fonts', 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap', array(), null);
+
+    // Estilos principales
+    wp_enqueue_style('github-theme-style', get_stylesheet_uri(), array(), GITHUB_THEME_VERSION);
     
-    // Estilos adicionales con versión basada en tiempo de modificación
-    $main_css_file = get_template_directory() . '/assets/css/main.css';
-    $main_css_version = file_exists($main_css_file) ? filemtime($main_css_file) : '1.0.0';
-    wp_enqueue_style('github-theme-main', get_template_directory_uri() . '/assets/css/main.css', array(), $main_css_version);
+    // Estilos adicionales
+    wp_enqueue_style('github-theme-main', get_template_directory_uri() . '/assets/css/main.css', array(), GITHUB_THEME_VERSION);
     
     // Scripts principales con defer para mejorar rendimiento
-    $main_js_file = get_template_directory() . '/assets/js/main.js';
-    $main_js_version = file_exists($main_js_file) ? filemtime($main_js_file) : '1.0.0';
-    wp_enqueue_script('github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), $main_js_version, true);
+    wp_enqueue_script('github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array('jquery'), GITHUB_THEME_VERSION, true);
 
     // Comentarios (si es necesario)
     if (is_singular() && comments_open() && get_option('thread_comments')) {
@@ -288,7 +290,7 @@ function github_theme_get_category_color($category_id) {
             'programacion' => '#f34b7d', // Pink Code
             'seguridad'    => '#d73a49', // Red Security
             'streaming'    => '#9146ff', // Twitch Purple
-            'tecnologia'   => '#0366d6', // Tech Blue
+            'tecnologia'   => '#00bcd4', // Tech Cyan
             'videojuegos'  => '#2ea44f', // Green Gaming
             'windows'      => '#0078d7', // Windows Blue
             'wordpress'    => '#21759b', // WordPress Blue
@@ -672,8 +674,9 @@ function github_remove_ver_css_js( $src ) {
         $src = remove_query_arg( 'ver', $src );
     return $src;
 }
-add_filter( 'style_loader_src', 'github_remove_ver_css_js', 9999 );
-add_filter( 'script_loader_src', 'github_remove_ver_css_js', 9999 );
+// Comentado temporalmente para permitir ver los cambios (Cache Busting)
+// add_filter( 'style_loader_src', 'github_remove_ver_css_js', 9999 );
+// add_filter( 'script_loader_src', 'github_remove_ver_css_js', 9999 );
 
 // Seguridad: Ocultar usuarios en REST API y sitemap
 add_filter('xmlrpc_enabled', '__return_false');

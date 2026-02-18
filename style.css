@@ -4,7 +4,7 @@ Theme URI: https://github.com/yourusername/github-theme
 Author: Your Name
 Author URI: https://yourwebsite.com
 Description: Un tema de WordPress inspirado en el diseño limpio y moderno de GitHub. Caracterizado por un diseño oscuro, tipografía clara y experiencia de usuario minimalista.
-Version: 1.0.0
+Version: 1.0.1
 License: GNU General Public License v2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: github-theme
@@ -24,8 +24,15 @@ Tags: dark, minimal, github-inspired, modern, clean
     --github-success: #238636;
     --github-danger: #da3633;
     --github-warning: #d29922;
-    --github-font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    --github-font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    --github-font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --github-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    
+    /* Button Tokens */
+    --btn-bg: #21262d;
+    --btn-bg-hover: #30363d;
+    --btn-border: rgba(240, 246, 252, 0.1);
+    --btn-primary-bg: #238636;
+    --btn-primary-bg-hover: #2ea043;
 }
 
 * {
@@ -40,6 +47,7 @@ body {
     color: var(--github-text-primary);
     line-height: 1.6;
     font-size: 16px;
+    letter-spacing: -0.011em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -174,7 +182,7 @@ body.single-post {
 /* Header */
 .site-header {
     background: linear-gradient(135deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.98) 100%);
-    padding: 12px 24px;
+    padding: 10px 24px; /* Reduced vertical padding */
     backdrop-filter: blur(12px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
     position: sticky;
@@ -239,8 +247,13 @@ body.single-post .site-header {
 /* Buscador estilo GitHub */
 .header-search-wrapper {
     flex: 1;
-    max-width: 400px;
-    margin: 0 16px;
+    max-width: 440px;
+    margin: 0 40px;
+    transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header-search-wrapper:focus-within {
+    max-width: 540px; /* Expands when interacting */
 }
 
 .AppHeader-search {
@@ -289,12 +302,12 @@ body.single-post .site-header {
 
 .AppHeader-search-input:focus {
     outline: none;
-    background: rgba(13, 17, 23, 0.85) !important;
-    border-color: rgba(88, 166, 255, 0.4);
-    box-shadow:
-        0 0 0 3px rgba(88, 166, 255, 0.12),
-        0 4px 12px rgba(0, 0, 0, 0.4),
-        inset 0 1px 2px rgba(88, 166, 255, 0.08);
+    background: rgba(13, 17, 23, 0.9) !important;
+    border-color: var(--github-accent);
+    box-shadow: 
+        0 0 0 3px rgba(0, 142, 194, 0.2), /* Subtle glow using accent color */
+        0 4px 12px rgba(0, 0, 0, 0.5),
+        inset 0 1px 2px rgba(0, 142, 194, 0.1);
 }
 
 .AppHeader-search-input:focus::placeholder {
@@ -310,13 +323,19 @@ body.single-post .site-header {
 
 .AppHeader-search-icon {
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     width: 16px;
     height: 16px;
     fill: #6e7681;
     pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.AppHeader-search-input:focus + .AppHeader-search-icon {
+    fill: var(--github-accent);
+    transform: translateY(-50%) scale(1.1);
 }
 
 .main-navigation {
@@ -427,12 +446,15 @@ body.single-post .site-header {
 .post-item {
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
+    background: linear-gradient(135deg, rgba(22, 27, 34, 0.75) 0%, rgba(13, 17, 23, 0.85) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(88, 166, 255, 0.1);
     border-radius: 12px;
     padding: 28px;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     height: 100%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     position: relative;
     overflow: hidden;
 }
@@ -454,10 +476,13 @@ body.single-post .site-header {
 }
 
 .post-item:hover {
-    transform: translateY(-6px);
-    border-color: rgba(88, 166, 255, 0.4);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.3);
-    background: linear-gradient(135deg, rgba(22, 27, 34, 1) 0%, rgba(13, 17, 23, 1) 100%);
+    transform: translateY(-8px) scale(1.01);
+    border-color: rgba(88, 166, 255, 0.35);
+    box-shadow: 
+        0 20px 40px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(88, 166, 255, 0.2),
+        inset 0 0 25px rgba(88, 166, 255, 0.05);
+    background: linear-gradient(135deg, rgba(22, 27, 34, 0.9) 0%, rgba(13, 17, 23, 0.95) 100%);
 }
 
 .post-header {
@@ -520,6 +545,7 @@ body.single-post .site-header {
     gap: 16px;
     align-items: center;
     flex-wrap: wrap;
+    font-family: var(--github-font-mono);
 }
 
 .post-meta svg {
@@ -572,9 +598,10 @@ body.single-post .site-header {
 }
 
 .category-name {
-    font-size: 12px;
-    font-weight: 400;
+    font-size: 11px;
+    font-weight: 500;
     color: inherit;
+    font-family: var(--github-font-mono);
 }
 
 .post-tags {
@@ -586,19 +613,23 @@ body.single-post .site-header {
 
 .tag {
     display: inline-block;
-    padding: 2px 8px;
+    padding: 3px 12px;
     font-size: 12px;
     font-weight: 500;
     color: var(--github-accent);
-    background-color: rgba(88, 166, 255, 0.1);
-    border: 1px solid rgba(88, 166, 255, 0.2);
-    border-radius: 3px;
+    background-color: rgba(56, 139, 253, 0.1);
+    border: 1px solid rgba(56, 139, 253, 0.2);
+    border-radius: 2em;
     text-decoration: none;
+    font-family: var(--github-font-mono);
+    transition: all 0.2s cubic-bezier(0.3, 0, 0.5, 1);
 }
 
 .tag:hover {
-    background-color: rgba(88, 166, 255, 0.2);
+    background-color: var(--github-accent);
+    color: #ffffff;
     border-color: var(--github-accent);
+    transform: translateY(-1px);
 }
 
 /* Entrada Individual */
@@ -640,6 +671,7 @@ body.single-post .site-header {
     margin-bottom: 16px;
     font-weight: 600;
     color: var(--github-text-primary);
+    letter-spacing: -0.02em;
 }
 
 .entry-content h1 {
@@ -673,93 +705,108 @@ body.single-post .site-header {
 
 .entry-content pre {
     position: relative;
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border: 1px solid rgba(88, 166, 255, 0.2);
+    background: #0d1117;
+    border: 1px solid #30363d;
     border-radius: 8px;
-    padding: 32px 20px 20px 50px;
-    /* Increased top padding for label, left for line numbers */
+    padding: 44px 20px 20px 50px; /* Increased top padding for header */
     overflow-x: auto;
     margin-bottom: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
+}
+
+/* IDE Header (Simulated Tab Bar) */
+.entry-content pre::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    pointer-events: none;
+}
+
+/* Dots (MAC Style) */
+.entry-content pre::after {
+    content: "•••";
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    color: #484f58;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: 2px;
+    font-family: sans-serif;
+    pointer-events: none;
+    opacity: 0.5;
 }
 
 .entry-content pre:hover {
     border-color: rgba(88, 166, 255, 0.4);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .entry-content pre code {
     background-color: transparent;
     padding: 0;
     border-radius: 0;
-    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-family: var(--github-font-mono);
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
     display: block;
+    color: #e6edf3;
 }
 
-/* Language Label */
+/* Refined Language Label (as an active tab) */
 .code-language-label {
     position: absolute;
     top: 0;
-    right: 0;
-    background: rgba(88, 166, 255, 0.1);
-    color: #8b949e;
+    left: 70px; /* Positioned after the dots */
+    height: 32px;
+    background: #0d1117;
+    color: #c9d1d9;
     font-size: 11px;
-    font-weight: 600;
-    text-transform: uppercase;
-    padding: 4px 12px;
-    border-bottom-left-radius: 8px;
-    border-left: 1px solid rgba(88, 166, 255, 0.2);
-    border-bottom: 1px solid rgba(88, 166, 255, 0.2);
-    font-family: var(--github-font-sans);
+    font-weight: 500;
+    text-transform: lowercase;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid #30363d;
+    font-family: var(--github-font-mono);
     letter-spacing: 0.5px;
     pointer-events: none;
+    z-index: 2;
 }
 
-/* Line Numbers */
-.line-numbers-rows {
-    position: absolute;
-    top: 32px;
-    /* Match pre top padding */
-    left: 0;
-    width: 36px;
-    letter-spacing: -1px;
-    border-right: 1px solid rgba(88, 166, 255, 0.1);
-    user-select: none;
-    pointer-events: none;
-    text-align: right;
-    padding-right: 8px;
-}
-
-.line-numbers-rows span {
+/* Highlight line effect on hover */
+.entry-content pre code span:hover {
+    background-color: rgba(88, 166, 255, 0.05);
     display: block;
-    counter-increment: linenumber;
-    color: rgba(139, 148, 158, 0.3);
-    /* Very subtle grey */
-    font-size: 14px;
-    line-height: 1.5;
-    /* Match code line-height */
+    width: 100%;
 }
 
+/* Copy Button Refinement */
 .copy-button {
     position: absolute;
-    top: 8px;
+    top: 4px;
     right: 8px;
     z-index: 10;
-    background: rgba(22, 27, 34, 0.8);
-    border: 1px solid rgba(88, 166, 255, 0.3);
+    background: transparent;
+    border: 1px solid transparent;
     border-radius: 6px;
-    padding: 6px;
+    padding: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     width: 28px;
-    height: 28px;
-    transition: all 0.25s ease;
-    opacity: 0;
+    height: 24px;
+    transition: all 0.2s ease;
+    opacity: 0.6;
 }
 
 .entry-content pre:hover .copy-button {
@@ -767,21 +814,14 @@ body.single-post .site-header {
 }
 
 .copy-button:hover {
-    background: linear-gradient(135deg, rgba(88, 166, 255, 0.2) 0%, rgba(88, 166, 255, 0.1) 100%);
-    border-color: var(--github-accent);
-    transform: scale(1.05);
-    box-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
+    background: rgba(110, 118, 129, 0.2);
+    border-color: #8b949e;
 }
 
 .copy-button svg {
     width: 14px;
     height: 14px;
-    fill: var(--github-text-secondary);
-}
-
-.code-language-label {
-    right: 0;
-    top: 0;
+    fill: #8b949e;
 }
 
 .copy-button.copied {
@@ -792,8 +832,26 @@ body.single-post .site-header {
     fill: var(--github-success);
 }
 
-.copy-button.copied svg {
-    fill: var(--github-success);
+/* Line Numbers Refinement */
+.line-numbers-rows {
+    position: absolute;
+    top: 44px; /* Match new pre top padding */
+    left: 0;
+    width: 40px;
+    letter-spacing: -1px;
+    border-right: 1px solid rgba(88, 166, 255, 0.1);
+    user-select: none;
+    pointer-events: none;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.line-numbers-rows span {
+    display: block;
+    counter-increment: linenumber;
+    color: rgba(139, 148, 158, 0.3);
+    font-size: 13px;
+    line-height: 1.6; /* Match code line-height */
 }
 
 /* Reading Time */
@@ -803,6 +861,7 @@ body.single-post .site-header {
     gap: 6px;
     font-size: 12px;
     color: var(--github-text-secondary);
+    font-family: var(--github-font-mono);
 }
 
 .post-reading-time svg {
@@ -1901,3 +1960,136 @@ input[type="submit"]:hover {
 }
 
 /* Updated: 2026-01-06 - Fixed TOC and Single Post Grid Layout */
+
+/* Navigation links - now use github button style */
+.nav-previous a,
+.nav-next a,
+.post-navigation a,
+.page-links a {
+    display: inline-block !important;
+    padding: 10px 20px !important;
+    background-color: var(--btn-bg) !important;
+    border: 1px solid var(--btn-border) !important;
+    border-radius: 6px !important;
+    color: var(--github-text-primary) !important;
+    text-decoration: none !important;
+    transition: all 0.2s !important;
+    font-weight: 500 !important;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1) !important;
+}
+
+.nav-previous a:hover,
+.nav-next a:hover,
+.post-navigation a:hover,
+.page-links a:hover {
+    background-color: var(--btn-bg-hover) !important;
+    border-color: #8b949e !important;
+}
+
+/* =========================================
+   GENERIC GITHUB BUTTONS
+   ========================================= */
+
+.btn, 
+button, 
+input[type="submit"], 
+input[type="reset"], 
+input[type="button"],
+.wp-block-button__link {
+    display: inline-block;
+    padding: 5px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    appearance: none;
+    transition: 80ms cubic-bezier(0.3, 0, 0.5, 1);
+    transition-property: color, background-color, border-color;
+    text-decoration: none;
+    background-color: var(--btn-bg);
+    color: var(--github-text-primary);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+}
+
+.btn:hover,
+button:hover,
+input[type="submit"]:hover {
+    background-color: var(--btn-bg-hover);
+    border-color: #8b949e;
+}
+
+.btn:active,
+button:active {
+    background-color: rgba(48, 54, 61, 0.7);
+    box-shadow: inset 0 1px 0 rgba(0,0,0,0.1);
+}
+
+/* Primary Button (Green) */
+.btn-primary, 
+.button-primary,
+.comment-form .submit,
+#searchsubmit {
+    color: #ffffff !important;
+    background-color: var(--btn-primary-bg);
+    border-color: rgba(240, 246, 252, 0.1);
+}
+
+.btn-primary:hover,
+.comment-form .submit:hover,
+#searchsubmit:hover {
+    background-color: var(--btn-primary-bg-hover);
+    border-color: rgba(240, 246, 252, 0.1);
+}
+
+/* Pagination Style */
+.pagination {
+    margin: 40px 0;
+    text-align: center;
+}
+
+.pagination .nav-links {
+    display: inline-flex;
+    justify-content: center;
+    gap: 4px;
+}
+
+.pagination .page-numbers {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    color: var(--github-text-primary);
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.pagination .page-numbers:hover:not(.current) {
+    background-color: var(--btn-bg-hover);
+    border-color: #8b949e;
+}
+
+.pagination .page-numbers.current {
+    background-color: var(--github-accent);
+    color: #ffffff;
+    border-color: var(--github-accent);
+}
+
+.pagination .page-numbers.prev,
+.pagination .page-numbers.next {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.pagination .page-numbers.prev:hover,
+.pagination .page-numbers.next:hover {
+    color: var(--github-accent);
+    background-color: rgba(88, 166, 255, 0.1);
+}

@@ -48,18 +48,21 @@ get_header();
     margin: 0 auto;
     padding: 0 24px;
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 40px;
+    grid-template-columns: 280px 1fr; /* Slightly narrower sidebar */
+    gap: 48px; /* Increased gap for better breathing room */
     align-items: start;
 }
 
 .single-main {
     min-width: 0;
+    grid-column: 2; /* Content to the right */
 }
 
 .single-aside {
     position: sticky;
-    top: 100px;
+    top: 120px; /* Adjusted sticky top */
+    grid-column: 1; /* Sidebar to the left */
+    grid-row: 1;
 }
 
 .post-article {
@@ -77,16 +80,41 @@ get_header();
 
 .post-article .entry-content h2 {
     font-size: 24px;
-    margin-top: 32px;
+    margin-top: 48px;
     margin-bottom: 16px;
     border-bottom: 1px solid #30363d;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
+    font-weight: 600;
+    color: #e6edf3;
+    position: relative;
 }
 
 .post-article .entry-content h3 {
     font-size: 20px;
-    margin-top: 24px;
+    margin-top: 32px;
     margin-bottom: 12px;
+    font-weight: 600;
+    color: #e6edf3;
+    position: relative;
+}
+
+/* Anchor link icon on hover */
+.post-article .entry-content h2:hover::before,
+.post-article .entry-content h3:hover::before {
+    content: "🔗";
+    position: absolute;
+    left: -28px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    cursor: pointer;
+}
+
+.post-article .entry-content h2:hover::before,
+.post-article .entry-content h3:hover::before {
+    opacity: 1;
 }
 
 .post-article .entry-content p {
@@ -154,14 +182,25 @@ get_header();
 
 #table-of-contents a:hover {
     color: #58a6ff;
-    background: rgba(88, 166, 255, 0.1);
+    background: transparent; /* Cleaner hover */
 }
 
 #table-of-contents a.active {
     color: #58a6ff;
-    background: rgba(88, 166, 255, 0.15);
+    background: transparent;
     border-left: 2px solid #58a6ff;
-    font-weight: 500;
+    font-weight: 600;
+}
+
+/* TOC Hierarchy */
+#table-of-contents li ul {
+    margin-left: 12px;
+}
+
+#table-of-contents .toc-h3 a {
+    padding-left: 36px;
+    font-size: 13px;
+    color: #6e7681;
 }
 
 .post-tags {
@@ -191,7 +230,12 @@ get_header();
     .single-layout {
         grid-template-columns: 1fr;
     }
+    .single-main {
+        grid-column: 1;
+    }
     .single-aside {
+        grid-column: 1;
+        grid-row: 2; /* Sidebar below content on mobile */
         position: static;
     }
 }

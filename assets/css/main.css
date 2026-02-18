@@ -89,6 +89,8 @@
     border-top: 1px solid var(--github-border);
 }
 
+/* Page Links - Disabled in favor of new central button styles */
+/*
 .page-links a {
     display: inline-block;
     padding: 8px 12px;
@@ -99,6 +101,7 @@
     color: var(--github-accent);
     text-decoration: none;
 }
+*/
 
 .page-links a:hover {
     border-color: var(--github-accent);
