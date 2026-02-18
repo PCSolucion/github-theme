@@ -11,28 +11,31 @@ Text Domain: github-theme
 Tags: dark, minimal, github-inspired, modern, clean
 */
 
-/* Reset y Variables CSS */
+/* Reset y Variables CSS — Estilo inspirado en npmx.dev */
 :root {
-    --github-bg-primary: #0d1117;
-    --github-bg-secondary: #161b22;
-    --github-bg-tertiary: #1c2128;
-    --github-border: #30363d;
-    --github-text-primary: #c9d1d9;
-    --github-text-secondary: #8b949e;
-    --github-text-tertiary: #6e7681;
-    --github-accent: #008ec2;
-    --github-success: #238636;
-    --github-danger: #da3633;
-    --github-warning: #d29922;
-    --github-font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    --github-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+    --github-bg-primary: #0a0a0a;
+    --github-bg-secondary: #111111;
+    --github-bg-tertiary: #191919;
+    --github-border: #262626;
+    --github-text-primary: #ededed;
+    --github-text-secondary: #a0a0a0;
+    --github-text-tertiary: #666666;
+    --github-accent: #ededed;
+    --github-accent-hover: #ffffff;
+    --github-accent-subtle: rgba(237, 237, 237, 0.1);
+    --github-success: #22c55e;
+    --github-danger: #ef4444;
+    --github-warning: #eab308;
+    --github-font-mono: 'Geist Mono', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    --github-font-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
     
     /* Button Tokens */
-    --btn-bg: #21262d;
-    --btn-bg-hover: #30363d;
-    --btn-border: rgba(240, 246, 252, 0.1);
-    --btn-primary-bg: #238636;
-    --btn-primary-bg-hover: #2ea043;
+    --btn-bg: #191919;
+    --btn-bg-hover: #262626;
+    --btn-border: #262626;
+    --btn-primary-bg: #ededed;
+    --btn-primary-bg-hover: #ffffff;
+    --btn-primary-color: #0a0a0a;
 }
 
 * {
@@ -181,10 +184,9 @@ body.single-post {
 
 /* Header */
 .site-header {
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.98) 0%, rgba(13, 17, 23, 0.98) 100%);
-    padding: 10px 24px; /* Reduced vertical padding */
-    backdrop-filter: blur(12px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.1);
+    background: var(--github-bg-secondary);
+    padding: 10px 24px;
+    border-bottom: 1px solid var(--github-border);
     position: sticky;
     top: 0;
     z-index: 99;
@@ -203,8 +205,7 @@ body.single-post {
 }
 
 .site-header:hover {
-    border-bottom-color: rgba(88, 166, 255, 0.3);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.15);
+    border-bottom-color: #333333;
 }
 
 body.single .site-header,
@@ -265,9 +266,7 @@ body.single-post .site-header {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg,
-            rgba(88, 166, 255, 0.08) 0%,
-            rgba(88, 166, 255, 0.02) 100%);
+    background: rgba(255, 255, 255, 0.03);
     border-radius: 8px;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -280,19 +279,17 @@ body.single-post .site-header {
 
 .AppHeader-search-input {
     width: 100%;
-    padding: 11px 40px 11px 16px;
-    background: rgba(13, 17, 23, 0.6) !important;
-    border: 1px solid rgba(88, 166, 255, 0);
+    padding: 11px 70px 11px 38px;
+    background: var(--github-bg-primary) !important;
+    border: 1px solid var(--github-border);
     border-radius: 8px;
-    color: #c9d1d9 !important;
+    color: var(--github-text-primary) !important;
     font-size: 14px;
-    font-family: var(--github-font-sans);
+    font-family: var(--github-font-mono);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.3),
-        inset 0 1px 2px rgba(88, 166, 255, 0.05);
     position: relative;
     z-index: 1;
+    cursor: pointer;
 }
 
 .AppHeader-search-input::placeholder {
@@ -302,12 +299,8 @@ body.single-post .site-header {
 
 .AppHeader-search-input:focus {
     outline: none;
-    background: rgba(13, 17, 23, 0.9) !important;
-    border-color: var(--github-accent);
-    box-shadow: 
-        0 0 0 3px rgba(0, 142, 194, 0.2), /* Subtle glow using accent color */
-        0 4px 12px rgba(0, 0, 0, 0.5),
-        inset 0 1px 2px rgba(0, 142, 194, 0.1);
+    background: var(--github-bg-primary) !important;
+    border-color: #444444;
 }
 
 .AppHeader-search-input:focus::placeholder {
@@ -315,15 +308,12 @@ body.single-post .site-header {
 }
 
 .AppHeader-search-input:hover:not(:focus) {
-    border-color: rgba(88, 166, 255, 0.25);
-    box-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.35),
-        inset 0 1px 2px rgba(88, 166, 255, 0.06);
+    border-color: #333333;
 }
 
 .AppHeader-search-icon {
     position: absolute;
-    right: 12px;
+    left: 12px;
     top: 50%;
     transform: translateY(-50%);
     width: 16px;
@@ -331,11 +321,30 @@ body.single-post .site-header {
     fill: #6e7681;
     pointer-events: none;
     transition: all 0.2s ease;
+    z-index: 2;
 }
 
-.AppHeader-search-input:focus + .AppHeader-search-icon {
+.AppHeader-search-input:focus ~ .AppHeader-search-icon {
     fill: var(--github-accent);
     transform: translateY(-50%) scale(1.1);
+}
+
+.AppHeader-search-kbd {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 2px 7px;
+    border-radius: 4px;
+    border: 1px solid var(--github-border);
+    background: var(--github-bg-tertiary);
+    color: var(--github-text-tertiary);
+    font-family: var(--github-font-mono);
+    font-size: 11px;
+    line-height: 1.5;
+    pointer-events: none;
+    z-index: 2;
+    user-select: none;
 }
 
 .main-navigation {
@@ -368,26 +377,25 @@ body.single-post .site-header {
 }
 
 .main-navigation a {
-    color: #c9d1d9;
+    color: var(--github-text-secondary);
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
-    transition: all 0.3s ease;
+    font-family: var(--github-font-mono);
+    transition: color 0.2s ease;
     background-color: transparent;
     padding: 10px 14px;
-    border-radius: 8px;
+    border-radius: 6px;
     position: relative;
     display: block;
 }
 
 .main-navigation a:hover {
-    color: #ffffff;
-    background: linear-gradient(135deg, rgba(88, 166, 255, 0.08) 0%, rgba(88, 166, 255, 0.02) 100%);
+    color: var(--github-text-primary);
 }
 
 .main-navigation .current-menu-item a {
-    color: #fff;
-    background-color: rgba(110, 118, 129, 0.2);
+    color: var(--github-text-primary);
 }
 
 /* Magic Line (Bouncing Dot) */
@@ -400,7 +408,7 @@ body.single-post .site-header {
     /* Increased size by another 15% (7px * 1.15 = 8.05px -> 8px) */
     height: 8px;
     background-color: #008ec2;
-    /* Requested color */
+    /* Bouncing dot color */
     transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
     /* Cleaner horizontal bounce */
     pointer-events: none;
@@ -446,43 +454,22 @@ body.single-post .site-header {
 .post-item {
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.75) 0%, rgba(13, 17, 23, 0.85) 100%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(88, 166, 255, 0.1);
-    border-radius: 12px;
+    background: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 8px;
     padding: 28px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: border-color 0.2s ease;
     height: 100%;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     position: relative;
     overflow: hidden;
 }
 
 .post-item::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--github-accent) 0%, rgba(88, 166, 255, 0.3) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.post-item:hover::before {
-    opacity: 1;
+    content: none;
 }
 
 .post-item:hover {
-    transform: translateY(-8px) scale(1.01);
-    border-color: rgba(88, 166, 255, 0.35);
-    box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(88, 166, 255, 0.2),
-        inset 0 0 25px rgba(88, 166, 255, 0.05);
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.9) 0%, rgba(13, 17, 23, 0.95) 100%);
+    border-color: #444444;
 }
 
 .post-header {
@@ -532,7 +519,7 @@ body.single-post .site-header {
 .post-footer {
     margin-top: auto;
     padding-top: 16px;
-    border-top: 1px solid rgba(88, 166, 255, 0.15);
+    border-top: 1px solid var(--github-border);
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -577,15 +564,15 @@ body.single-post .site-header {
     text-decoration: none;
     font-size: 12px;
     padding: 4px 10px;
-    background: linear-gradient(135deg, rgba(88, 166, 255, 0.08) 0%, rgba(88, 166, 255, 0.02) 100%);
-    border: 1px solid rgba(88, 166, 255, 0.2);
+    background: var(--github-accent-subtle);
+    border: 1px solid var(--github-border);
     border-radius: 16px;
-    transition: all 0.25s ease;
+    transition: all 0.2s ease;
 }
 
 .post-category:hover {
-    color: var(--github-accent);
-    border-color: rgba(88, 166, 255, 0.4);
+    color: var(--github-text-primary);
+    border-color: #444444;
 }
 
 .repo-language-color {
@@ -616,20 +603,18 @@ body.single-post .site-header {
     padding: 3px 12px;
     font-size: 12px;
     font-weight: 500;
-    color: var(--github-accent);
-    background-color: rgba(56, 139, 253, 0.1);
-    border: 1px solid rgba(56, 139, 253, 0.2);
+    color: var(--github-text-secondary);
+    background-color: var(--github-accent-subtle);
+    border: 1px solid var(--github-border);
     border-radius: 2em;
     text-decoration: none;
     font-family: var(--github-font-mono);
-    transition: all 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+    transition: all 0.2s ease;
 }
 
 .tag:hover {
-    background-color: var(--github-accent);
-    color: #ffffff;
-    border-color: var(--github-accent);
-    transform: translateY(-1px);
+    color: var(--github-text-primary);
+    border-color: #444444;
 }
 
 /* Entrada Individual */
@@ -705,14 +690,13 @@ body.single-post .site-header {
 
 .entry-content pre {
     position: relative;
-    background: #0d1117;
-    border: 1px solid #30363d;
+    background: var(--github-bg-primary);
+    border: 1px solid var(--github-border);
     border-radius: 8px;
-    padding: 44px 20px 20px 50px; /* Increased top padding for header */
+    padding: 44px 20px 20px 50px;
     overflow-x: auto;
     margin-bottom: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    transition: border-color 0.2s ease;
 }
 
 /* IDE Header (Simulated Tab Bar) */
@@ -723,8 +707,8 @@ body.single-post .site-header {
     left: 0;
     right: 0;
     height: 32px;
-    background: #161b22;
-    border-bottom: 1px solid #30363d;
+    background: var(--github-bg-secondary);
+    border-bottom: 1px solid var(--github-border);
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     pointer-events: none;
@@ -746,8 +730,7 @@ body.single-post .site-header {
 }
 
 .entry-content pre:hover {
-    border-color: rgba(88, 166, 255, 0.4);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    border-color: #444444;
 }
 
 .entry-content pre code {
@@ -767,15 +750,15 @@ body.single-post .site-header {
     top: 0;
     left: 70px; /* Positioned after the dots */
     height: 32px;
-    background: #0d1117;
-    color: #c9d1d9;
+    background: var(--github-bg-primary);
+    color: var(--github-text-primary);
     font-size: 11px;
     font-weight: 500;
     text-transform: lowercase;
     padding: 0 16px;
     display: flex;
     align-items: center;
-    border-right: 1px solid #30363d;
+    border-right: 1px solid var(--github-border);
     font-family: var(--github-font-mono);
     letter-spacing: 0.5px;
     pointer-events: none;
@@ -784,7 +767,7 @@ body.single-post .site-header {
 
 /* Highlight line effect on hover */
 .entry-content pre code span:hover {
-    background-color: rgba(88, 166, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.03);
     display: block;
     width: 100%;
 }
@@ -839,7 +822,7 @@ body.single-post .site-header {
     left: 0;
     width: 40px;
     letter-spacing: -1px;
-    border-right: 1px solid rgba(88, 166, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
     user-select: none;
     pointer-events: none;
     text-align: right;
@@ -1126,9 +1109,9 @@ body.single-post .site-header {
 
 /* Links */
 .entry-content a:not(.tag):not(.post-category) {
-    color: #58a6ff;
+    color: var(--github-text-primary);
     text-decoration: none;
-    border-bottom: 1px solid rgba(88, 166, 255, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     background: none;
     padding-bottom: 0;
     transition: border-color 0.2s ease;
@@ -1279,9 +1262,9 @@ body.single-post .site-header {
 }
 
 .toc-nav a.active {
-    color: #58a6ff;
+    color: var(--github-text-primary);
     background: none;
-    border-left-color: #58a6ff;
+    border-left-color: var(--github-text-primary);
     font-weight: 500;
     padding-left: 24px;
 }
@@ -1421,7 +1404,7 @@ textarea:focus,
 select:focus {
     outline: none;
     border-color: var(--github-accent);
-    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
 }
 
 button,
@@ -1479,14 +1462,14 @@ input[type="submit"]:hover {
     justify-content: center;
     padding: 0 16px;
     background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border: 1px solid rgba(88, 166, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     color: var(--github-text-secondary);
     text-decoration: none;
     font-size: 14px;
     font-weight: 500;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(88, 166, 255, 0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.03);
     position: relative;
     overflow: hidden;
 }
@@ -1498,7 +1481,7 @@ input[type="submit"]:hover {
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, var(--github-accent) 0%, rgba(88, 166, 255, 0.3) 100%);
+    background: linear-gradient(90deg, var(--github-accent) 0%, rgba(255, 255, 255, 0.15) 100%);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -1509,10 +1492,10 @@ input[type="submit"]:hover {
 
 .pagination a:hover {
     transform: translateY(-3px);
-    border-color: rgba(88, 166, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.2);
     color: #ffffff;
     background: linear-gradient(135deg, rgba(22, 27, 34, 1) 0%, rgba(13, 17, 23, 1) 100%);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(88, 166, 255, 0.3);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.15);
 }
 
 .pagination .current {
@@ -1520,7 +1503,7 @@ input[type="submit"]:hover {
     border-color: var(--github-accent);
     color: #ffffff;
     font-weight: 600;
-    box-shadow: 0 4px 12px rgba(0, 142, 194, 0.4), 0 0 0 1px rgba(88, 166, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.1);
     cursor: default;
 }
 
@@ -1695,17 +1678,12 @@ input[type="submit"]:hover {
 
 /* Enhanced Post Item Styles */
 .post-item {
-    background: rgba(22, 27, 34, 0.7);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(48, 54, 61, 0.7);
+    background: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
 }
 
 .post-item:hover {
-    transform: translateY(-8px) scale(1.01);
-    background: rgba(22, 27, 34, 0.9);
-    border-color: #58a6ff;
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(88, 166, 255, 0.4);
+    border-color: #444444;
 }
 
 /* Responsive */
@@ -1746,11 +1724,10 @@ input[type="submit"]:hover {
 
 /* Hero Section for Single Posts */
 .single-post-hero {
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border-bottom: 1px solid rgba(88, 166, 255, 0.2);
+    background: var(--github-bg-secondary);
+    border-bottom: 1px solid var(--github-border);
     padding: 48px 0;
     margin-bottom: 32px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .hero-container {
@@ -1818,7 +1795,6 @@ input[type="submit"]:hover {
     border: 1px solid var(--github-border);
     border-radius: 8px;
     padding: 40px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .single-post-article .entry-content {
@@ -1832,18 +1808,16 @@ input[type="submit"]:hover {
    ========================================= */
 
 .toc-container {
-    background: linear-gradient(135deg, rgba(22, 27, 34, 0.95) 0%, rgba(13, 17, 23, 0.95) 100%);
-    border: 1px solid rgba(88, 166, 255, 0.2);
+    background: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
     border-radius: 8px;
     padding: 24px;
     margin-bottom: 24px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    transition: border-color 0.2s ease;
 }
 
 .toc-container:hover {
-    border-color: rgba(88, 166, 255, 0.4);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    border-color: #444444;
 }
 
 .toc-title {
@@ -1852,7 +1826,7 @@ input[type="submit"]:hover {
     color: var(--github-text-primary);
     margin-bottom: 16px;
     padding-bottom: 12px;
-    border-bottom: 1px solid rgba(88, 166, 255, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1900,7 +1874,7 @@ input[type="submit"]:hover {
 
 .toc-nav a:hover {
     color: var(--github-accent);
-    background: rgba(88, 166, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .toc-nav a:hover::before {
@@ -1910,7 +1884,7 @@ input[type="submit"]:hover {
 
 .toc-nav a.active {
     color: var(--github-accent);
-    background: rgba(88, 166, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
     border-left: 2px solid var(--github-accent);
     font-weight: 500;
 }
@@ -2091,5 +2065,27 @@ button:active {
 .pagination .page-numbers.prev:hover,
 .pagination .page-numbers.next:hover {
     color: var(--github-accent);
-    background-color: rgba(88, 166, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Header Search Customization */
+.AppHeader-search {
+    position: relative;
+    display: flex; /* Ensure proper alignment */
+    align-items: center;
+}
+
+.search-slash {
+    position: absolute;
+    left: 10px; /* Ajuste fino */
+    color: #666666; /* Mismo color que placeholder */
+    /* font-weight: 700; (Removed as requested) */
+    font-size: 1em; /* Tamaño normal */
+    pointer-events: none;
+    z-index: 2;
+    line-height: normal; /* Alinear con texto */
+}
+
+.AppHeader-search-input {
+    padding-left: 18px !important; /* Pegado al slash */
 }

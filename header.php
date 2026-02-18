@@ -43,16 +43,16 @@
         
         <div class="header-search-wrapper">
             <form role="search" method="get" class="AppHeader-search" action="<?php echo esc_url(home_url('/')); ?>">
+                <span class="search-slash">/</span>
                 <input 
                     type="search" 
                     class="AppHeader-search-input" 
-                    placeholder="Buscar o saltar a..."
-                    value="<?php echo get_search_query(); ?>" 
+                    placeholder="buscar contenido..."
+                    value="" 
                     name="s"
+                    readonly
                 />
-                <svg class="AppHeader-search-icon" aria-hidden="true" viewBox="0 0 16 16" version="1.1">
-                    <path fill-rule="evenodd" d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z"></path>
-                </svg>
+                <kbd class="AppHeader-search-kbd">Ctrl+K</kbd>
             </form>
         </div>
         
