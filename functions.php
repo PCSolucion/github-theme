@@ -117,31 +117,6 @@ function github_theme_defer_scripts($tag, $handle, $src) {
 }
 add_filter('script_loader_tag', 'github_theme_defer_scripts', 10, 3);
 
-/**
- * Cargar CSS no crítico de forma asíncrona
- * Evita que CSS como Thickbox bloquee la renderización inicial
- */
-function github_theme_async_styles($html, $handle, $href, $media) {
-    // Lista de estilos que pueden cargarse de forma asíncrona
-    $async_styles = array(
-        'thickbox'
-    );
-    
-    if (in_array($handle, $async_styles)) {
-        // Cargar con media="print" y luego cambiar a "all" con JavaScript
-        // Esto evita que bloquee la renderización inicial
-        $html = str_replace("media='all'", "media='print' onload='this.media=\"all\"'", $html);
-        $html = str_replace('media="all"', 'media="print" onload="this.media=\'all\'"', $html);
-        
-        // Agregar noscript fallback para usuarios sin JavaScript
-        $noscript = '<noscript><link rel="stylesheet" href="' . esc_url($href) . '"></noscript>';
-        $html .= $noscript;
-    }
-    
-    return $html;
-}
-// Desactivado temporalmente - causaba error de JavaScript con onload
-// add_filter('style_loader_tag', 'github_theme_async_styles', 10, 4);
 
 /**
  * Registrar áreas de widgets
@@ -243,13 +218,7 @@ function github_theme_editor_color_palette() {
 }
 add_action('after_setup_theme', 'github_theme_editor_color_palette');
 
-/**
- * Limpiar el head
- */
-remove_action('wp_head', 'wp_generator');
-remove_action('wp_head', 'wlwmanifest_link');
-remove_action('wp_head', 'rsd_link');
-remove_action('wp_head', 'wp_shortlink_wp_head');
+
 
 /**
  * Agregar soporte para SVG
@@ -654,29 +623,22 @@ function activar_lightbox_thickbox() {
 add_action('wp_enqueue_scripts', 'activar_lightbox_thickbox');
 
 /**
- * Seguridad: Evitar Fingerprinting (Huella Digital)
- * Oculta la versión de WordPress del código fuente, feeds RSS, scripts y estilos.
+ * Seguridad y Limpieza: Eliminar información innecesaria del head
+ * Oculta la versión de WordPress, enlaces a servicios externos no usados y feeds
  */
 function github_remove_version_info() {
-    // 1. Eliminar meta tag generator del header
+    // 1. Eliminar meta tags innecesarias del header
     remove_action('wp_head', 'wp_generator');
+    remove_action('wp_head', 'wlwmanifest_link');
+    remove_action('wp_head', 'rsd_link');
+    remove_action('wp_head', 'wp_shortlink_wp_head');
+    
     // 2. Eliminar versión de los feeds RSS
     add_filter('the_generator', '__return_empty_string');
 }
 add_action('init', 'github_remove_version_info');
 
-/**
- * Eliminar parámetro de versión (?ver=x.x) de scripts y estilos
- * Dificulta saber qué versión de WP o plugins se está usando
- */
-function github_remove_ver_css_js( $src ) {
-    if ( strpos( $src, 'ver=' ) )
-        $src = remove_query_arg( 'ver', $src );
-    return $src;
-}
-// Comentado temporalmente para permitir ver los cambios (Cache Busting)
-// add_filter( 'style_loader_src', 'github_remove_ver_css_js', 9999 );
-// add_filter( 'script_loader_src', 'github_remove_ver_css_js', 9999 );
+
 
 // Seguridad: Ocultar usuarios en REST API y sitemap
 add_filter('xmlrpc_enabled', '__return_false');
