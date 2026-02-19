@@ -289,7 +289,7 @@ add_filter( 'nav_menu_link_attributes', 'ofuscar_email_menu', 10, 4 );
 function github_no_wordpress_errors(){
     return 'Algo salió mal. Por favor, inténtalo de nuevo.';
 }
-add_filter( 'login_errors', 'github_no_wordpress_errors' );
+// add_filter( 'login_errors', 'github_no_wordpress_errors' );
 
 /**
  * Bloquear enumeración de autores

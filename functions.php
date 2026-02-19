@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * GitHub Theme Functions
  *
@@ -178,8 +178,10 @@ add_filter( 'script_loader_tag', 'github_theme_defer_scripts', 10, 3 );
  */
 function github_dequeue_dashicons() {
     if ( ! is_admin() && ! is_user_logged_in() ) {
-        wp_dequeue_style( 'dashicons' );
-        wp_deregister_style( 'dashicons' );
+        // Dashicons es necesario para Thickbox (lightbox).
+        // Si se desactiva, WordPress arroja un aviso de dependencia faltante.
+        // wp_dequeue_style( 'dashicons' );
+        // wp_deregister_style( 'dashicons' );
     }
 }
 add_action( 'wp_enqueue_scripts', 'github_dequeue_dashicons', 999 );
