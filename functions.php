@@ -114,17 +114,17 @@ function github_theme_scripts() {
         null
     );
 
-    // Geist Font (via CDN)
+    // Geist Font (via CDN - @fontsource para evitar problemas CORS/MIME)
     wp_enqueue_style(
         'geist-font',
-        'https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-sans/style.min.css',
+        'https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/index.min.css',
         array(),
         null
     );
 
     wp_enqueue_style(
         'geist-mono-font',
-        'https://cdn.jsdelivr.net/npm/geist@1.3.1/dist/fonts/geist-mono/style.min.css',
+        'https://cdn.jsdelivr.net/npm/@fontsource/geist-mono@5.0.3/index.min.css',
         array(),
         null
     );

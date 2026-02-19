@@ -317,3 +317,48 @@ add_filter('oembed_response_data', function($data) {
     if (isset($data['author_url'])) unset($data['author_url']);
     return $data;
 });
+
+/**
+ * CONFIGURACIÓN DE CONTENT SECURITY POLICY (CSP)
+ * Agrega los dominios necesarios para que el tema funcione correctamente (Geist Fonts y Twitch API)
+ */
+function github_theme_security_headers($headers) {
+    // Definimos los dominios permitidos
+    $style_src = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net";
+    $font_src = "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net";
+    $connect_src = "connect-src 'self' https://decapi.me https://cdn.jsdelivr.net"; // Para la API de Twitch y Source Maps
+    
+    if (isset($headers['Content-Security-Policy'])) {
+        // Si ya existe una política, intentamos ampliarla de forma inteligente
+        $csp = $headers['Content-Security-Policy'];
+        
+        // Ampliar style-src
+        if (strpos($csp, 'style-src') !== false) {
+            $csp = preg_replace('/style-src\s+([^;]+)/i', "style-src $1 https://cdn.jsdelivr.net", $csp);
+        } else {
+            $csp .= "; " . $style_src;
+        }
+        
+        // Ampliar font-src
+        if (strpos($csp, 'font-src') !== false) {
+            $csp = preg_replace('/font-src\s+([^;]+)/i', "font-src $1 https://cdn.jsdelivr.net", $csp);
+        } else {
+            $csp .= "; " . $font_src;
+        }
+
+        // Ampliar connect-src
+        if (strpos($csp, 'connect-src') !== false) {
+            $csp = preg_replace('/connect-src\s+([^;]+)/i', "connect-src $1 https://decapi.me https://cdn.jsdelivr.net", $csp);
+        } else {
+            $csp .= "; " . $connect_src;
+        }
+        
+        $headers['Content-Security-Policy'] = $csp;
+    } else {
+        // Si no existe, creamos una básica pero permisiva para el tema
+        $headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " . $style_src . "; " . $font_src . "; img-src 'self' data: https:; " . $connect_src . ";";
+    }
+    
+    return $headers;
+}
+add_filter('wp_headers', 'github_theme_security_headers', 999);

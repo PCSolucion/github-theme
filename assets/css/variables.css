@@ -23,7 +23,7 @@
     "Geist Mono", "JetBrains Mono", "SFMono-Regular", Consolas,
     "Liberation Mono", Menlo, monospace;
   --github-font-sans:
-    "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Geist Sans", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Noto Sans", Helvetica, Arial, sans-serif;
 
   /* Button Tokens */
