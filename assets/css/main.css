@@ -141,20 +141,22 @@
 
 .nav-previous a,
 .nav-next a {
-    display: block;
-    padding: 16px;
-    background-color: var(--github-bg-secondary);
-    border: 1px solid var(--github-border);
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: var(--btn-bg);
+    border: 1px solid var(--btn-border);
     border-radius: 6px;
     color: var(--github-text-primary);
     text-decoration: none;
     transition: all 0.2s;
+    font-weight: 500;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
 }
 
 .nav-previous a:hover,
 .nav-next a:hover {
-    border-color: var(--github-accent);
-    color: var(--github-accent);
+    background-color: var(--btn-bg-hover);
+    border-color: #8b949e;
 }
 
 .nav-subtitle {

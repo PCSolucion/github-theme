@@ -124,7 +124,7 @@
         });
 
         if ($headings.length === 0 || $tocContainer.length === 0) {
-            $('.toc-container').hide();
+            $('.toc-box').hide();
             return;
         }
 
