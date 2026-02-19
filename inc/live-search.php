@@ -70,15 +70,6 @@ function github_theme_live_search_handler( WP_REST_Request $request ) {
     $data = array();
     foreach ( $results as $post ) {
         $post_id   = (int) $post->ID;
-        $thumbnail = '';
-        $thumb_id  = get_post_thumbnail_id( $post_id );
-        if ( $thumb_id ) {
-            $img = wp_get_attachment_image_src( $thumb_id, 'thumbnail' );
-            if ( $img ) {
-                $thumbnail = $img[0];
-            }
-        }
-
         // Categorías
         $cats       = get_the_category( $post_id );
         $categories = ! empty( $cats ) ? implode( ', ', wp_list_pluck( $cats, 'name' ) ) : '';
@@ -89,7 +80,6 @@ function github_theme_live_search_handler( WP_REST_Request $request ) {
             'excerpt'    => wp_trim_words( strip_tags( $post->post_excerpt ), 20, '…' ),
             'date'       => $post->post_date,
             'link'       => get_permalink( $post_id ),
-            'thumbnail'  => $thumbnail,
             'categories' => $categories,
         );
     }

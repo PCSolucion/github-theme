@@ -12,20 +12,7 @@ get_header();
     <!-- Hero Section -->
     <header class="single-hero">
         <div class="hero-wrap">
-            <?php if (has_category()) : ?>
-                <div class="post-categories">
-                    <?php
-                    $categories = get_the_category();
-                    foreach ($categories as $category) :
-                        $category_color = github_theme_get_category_color($category->term_id);
-                    ?>
-                        <a href="<?php echo esc_url(get_category_link($category->term_id)); ?>" class="post-category" style="--category-color: <?php echo esc_attr($category_color); ?>">
-                            <span class="repo-language-color" style="background-color: <?php echo esc_attr($category_color); ?>"></span>
-                            <span class="category-name"><?php echo esc_html($category->name); ?></span>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+            <?php github_theme_post_categories(); ?>
 
             <h1 class="entry-title"><?php the_title(); ?></h1>
 
@@ -46,12 +33,8 @@ get_header();
                     </time>
                 </span>
                 
-                <span>
-                    <svg aria-hidden="true" viewBox="0 0 16 16" fill="currentColor">
-                        <path fill-rule="evenodd" d="M1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0zM8 0a8 8 0 100 16A8 8 0 008 0zm.5 4.75a.75.75 0 00-1.5 0v3.5a.75.75 0 00.471.696l2.5 1a.75.75 0 00.557-1.392L8.5 7.742V4.75z"></path>
-                    </svg>
-                    <?php echo github_theme_estimated_reading_time(); ?>
                 </span>
+            </div>
             </div>
         </div>
     </header>

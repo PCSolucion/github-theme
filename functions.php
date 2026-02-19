@@ -27,7 +27,6 @@ define( 'GITHUB_THEME_VERSION', wp_get_theme()->get( 'Version' ) ?: '1.0.0' );
  */
 function github_theme_setup() {
     add_theme_support( 'title-tag' );
-    add_theme_support( 'post-thumbnails' );
     add_theme_support( 'automatic-feed-links' );
     add_theme_support( 'wp-block-styles' );
     add_theme_support( 'responsive-embeds' );
@@ -47,8 +46,6 @@ function github_theme_setup() {
         'primary' => __( 'Menú Principal', 'github-theme' ),
         'footer'  => __( 'Menú Footer', 'github-theme' ),
     ) );
-
-    add_image_size( 'github-thumbnail', 400, 250, true );
 }
 add_action( 'after_setup_theme', 'github_theme_setup' );
 
@@ -310,60 +307,7 @@ add_filter( 'the_content', 'github_theme_fix_pre_tags', 9 );
 // FUNCIONES HELPER
 // =============================================================================
 
-/**
- * Menú de navegación por defecto cuando no hay menú configurado en el admin.
- */
-function github_theme_default_menu() {
-    echo '<ul class="nav-menu">';
-    echo '<li><a href="' . esc_url( home_url( '/' ) ) . '">' . __( 'Inicio', 'github-theme' ) . '</a></li>';
-
-    if ( get_option( 'show_on_front' ) === 'page' ) {
-        $page_for_posts = get_option( 'page_for_posts' );
-        if ( $page_for_posts ) {
-            echo '<li><a href="' . esc_url( get_permalink( $page_for_posts ) ) . '">' . __( 'Blog', 'github-theme' ) . '</a></li>';
-        }
-    }
-
-    wp_list_pages( array(
-        'title_li' => '',
-        'exclude'  => get_option( 'page_on_front' ),
-    ) );
-
-    echo '</ul>';
-}
-
-/**
- * Obtener la URL del logo personalizado del sitio.
- *
- * @return string|false URL del logo o false si no hay logo configurado.
- */
-function github_theme_get_logo_url() {
-    if ( has_custom_logo() ) {
-        $logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
-        return ( $logo && isset( $logo[0] ) ) ? $logo[0] : false;
-    }
-    return false;
-}
-
-/**
- * Calcular el tiempo de lectura estimado del post actual.
- *
- * @return string Tiempo estimado en formato "X min de lectura".
- */
-function github_theme_estimated_reading_time() {
-    $post = get_post();
-    if ( ! $post ) {
-        return __( '0 min de lectura', 'github-theme' );
-    }
-    $content       = $post->post_content;
-    $wpm           = 200; // Palabras por minuto promedio
-    $clean_content = strip_tags( strip_shortcodes( $content ) );
-    $word_count    = str_word_count( $clean_content );
-    $time          = ceil( $word_count / $wpm );
-
-    return sprintf( __( '%d min de lectura', 'github-theme' ), $time );
-}
-
+// (Funciones de utilidad movidas a inc/template-functions.php)
 
 // =============================================================================
 // INCLUDES

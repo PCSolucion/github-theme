@@ -159,13 +159,8 @@ function github_theme_social_meta_tags() {
         $og_url = get_permalink();
         $og_type = 'article';
         
-        // Obtener imagen destacada si existe
-        if (has_post_thumbnail()) {
-            $thumbnail = wp_get_attachment_image_src(get_post_thumbnail_id(), 'large');
-            if ($thumbnail) {
-                $og_image = $thumbnail[0];
-            }
-        }
+        // Imagen destacada desactivada por política de diseño
+
     }
     // Página
     elseif (is_page()) {
@@ -174,13 +169,8 @@ function github_theme_social_meta_tags() {
         $og_url = get_permalink();
         $og_type = 'website';
         
-        // Obtener imagen destacada si existe
-        if (has_post_thumbnail()) {
-            $thumbnail = wp_get_attachment_image_src(get_post_thumbnail_id(), 'large');
-            if ($thumbnail) {
-                $og_image = $thumbnail[0];
-            }
-        }
+        // Imagen destacada desactivada por política de diseño
+
     }
     // Categoría
     elseif (is_category()) {

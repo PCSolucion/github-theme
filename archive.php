@@ -45,6 +45,7 @@ get_header();
                                     </a>
                                 </span>
                             </div>
+                            <?php github_theme_post_categories(); ?>
                         </header>
                         
                         <div class="post-excerpt">

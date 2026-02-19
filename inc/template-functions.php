@@ -66,3 +66,65 @@ function github_theme_get_category_color( $category_id ) {
 
     return $colors[ $category_id % count( $colors ) ];
 }
+
+/**
+ * Menú de navegación por defecto cuando no hay menú configurado en el admin.
+ */
+function github_theme_default_menu() {
+    echo '<ul class="nav-menu">';
+    echo '<li><a href="' . esc_url( home_url( '/' ) ) . '">' . __( 'Inicio', 'github-theme' ) . '</a></li>';
+
+    if ( get_option( 'show_on_front' ) === 'page' ) {
+        $page_for_posts = get_option( 'page_for_posts' );
+        if ( $page_for_posts ) {
+            echo '<li><a href="' . esc_url( get_permalink( $page_for_posts ) ) . '">' . __( 'Blog', 'github-theme' ) . '</a></li>';
+        }
+    }
+
+    wp_list_pages( array(
+        'title_li' => '',
+        'exclude'  => get_option( 'page_on_front' ),
+    ) );
+
+    echo '</ul>';
+}
+
+/**
+ * Obtener la URL del logo personalizado del sitio.
+ *
+ * @return string|false URL del logo o false si no hay logo configurado.
+ */
+function github_theme_get_logo_url() {
+    if ( has_custom_logo() ) {
+        $logo = wp_get_attachment_image_src( get_theme_mod( 'custom_logo' ), 'full' );
+        return ( $logo && isset( $logo[0] ) ) ? $logo[0] : false;
+    }
+    return false;
+}
+
+/**
+ * Imprimir las categorías del post con el estilo de colores de GitHub.
+ *
+ * @param int|WP_Post $post_id ID del post o objeto post. Por defecto el actual.
+ */
+function github_theme_post_categories( $post_id = null ) {
+    if ( ! has_category( $post_id ) ) {
+        return;
+    }
+
+    $categories = get_the_category( $post_id );
+    echo '<div class="post-categories">';
+    foreach ( $categories as $category ) {
+        $category_color = github_theme_get_category_color( $category->term_id );
+        printf(
+            '<a href="%1$s" class="post-category" style="--category-color: %2$s">
+                <span class="repo-language-color" style="background-color: %2$s"></span>
+                <span class="category-name">%3$s</span>
+            </a>',
+            esc_url( get_category_link( $category->term_id ) ),
+            esc_attr( $category_color ),
+            esc_html( $category->name )
+        );
+    }
+    echo '</div>';
+}

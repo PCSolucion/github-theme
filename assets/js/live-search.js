@@ -208,7 +208,6 @@
               excerpt: stripHTML(p.excerpt.rendered || '').substring(0, 120) + '…',
               date: p.date,
               link: p.link,
-              thumbnail: thumb,
               categories: cats,
             };
           });
@@ -322,7 +321,6 @@
       var excerpt = (typeof post.excerpt === 'string') ? post.excerpt : stripHTML((post.excerpt && post.excerpt.rendered) || '');
       if (excerpt.length > 120) excerpt = excerpt.substring(0, 120) + '…';
       var date       = formatDate(post.date);
-      var thumbnail  = (typeof post.thumbnail === 'string') ? post.thumbnail : getThumb(post);
       var categories = (typeof post.categories === 'string') ? post.categories : getCategories(post);
 
       // Resaltado de texto
@@ -332,7 +330,6 @@
       html +=
         '<div class="live-search-item" data-url="' + escapeAttr(post.link) + '">' +
         '<a href="' + escapeAttr(post.link) + '" class="live-search-item-link">' +
-        (thumbnail ? '<div class="live-search-thumb"><img src="' + escapeAttr(thumbnail) + '" alt="" loading="lazy"/></div>' : "") +
         '<div class="live-search-item-content">' +
         '<div class="live-search-item-title">' + title + "</div>" +
         '<div class="live-search-item-excerpt">' + excerpt + "</div>" +
@@ -389,9 +386,6 @@
     return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
   }
 
-  function getThumb(post) {
-    try { return post._embedded["wp:featuredmedia"][0].media_details.sizes.thumbnail.source_url; } catch (e) { return null; }
-  }
 
   function getCategories(post) {
     try { return post._embedded["wp:term"][0].map(function (t) { return t.name; }).join(", "); } catch (e) { return ""; }

@@ -171,20 +171,44 @@
 
             $tocContainer.empty().append($ul);
 
-            // Scroll Spy
-            $(window).on('scroll.toc', function () {
-                var scrollPos = $(window).scrollTop();
-                var offset = 120; // Espacio para el header y margen
+            // Scroll Spy optimizado con IntersectionObserver
+            if ('IntersectionObserver' in window) {
+                const observerOptions = {
+                    rootMargin: '-100px 0px -70% 0px',
+                    threshold: 0
+                };
 
-                $headings.each(function () {
-                    var refElement = $(this);
-                    if (refElement.offset().top <= scrollPos + offset) {
-                        var id = refElement.attr('id');
-                        $tocContainer.find('a').removeClass('active');
-                        $tocContainer.find('a[href="#' + id + '"]').addClass('active');
-                    }
+                const observer = new IntersectionObserver(function(entries) {
+                    entries.forEach(function(entry) {
+                        if (entry.isIntersecting) {
+                            const id = entry.target.getAttribute('id');
+                            if (id) {
+                                $tocContainer.find('a').removeClass('active');
+                                $tocContainer.find('a[href="#' + id + '"]').addClass('active');
+                            }
+                        }
+                    });
+                }, observerOptions);
+
+                $headings.each(function() {
+                    observer.observe(this);
                 });
-            });
+            } else {
+                // Fallback para navegadores antiguos
+                $(window).on('scroll.toc', function () {
+                    var scrollPos = $(window).scrollTop();
+                    var offset = 120;
+
+                    $headings.each(function () {
+                        var refElement = $(this);
+                        if (refElement.offset().top <= scrollPos + offset) {
+                            var id = refElement.attr('id');
+                            $tocContainer.find('a').removeClass('active');
+                            $tocContainer.find('a[href="#' + id + '"]').addClass('active');
+                        }
+                    });
+                });
+            }
         } catch (error) {
             console.error('Error generating TOC:', error);
             $('.toc-box').hide();
