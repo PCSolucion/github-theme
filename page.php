@@ -27,12 +27,7 @@ get_header();
                     ?>
                 </div>
                 
-                <?php
-                // Si los comentarios están habilitados o hay comentarios
-                if (comments_open() || get_comments_number()) :
-                    comments_template();
-                endif;
-                ?>
+
             </article>
         <?php endwhile; ?>
     </main>

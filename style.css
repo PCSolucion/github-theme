@@ -1835,7 +1835,6 @@ button:active {
 /* Primary Button (Green) */
 .btn-primary, 
 .button-primary,
-.comment-form .submit,
 #searchsubmit {
     color: #ffffff !important;
     background-color: var(--btn-primary-bg);
@@ -1843,7 +1842,6 @@ button:active {
 }
 
 .btn-primary:hover,
-.comment-form .submit:hover,
 #searchsubmit:hover {
     background-color: var(--btn-primary-bg-hover);
     border-color: rgba(240, 246, 252, 0.1);
