@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // =============================================================================
 
 /** Versión del tema para control de caché (Cache Busting) */
-define( 'GITHUB_THEME_VERSION', wp_get_theme()->get( 'Version' ) ?: '1.0.0' );
+define( 'GITHUB_THEME_VERSION', time() ); // Version temporal para desarrollo y cache busting
 
 
 // =============================================================================

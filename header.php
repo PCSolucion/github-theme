@@ -36,8 +36,8 @@
 <header class="site-header">
     <div class="header-container">
         <div class="site-branding">
-            <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo" rel="home">
-                <img src="<?php echo get_template_directory_uri(); ?>/assets/img/logo.svg" alt="<?php bloginfo('name'); ?>" class="site-logo-image" />
+            <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo" rel="home" aria-label="<?php bloginfo('name'); ?>">
+                <svg class="logo-dot" width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="#008ec2"/></svg><span class="logo-path">/pcsolucion</span>
             </a>
         </div>
         

@@ -17,22 +17,17 @@ get_header();
             <h1 class="entry-title"><?php the_title(); ?></h1>
 
             <div class="post-meta">
-                <span>
-                    <svg aria-hidden="true" viewBox="0 0 16 16" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10.5 5a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM3.761 15.002a.75.75 0 01-.75-.75 10 10 0 0110 0 .75.75 0 01-.75.75h-8.5z"></path>
-                    </svg>
-                    <?php the_author(); ?>
+                <?php $commit_hash = substr(md5(get_the_ID()), 0, 7); ?>
+                <span class="commit-hash" title="<?php esc_attr_e('ID del commit (ficticio)', 'github-theme'); ?>">
+                    <?php echo $commit_hash; ?>
                 </span>
-
-                <span>
-                    <svg aria-hidden="true" viewBox="0 0 16 16" fill="currentColor">
-                        <path fill-rule="evenodd" d="M1.75 2.5a.25.25 0 00-.25.25v10.5c0 .138.112.25.25.25h12.5a.25.25 0 00.25-.25V2.75a.25.25 0 00-.25-.25H1.75zM0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0114.25 15H1.75A1.75 1.75 0 010 13.25V2.75z"></path>
-                    </svg>
+                <span class="file-size" title="<?php esc_attr_e('Peso total estimado (HTML + Imágenes)', 'github-theme'); ?>">
+                    <?php echo github_theme_get_total_download_size(); ?>
+                </span>
+                <span class="post-date">
                     <time datetime="<?php echo esc_attr(get_the_date('c')); ?>">
                         <?php echo get_the_date(); ?>
                     </time>
-                </span>
-                
                 </span>
             </div>
             </div>

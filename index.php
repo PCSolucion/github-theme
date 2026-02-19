@@ -26,36 +26,26 @@ get_header();
                 <?php while (have_posts()) : the_post(); ?>
                     <article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
                         <header class="post-header">
+                            <?php github_theme_post_categories(); ?>
                             <h2 class="post-title">
                                 <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
                             </h2>
                         </header>
-                        
-                        <div class="post-excerpt">
-                            <?php the_excerpt(); ?>
-                        </div>
 
                         <footer class="post-footer">
-                            <?php github_theme_post_categories(); ?>
-
                             <div class="post-meta">
+                                <?php $commit_hash = substr(md5(get_the_ID()), 0, 7); ?>
+                                <span class="commit-hash" title="<?php esc_attr_e('ID del commit (ficticio)', 'github-theme'); ?>">
+                                    <?php echo $commit_hash; ?>
+                                </span>
+                                <span class="file-size" title="<?php esc_attr_e('Peso total estimado (HTML + Imágenes)', 'github-theme'); ?>">
+                                    <?php echo github_theme_get_total_download_size(); ?>
+                                </span>
                                 <span class="post-date">
-                                    <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1">
-                                        <path fill-rule="evenodd" d="M1.75 2.5a.25.25 0 00-.25.25v10.5c0 .138.112.25.25.25h12.5a.25.25 0 00.25-.25V2.75a.25.25 0 00-.25-.25H1.75zM0 2.75C0 1.784.784 1 1.75 1h12.5c.966 0 1.75.784 1.75 1.75v10.5A1.75 1.75 0 0114.25 15H1.75A1.75 1.75 0 010 13.25V2.75zm9.22 3.72a.75.75 0 000 1.06L10.69 8 9.22 9.47a.75.75 0 101.06 1.06l2-2a.75.75 0 000-1.06l-2-2a.75.75 0 00-1.06 0zm-3.44 0a.75.75 0 010 1.06L5.31 8l1.47 1.47a.75.75 0 11-1.06 1.06l-2-2a.75.75 0 010-1.06l2-2a.75.75 0 011.06 0z"></path>
-                                    </svg>
                                     <time datetime="<?php echo esc_attr(get_the_date('c')); ?>">
                                         <?php echo get_the_date(); ?>
                                     </time>
                                 </span>
-                                
-                                <?php if (comments_open() || get_comments_number()) : ?>
-                                    <span class="post-comments">
-                                        <svg aria-hidden="true" viewBox="0 0 16 16" version="1.1">
-                                            <path fill-rule="evenodd" d="M2.75 2.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h2a.75.75 0 01.75.75v2.19l2.72-2.72a.75.75 0 01.53-.22h4.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25H2.75zM1 2.75C1 1.784 1.784 1 2.75 1h10.5c.966 0 1.75.784 1.75 1.75v7.5A1.75 1.75 0 0113.25 12H9.06l-2.573 2.573A1.457 1.457 0 014 13.543V12H2.75A1.75 1.75 0 011 10.25v-7.5z"></path>
-                                        </svg>
-                                        <?php comments_number('0', '1', '%'); ?>
-                                    </span>
-                                <?php endif; ?>
                             </div>
                         </footer>
                     </article>

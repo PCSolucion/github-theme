@@ -240,15 +240,12 @@
         if ($activeItem.length) {
             var navOffset = $nav.offset().left;
             var elOffset = $activeItem.offset().left;
-            var elWidth = $activeItem.outerWidth();
-            var dotWidth = 8;
-            currentLeft = (elOffset - navOffset) + (elWidth / 2) - (dotWidth / 2);
+            currentLeft = (elOffset - navOffset) + 8;
             targetLeft = currentLeft;
 
             $line.css({
                 'left': currentLeft + 'px',
-                'opacity': '1',
-                'bottom': '-6px'
+                'opacity': '1'
             });
         } else {
             $line.css('opacity', '0');
@@ -265,7 +262,7 @@
 
             $line.css({
                 'left': newLeft + 'px',
-                'transform': 'translateY(' + y + 'px)'
+                'transform': 'translateY(calc(-50% + ' + y + 'px))'
             });
 
             if (progress < 1) {
@@ -273,7 +270,7 @@
             } else {
                 isAnimating = false;
                 currentLeft = targetLeft;
-                $line.css('transform', 'translateY(0px)');
+                $line.css('transform', 'translateY(-50%)');
             }
         }
 
@@ -281,10 +278,8 @@
             if ($el.length) {
                 var navOffset = $nav.offset().left;
                 var elOffset = $el.offset().left;
-                var elWidth = $el.outerWidth();
-                var dotWidth = 8;
 
-                var newTarget = (elOffset - navOffset) + (elWidth / 2) - (dotWidth / 2);
+                var newTarget = (elOffset - navOffset) + 8;
 
                 if (newTarget !== targetLeft) {
                     var currentVisualLeft = parseFloat($line.css('left'));
@@ -319,9 +314,7 @@
             if ($activeItem.length) {
                 var navOffset = $nav.offset().left;
                 var elOffset = $activeItem.offset().left;
-                var elWidth = $activeItem.outerWidth();
-                var dotWidth = 8;
-                var pos = (elOffset - navOffset) + (elWidth / 2) - (dotWidth / 2);
+                var pos = (elOffset - navOffset) + 8;
 
                 $line.css('left', pos + 'px');
                 currentLeft = pos;

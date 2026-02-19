@@ -128,3 +128,48 @@ function github_theme_post_categories( $post_id = null ) {
     }
     echo '</div>';
 }
+
+/**
+ * Calcular el peso total del post (Contenido + HTML base + Imágenes adjuntas).
+ *
+ * @param int|null $post_id ID del post. Por defecto el actual.
+ * @return string Peso formateado (ej. "12.5kb").
+ */
+function github_theme_get_total_download_size( $post_id = null ) {
+    $post = get_post( $post_id );
+    if ( ! $post ) {
+        return '0kb';
+    }
+
+    // 1. Peso del contenido texto + Overhead del tema HTML (~14KB)
+    $content_size = strlen( $post->post_content );
+    $overhead_size = 14300; // 14KB aprox de boilerplate HTML/CSS/JS del theme
+    $total_bytes = $content_size + $overhead_size;
+
+    // 2. Imagen Destacada
+    if ( has_post_thumbnail( $post ) ) {
+        $thumb_id = get_post_thumbnail_id( $post );
+        $thumb_path = get_attached_file( $thumb_id );
+        if ( $thumb_path && file_exists( $thumb_path ) ) {
+            $total_bytes += filesize( $thumb_path );
+        }
+    }
+
+    // 3. Imágenes dentro del contenido
+    if ( preg_match_all( '/class="[^"]*wp-image-(\d+)[^"]*"/', $post->post_content, $matches ) ) {
+        $image_ids = array_unique( $matches[1] );
+        foreach ( $image_ids as $img_id ) {
+            $img_path = get_attached_file( $img_id );
+            if ( $img_path && file_exists( $img_path ) ) {
+                $total_bytes += filesize( $img_path );
+            }
+        }
+    }
+
+    // Formatear (minúsculas y sin espacio para estilo git/hash)
+    if ( $total_bytes >= 1048576 ) {
+        return number_format( $total_bytes / 1048576, 1 ) . 'mb';
+    } else {
+        return number_format( $total_bytes / 1024, 1 ) . 'kb';
+    }
+}
