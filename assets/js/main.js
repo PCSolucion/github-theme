@@ -117,58 +117,78 @@
     });
 
     // Generar Tabla de Contenidos (TOC)
+    // Utilidad para crear slugs (IDs limpios)
+    function slugify(text) {
+        return text.toString().toLowerCase().trim()
+            .replace(/\s+/g, '-')           // Reemplazar espacios por -
+            .replace(/[^\w\-]+/g, '')       // Eliminar caracteres no deseados
+            .replace(/\-\-+/g, '-')         // Reemplazar múltiples - por uno solo
+            .replace(/^-+/, '')             // Eliminar - al principio
+            .replace(/-+$/, '');            // Eliminar - al final
+    }
+
     function generateTOC() {
-        var $tocContainer = $('#table-of-contents');
-        var $headings = $('.entry-content h2, .entry-content h3').filter(function () {
-            return $(this).text().trim().length > 0;
-        });
+        try {
+            var $tocContainer = $('#table-of-contents');
+            var $headings = $('.entry-content h2, .entry-content h3').filter(function () {
+                return $(this).text().trim().length > 0;
+            });
 
-        if ($headings.length === 0 || $tocContainer.length === 0) {
-            $('.toc-box').hide();
-            return;
-        }
-
-        var $ul = $('<ul></ul>');
-
-        $headings.each(function (index) {
-            var $heading = $(this);
-            var id = 'heading-' + index;
-
-            // Asignar ID si no tiene
-            if (!$heading.attr('id')) {
-                $heading.attr('id', id);
-            } else {
-                id = $heading.attr('id');
+            if ($headings.length === 0 || $tocContainer.length === 0) {
+                $('.toc-box').hide();
+                return;
             }
 
-            var title = $heading.text();
-            var tagName = $heading.prop('tagName').toLowerCase();
-            var className = tagName === 'h3' ? 'toc-h3' : 'toc-h2';
+            var $ul = $('<ul></ul>');
 
-            var $li = $('<li></li>');
-            var $a = $('<a></a>').attr('href', '#' + id).text(title).addClass(className);
+            $headings.each(function (index) {
+                var $heading = $(this);
+                var rawTitle = $heading.text().trim();
+                var id = $heading.attr('id');
 
-            $li.append($a);
-            $ul.append($li);
-        });
-
-        $tocContainer.append($ul);
-
-        // Scroll Spy simple
-        $(window).on('scroll', function () {
-            var scrollPos = $(window).scrollTop();
-            var offset = 100; // Offset para el header fijo si lo hubiera
-
-            $headings.each(function () {
-                var currLink = $tocContainer.find('a[href="#' + $(this).attr('id') + '"]');
-                var refElement = $(this);
-
-                if (refElement.position().top <= scrollPos + offset && refElement.position().top + refElement.height() > scrollPos + offset) {
-                    $tocContainer.find('a').removeClass('active');
-                    currLink.addClass('active');
+                // Generar ID descriptivo si no tiene
+                if (!id) {
+                    id = slugify(rawTitle) || 'heading-' + index;
+                    // Asegurar que el ID sea único en el documento
+                    if ($('#' + id).length > 0) {
+                        id = id + '-' + index;
+                    }
+                    $heading.attr('id', id);
                 }
+
+                var tagName = $heading.prop('tagName').toLowerCase();
+                var className = tagName === 'h3' ? 'toc-h3' : 'toc-h2';
+
+                var $li = $('<li></li>');
+                var $a = $('<a></a>')
+                    .attr('href', '#' + id)
+                    .text(rawTitle)
+                    .addClass(className);
+
+                $li.append($a);
+                $ul.append($li);
             });
-        });
+
+            $tocContainer.empty().append($ul);
+
+            // Scroll Spy
+            $(window).on('scroll.toc', function () {
+                var scrollPos = $(window).scrollTop();
+                var offset = 120; // Espacio para el header y margen
+
+                $headings.each(function () {
+                    var refElement = $(this);
+                    if (refElement.offset().top <= scrollPos + offset) {
+                        var id = refElement.attr('id');
+                        $tocContainer.find('a').removeClass('active');
+                        $tocContainer.find('a[href="#' + id + '"]').addClass('active');
+                    }
+                });
+            });
+        } catch (error) {
+            console.error('Error generating TOC:', error);
+            $('.toc-box').hide();
+        }
     }
 
     generateTOC();
