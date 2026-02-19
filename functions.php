@@ -132,13 +132,14 @@ function github_theme_scripts() {
         null
     );
 
-    wp_enqueue_style( 'github-theme-style', get_stylesheet_uri(), array(), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-main',  get_template_directory_uri() . '/assets/css/main.css', array(), GITHUB_THEME_VERSION );
+    wp_enqueue_style( 'github-theme-variables', get_template_directory_uri() . '/assets/css/variables.css', array(), GITHUB_THEME_VERSION );
+    wp_enqueue_style( 'github-theme-style', get_stylesheet_uri(), array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
+    wp_enqueue_style( 'github-theme-main',  get_template_directory_uri() . '/assets/css/main.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
 
     wp_enqueue_script( 'github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array( 'jquery' ), GITHUB_THEME_VERSION, true );
 
     // Live Search — Búsqueda en tiempo real
-    wp_enqueue_style( 'github-live-search', get_template_directory_uri() . '/assets/css/live-search.css', array(), GITHUB_THEME_VERSION );
+    wp_enqueue_style( 'github-live-search', get_template_directory_uri() . '/assets/css/live-search.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
     wp_enqueue_script( 'github-theme-live-search', get_template_directory_uri() . '/assets/js/live-search.js', array(), time(), true );
     wp_localize_script( 'github-theme-live-search', 'liveSearchData', array(
         'restUrl' => esc_url_raw( rest_url( 'wp/v2' ) ),

@@ -11,32 +11,7 @@ Text Domain: github-theme
 Tags: dark, minimal, github-inspired, modern, clean
 */
 
-/* Reset y Variables CSS — Estilo inspirado en npmx.dev */
-:root {
-    --github-bg-primary: #0a0a0a;
-    --github-bg-secondary: #111111;
-    --github-bg-tertiary: #191919;
-    --github-border: #262626;
-    --github-text-primary: #ededed;
-    --github-text-secondary: #6e6e6e;
-    --github-text-tertiary: #666666;
-    --github-accent: #ededed;
-    --github-accent-hover: #ffffff;
-    --github-accent-subtle: rgba(237, 237, 237, 0.1);
-    --github-success: #22c55e;
-    --github-danger: #ef4444;
-    --github-warning: #eab308;
-    --github-font-mono: 'Geist Mono', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-    --github-font-sans: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
-    
-    /* Button Tokens */
-    --btn-bg: #191919;
-    --btn-bg-hover: #262626;
-    --btn-border: #262626;
-    --btn-primary-bg: #ededed;
-    --btn-primary-bg-hover: #ffffff;
-    --btn-primary-color: #0a0a0a;
-}
+/* Los tokens de diseño se han movido a assets/css/variables.css para mejorar la mantenibilidad */
 
 * {
     margin: 0;

@@ -7,3 +7,4 @@ dist/
 .idea/
 *.swp
 Thumbs.db
+.agent/
