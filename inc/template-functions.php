@@ -137,40 +137,60 @@ function github_theme_post_categories( $post_id = null ) {
  * @return string Peso formateado (ej. "12.5kb").
  */
 function github_theme_get_total_download_size( $post_id = null ) {
-    $post = get_post( $post_id );
-    if ( ! $post ) {
-        return '0kb';
-    }
-
-    // 1. Peso del contenido texto + Overhead del tema HTML (~14KB)
-    $content_size = strlen( $post->post_content );
-    $overhead_size = 14300; // 14KB aprox de boilerplate HTML/CSS/JS del theme
-    $total_bytes = $content_size + $overhead_size;
-
-    // 2. Imagen Destacada
-    if ( has_post_thumbnail( $post ) ) {
-        $thumb_id = get_post_thumbnail_id( $post );
-        $thumb_path = get_attached_file( $thumb_id );
-        if ( $thumb_path && file_exists( $thumb_path ) ) {
-            $total_bytes += filesize( $thumb_path );
+    $post_id = $post_id ?: get_the_ID();
+    
+    // 1. Intentar obtener el valor cacheado
+    $cached_size = get_post_meta($post_id, '_github_total_size', true);
+    if ($cached_size !== '') {
+        $total_bytes = intval($cached_size);
+    } else {
+        // Fallback: Calcular si no existe el meta (posts antiguos no actualizados)
+        $post = get_post( $post_id );
+        if ( ! $post ) {
+            return '0kb';
         }
-    }
 
-    // 3. Imágenes dentro del contenido
-    if ( preg_match_all( '/class="[^"]*wp-image-(\d+)[^"]*"/', $post->post_content, $matches ) ) {
-        $image_ids = array_unique( $matches[1] );
-        foreach ( $image_ids as $img_id ) {
-            $img_path = get_attached_file( $img_id );
-            if ( $img_path && file_exists( $img_path ) ) {
-                $total_bytes += filesize( $img_path );
+        $content_size = strlen( $post->post_content );
+        $overhead_size = 14300; 
+        $total_bytes = $content_size + $overhead_size;
+
+        if ( has_post_thumbnail( $post ) ) {
+            $thumb_id = get_post_thumbnail_id( $post );
+            $thumb_path = get_attached_file( $thumb_id );
+            if ( $thumb_path && file_exists( $thumb_path ) ) {
+                $total_bytes += filesize( $thumb_path );
+            }
+        }
+
+        if ( preg_match_all( '/class="[^"]*wp-image-(\d+)[^"]*"/', $post->post_content, $matches ) ) {
+            $image_ids = array_unique( $matches[1] );
+            foreach ( $image_ids as $img_id ) {
+                $img_path = get_attached_file( $img_id );
+                if ( $img_path && file_exists( $img_path ) ) {
+                    $total_bytes += filesize( $img_path );
+                }
             }
         }
     }
 
-    // Formatear (minúsculas y sin espacio para estilo git/hash)
+    // Formatear
     if ( $total_bytes >= 1048576 ) {
         return number_format( $total_bytes / 1048576, 1 ) . 'mb';
     } else {
         return number_format( $total_bytes / 1024, 1 ) . 'kb';
     }
+}
+
+/**
+ * Obtener el Commit Hash optimizado (cacheado en meta)
+ */
+function github_theme_get_post_commit_hash( $post_id = null ) {
+    $post_id = $post_id ?: get_the_ID();
+    $hash = get_post_meta($post_id, '_github_commit_hash', true);
+    
+    if ($hash === '') {
+        $hash = substr(md5($post_id), 0, 7);
+    }
+    
+    return $hash;
 }

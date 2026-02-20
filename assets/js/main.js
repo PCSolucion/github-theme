@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const target = document.querySelector(href);
             if (target) {
                 e.preventDefault();
-                const offset = 80;
+                const offset = 120;
                 const bodyRect = document.body.getBoundingClientRect().top;
                 const elementRect = target.getBoundingClientRect().top;
                 const elementPosition = elementRect - bodyRect;
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // 6. Generar Tabla de Contenidos (TOC) - Solo en artículos con contenedor TOC
+    // 6. ScrollSpy para Tabla de Contenidos (TOC)
     function initTOC() {
         const tocContainer = document.getElementById('table-of-contents');
         const contentArea = document.querySelector('.entry-content');
@@ -120,52 +120,21 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        const ul = document.createElement('ul');
-
-        validHeadings.forEach((heading, index) => {
-            const rawTitle = heading.textContent.trim();
-            let id = heading.getAttribute('id');
-
-            if (!id) {
-                id = rawTitle.toLowerCase().trim()
-                    .replace(/\s+/g, '-')
-                    .replace(/[^\w\-]+/g, '')
-                    .replace(/\-\-+/g, '-')
-                    .replace(/^-+/, '')
-                    .replace(/-+$/, '') || 'heading-' + index;
-                
-                if (document.getElementById(id)) id += '-' + index;
-                heading.setAttribute('id', id);
-            }
-
-            const li = document.createElement('li');
-            const a = document.createElement('a');
-            a.setAttribute('href', '#' + id);
-            a.textContent = rawTitle;
-            a.className = heading.tagName.toLowerCase() === 'h3' ? 'toc-h3' : 'toc-h2';
-
-            li.appendChild(a);
-            ul.appendChild(li);
-        });
-
-        tocContainer.innerHTML = '';
-        tocContainer.appendChild(ul);
-
-        // Scroll Spy optimizado
+        // Scroll Spy mejorado
         if (window.IntersectionObserver) {
             const spyOptions = {
-                rootMargin: '-100px 0px -70% 0px',
-                threshold: 0
+                rootMargin: '-50px 0px -80% 0px', // Detectar al entrar en el tercio superior
+                threshold: [0, 1]
             };
 
             const spyObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const id = entry.target.getAttribute('id');
-                        if (id) {
-                            tocContainer.querySelectorAll('a').forEach(link => link.classList.remove('active'));
-                            const activeLink = tocContainer.querySelector(`a[href="#${id}"]`);
-                            if (activeLink) activeLink.classList.add('active');
+                        const link = tocContainer.querySelector(`a[href="#${id}"]`);
+                        if (link) {
+                            tocContainer.querySelectorAll('a').forEach(l => l.classList.remove('active'));
+                            link.classList.add('active');
                         }
                     }
                 });
@@ -282,17 +251,19 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('pre code').forEach(code => {
             const pre = code.parentElement;
             
-            // Etiqueta lenguaje
+            // Etiqueta lenguaje ahora se maneja en el servidor (SSR) via inc/optimization.php
+            /*
             const classes = code.className || '';
             const langMatch = classes.match(/language-([a-z0-9]+)|lang-([a-z0-9]+)/);
             const lang = langMatch ? (langMatch[1] || langMatch[2]) : '';
 
-            if (lang) {
+            if (lang && !pre.querySelector('.code-language-label')) {
                 const label = document.createElement('div');
                 label.className = 'code-language-label';
                 label.textContent = lang;
                 pre.appendChild(label);
             }
+            */
 
             // Números de línea
             const text = code.textContent;

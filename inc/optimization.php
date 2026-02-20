@@ -249,6 +249,128 @@ function github_theme_clean_resource_hints($urls, $relation_type) {
 add_filter('wp_resource_hints', 'github_theme_clean_resource_hints', 20, 2);
 
 /**
+ * Pre-computar y guardar metadatos técnicos (Hash y Tamaño) al guardar el post.
+ * Esto evita cálculos pesados y accesos a disco en cada carga de página.
+ */
+function github_theme_save_technical_metadata($post_id) {
+    // Solo para posts normales y evitar recursión
+    if (get_post_type($post_id) !== 'post' || wp_is_post_revision($post_id)) {
+        return;
+    }
+
+    // 1. Generar y guardar Commit Hash
+    $commit_hash = substr(md5($post_id), 0, 7);
+    update_post_meta($post_id, '_github_commit_hash', $commit_hash);
+
+    // 2. Calcular y guardar Tamaño Total (Raw bytes para mayor precisión en el meta)
+    $post = get_post($post_id);
+    if ($post) {
+        $content_size = strlen($post->post_content);
+        $overhead_size = 14300; 
+        $total_bytes = $content_size + $overhead_size;
+
+        // Imágenes destacadas
+        if (has_post_thumbnail($post_id)) {
+            $thumb_id = get_post_thumbnail_id($post_id);
+            $thumb_path = get_attached_file($thumb_id);
+            if ($thumb_path && file_exists($thumb_path)) {
+                $total_bytes += filesize($thumb_path);
+            }
+        }
+
+        // Imágenes en contenido
+        if (preg_match_all('/class="[^"]*wp-image-(\d+)[^"]*"/', $post->post_content, $matches)) {
+            $image_ids = array_unique($matches[1]);
+            foreach ($image_ids as $img_id) {
+                $img_path = get_attached_file($img_id);
+                if ($img_path && file_exists($img_path)) {
+                    $total_bytes += filesize($img_path);
+                }
+            }
+        }
+        
+        update_post_meta($post_id, '_github_total_size', $total_bytes);
+    }
+}
+add_action('save_post', 'github_theme_save_technical_metadata');
+
+/**
+ * Generar el HTML de la Tabla de Contenidos a partir del contenido del post
+ * 
+ * @param string $content El contenido del post
+ * @return string El HTML de la lista de contenidos
+ */
+function github_theme_generate_toc($content) {
+    if (empty($content)) {
+        return '';
+    }
+
+    // Extraer H2 y H3
+    preg_match_all('/<(h[2-3])([^>]*)>(.*?)<\/h[2-3]>/i', $content, $matches);
+    
+    if (empty($matches[0])) {
+        return '<p class="no-toc-content">No hay encabezados en este artículo.</p>';
+    }
+
+    $toc_html = '<ul class="toc-list">';
+    
+    foreach ($matches[1] as $index => $tag) {
+        $attributes = $matches[2][$index];
+        $title = wp_strip_all_tags($matches[3][$index]);
+        
+        // Obtener el ID (usamos el mismo patrón que github_theme_auto_heading_ids)
+        $id = '';
+        if (preg_match('/id="([^"]+)"/', $attributes, $id_match)) {
+            $id = $id_match[1];
+        } else {
+            $id = sanitize_title($title);
+        }
+        
+        $class = ($tag === 'h3') ? 'toc-h3' : 'toc-h2';
+        $toc_html .= sprintf(
+            '<li><a href="#%s" class="%s">%s</a></li>',
+            esc_attr($id),
+            esc_attr($class),
+            esc_html($title)
+        );
+    }
+    
+    $toc_html .= '</ul>';
+    
+    return $toc_html;
+}
+
+/**
+ * Speculative Loading API (Instant Navigation)
+ * Instruye al navegador para precargar páginas antes de que el usuario haga clic.
+ */
+function github_theme_speculative_loading() {
+    if (is_admin()) return;
+    ?>
+    <script type="speculationrules">
+    {
+      "prerender": [
+        {
+          "source": "document",
+          "where": {
+            "and": [
+              { "href_matches": "<?php echo esc_url_raw(home_url('/')); ?>*" },
+              { "not": { "href_matches": "<?php echo admin_url(); ?>*" } },
+              { "not": { "href_matches": "*/wp-login*" } },
+              { "not": { "href_matches": "*/wp-admin*" } },
+              { "not": { "href_matches": "*\\?*" } }
+            ]
+          },
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
+    <?php
+}
+add_action('wp_footer', 'github_theme_speculative_loading');
+
+/**
  * Bloqueo Agresivo de Dashicons: Eliminar incluso si se inyectan tarde
  */
 add_action('wp_print_styles', function() {
@@ -256,3 +378,49 @@ add_action('wp_print_styles', function() {
         wp_dequeue_style('dashicons');
     }
 }, 100);
+function github_theme_code_snippets_schema($content) {
+    // Solo en posts o páginas individuales
+    if (!is_singular()) {
+        return $content;
+    }
+
+    // 1. Procesar tags <pre>
+    $content = preg_replace_callback('/<pre([^>]*)>/i', function($matches) {
+        $attrs = $matches[1];
+        
+        // Si ya tiene el esquema, no hacemos nada
+        if (strpos($attrs, 'SoftwareSourceCode') !== false) {
+            return $matches[0];
+        }
+
+        $language = 'text';
+        if (preg_match('/class="[^"]*language-([^"\s]+)[^"]*"/i', $attrs, $lang_match)) {
+            $language = $lang_match[1];
+        }
+
+        // Etiqueta visual del lenguaje
+        $visual_label = sprintf(
+            '<div class="code-language-label">%s</div>',
+            esc_html($language)
+        );
+
+        return sprintf(
+            '<pre%s itemscope itemtype="http://schema.org/SoftwareSourceCode">%s<meta itemprop="programmingLanguage" content="%s">',
+            $attrs,
+            $visual_label,
+            esc_attr($language)
+        );
+    }, $content);
+
+    // 2. Procesar tags <code> dentro de los <pre> ya marcados (o todos)
+    $content = preg_replace_callback('/<code([^>]*)>/i', function($matches) {
+        $attrs = $matches[1];
+        if (strpos($attrs, 'itemprop="text"') !== false) {
+            return $matches[0];
+        }
+        return "<code{$attrs} itemprop=\"text\">";
+    }, $content);
+
+    return $content;
+}
+add_filter('the_content', 'github_theme_code_snippets_schema', 99);

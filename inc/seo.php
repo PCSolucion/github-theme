@@ -230,3 +230,76 @@ function github_theme_redirect_attachment_pages() {
     }
 }
 add_action('template_redirect', 'github_theme_redirect_attachment_pages');
+
+/**
+ * Agregar marcado Schema.org (JSON-LD) para mejorar el SEO y permitir Rich Snippets
+ */
+function github_theme_schema_markup() {
+    $schema = array();
+    $site_url = home_url('/');
+    $site_name = get_bloginfo('name');
+    $site_description = get_bloginfo('description');
+
+    // 1. WebSite Schema - Para todas las páginas
+    $schema['website'] = array(
+        "@context" => "https://schema.org",
+        "@type" => "WebSite",
+        "name" => $site_name,
+        "description" => $site_description,
+        "url" => $site_url,
+        "potentialAction" => array(
+            "@type" => "SearchAction",
+            "target" => array(
+                "@type" => "EntryPoint",
+                "urlTemplate" => $site_url . "?s={search_term_string}"
+            ),
+            "query-input" => "required name=search_term_string"
+        )
+    );
+
+    // 2. BlogPosting Schema - Solo en artículos individuales
+    if (is_single()) {
+        global $post;
+        $author_id = $post->post_author;
+        
+        // Obtener imagen destacada o fallback
+        $thumb_id = get_post_thumbnail_id($post->ID);
+        $image_url = wp_get_attachment_url($thumb_id) ?: get_template_directory_uri() . '/assets/img/logo.svg';
+
+        $schema['article'] = array(
+            "@context" => "https://schema.org",
+            "@type" => "BlogPosting",
+            "mainEntityOfPage" => array(
+                "@type" => "WebPage",
+                "@id" => get_permalink()
+            ),
+            "headline" => get_the_title(),
+            "description" => github_theme_meta_description(),
+            "image" => array(
+                "@type" => "ImageObject",
+                "url" => $image_url
+            ),
+            "author" => array(
+                "@type" => "Person",
+                "name" => get_the_author_meta('display_name', $author_id),
+                "url" => get_author_posts_url($author_id)
+            ),
+            "publisher" => array(
+                "@type" => "Organization",
+                "name" => $site_name,
+                "logo" => array(
+                    "@type" => "ImageObject",
+                    "url" => get_template_directory_uri() . '/assets/img/logo.svg'
+                )
+            ),
+            "datePublished" => get_the_date('c'),
+            "dateModified" => get_the_modified_date('c')
+        );
+    }
+
+    echo "\n<!-- Schema Markup by GitHub Theme -->\n";
+    foreach ($schema as $type => $data) {
+        echo '<script type="application/ld+json">' . json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+    }
+}
+add_action('wp_head', 'github_theme_schema_markup');

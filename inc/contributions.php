@@ -48,7 +48,19 @@ function github_theme_get_contributions_data($year = null, $category_id = null) 
         $year = intval(date('Y'));
     }
     
-    // Query SUPER SIMPLE - Solo año, sin fechas
+    // 1. Intentar obtener de caché (Transients se guardan en BD, no en cookies)
+    $cache_key = 'github_theme_contrib_' . $year;
+    // Agregamos categoría al key solo si se usa en el futuro
+    if ($category_id) {
+        $cache_key .= '_cat_' . $category_id;
+    }
+    
+    $cached_data = get_transient($cache_key);
+    if ($cached_data !== false) {
+        return $cached_data;
+    }
+    
+    // 2. Si no hay caché, realizar consulta SQL
     $posts = $wpdb->get_results($wpdb->prepare(
         "SELECT DATE(post_date) as post_date, post_title
         FROM {$wpdb->posts}
@@ -73,6 +85,9 @@ function github_theme_get_contributions_data($year = null, $category_id = null) 
             $contributions[$date]['titles'][] = $post->post_title;
         }
     }
+    
+    // 3. Guardar en caché por 24 horas
+    set_transient($cache_key, $contributions, DAY_IN_SECONDS);
     
     return $contributions;
 }

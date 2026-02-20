@@ -91,6 +91,7 @@
     position: relative;
     font-family: var(--github-font-mono);
     letter-spacing: -0.02em;
+    scroll-margin-top: 120px;
 }
 
 .post-article .entry-content h3 {
@@ -102,6 +103,7 @@
     position: relative;
     font-family: var(--github-font-mono);
     letter-spacing: -0.01em;
+    scroll-margin-top: 120px;
 }
 
 /* Anchor link icon on hover */
@@ -154,11 +156,17 @@
     background: var(--github-bg-primary);
     border: 1px solid var(--github-border);
     border-radius: 8px;
-    padding: 44px 20px 20px 50px;
+    padding: 44px 20px 20px 20px; /* Reducido de 50px a 20px por defecto */
     overflow-x: auto;
     margin-bottom: 24px;
     transition: border-color 0.2s ease;
 }
+
+/* Solo aplicar padding extra si hay números de línea */
+.entry-content pre.line-numbers {
+    padding-left: 55px;
+}
+
 
 .entry-content pre::before {
     content: "";
@@ -177,16 +185,17 @@
 .entry-content pre::after {
     content: "•••";
     position: absolute;
-    top: 8px;
+    top: 5px; /* Ajustado para mejor centrado vertical en la barra de 32px */
     left: 16px;
     color: #484f58;
-    font-size: 20px;
+    font-size: 18px;
     line-height: 1;
     letter-spacing: 2px;
     font-family: sans-serif;
     pointer-events: none;
     opacity: 0.5;
 }
+
 
 .entry-content pre:hover {
     border-color: #444444;
@@ -206,22 +215,24 @@
 .code-language-label {
     position: absolute;
     top: 0;
-    left: 70px;
-    height: 32px;
-    background: var(--github-bg-primary);
-    color: var(--github-text-primary);
-    font-size: 11px;
-    font-weight: 500;
-    text-transform: lowercase;
-    padding: 0 16px;
+    right: 48px; /* Espacio para el botón de copiar */
+    height: 31px;
+    background: transparent; /* Sin fondo propio para integrarse en la barra */
+    color: var(--github-text-tertiary);
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0 12px;
     display: flex;
     align-items: center;
-    border-right: 1px solid var(--github-border);
+    border-left: 1px solid var(--github-border);
     font-family: var(--github-font-mono);
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     pointer-events: none;
     z-index: 2;
 }
+
+
 
 .copy-button {
     position: absolute;
@@ -379,7 +390,7 @@
     background: var(--github-bg-secondary);
     border: 1px solid var(--github-border);
     border-radius: 8px;
-    padding: 24px;
+    padding: 16px; /* Return to padded box for cleaner block style */
     margin-bottom: 24px;
     transition: border-color 0.2s ease;
 }
@@ -389,12 +400,12 @@
 }
 
 .toc-box h3 {
-    font-size: 18px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--github-text-primary);
-    margin: 0 0 16px 0;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--github-border);
+    color: var(--github-text-tertiary);
+    margin: 0 0 12px 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
     font-family: var(--github-font-mono);
 }
 
@@ -405,50 +416,41 @@
 }
 
 #table-of-contents li {
-    margin-bottom: 4px;
+    margin: 2px 0;
 }
 
 #table-of-contents a {
     display: block;
     padding: 8px 12px;
-    padding-left: 24px;
     color: var(--github-text-secondary);
     text-decoration: none;
-    border-radius: 6px;
-    font-size: 14px;
+    font-size: 13px;
     font-family: var(--github-font-mono);
-    position: relative;
-    transition: color 0.2s ease;
-}
-
-#table-of-contents a::before {
-    content: "▸";
-    position: absolute;
-    left: 8px;
-    color: var(--github-text-tertiary);
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    line-height: 1.4;
 }
 
 #table-of-contents a:hover {
     color: var(--github-text-primary);
-    background: transparent;
+    background: rgba(255, 255, 255, 0.05);
 }
 
 #table-of-contents a.active {
     color: var(--github-text-primary);
-    background: transparent;
-    border-left: 2px solid var(--github-text-primary);
+    background: rgba(255, 255, 255, 0.08); /* Fondo más visible sin bordes */
     font-weight: 600;
 }
 
 /* TOC Hierarchy */
-#table-of-contents li ul {
-    margin-left: 12px;
+#table-of-contents a.toc-h3 {
+    padding-left: 24px;
+    font-size: 12px;
+    color: var(--github-text-tertiary);
 }
 
-#table-of-contents .toc-h3 a {
-    padding-left: 36px;
-    font-size: 13px;
-    color: var(--github-text-tertiary);
+#table-of-contents a.toc-h3.active {
+    color: var(--github-text-primary);
 }
 
 @media (max-width: 1024px) {

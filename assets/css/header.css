@@ -38,6 +38,15 @@ body.single-post .site-header {
     gap: 16px;
 }
 
+.site-title {
+    margin: 0;
+    padding: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: inherit;
+    display: inline;
+}
+
 .site-logo {
     display: inline-flex;
     align-items: baseline;

@@ -28,9 +28,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 <header class="site-header">
     <div class="header-container">
         <div class="site-branding">
-            <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo" rel="home" aria-label="<?php bloginfo('name'); ?>">
-                <svg class="logo-dot" width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="#008ec2"/></svg><span class="logo-path">/pcsolucion</span>
-            </a>
+            <?php if ( is_front_page() || is_home() ) : ?>
+                <h1 class="site-title">
+                    <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo" rel="home" aria-label="<?php bloginfo('name'); ?>">
+                        <svg class="logo-dot" width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="#008ec2"/></svg><span class="logo-path">/pcsolucion</span>
+                    </a>
+                </h1>
+            <?php else : ?>
+                <a href="<?php echo esc_url(home_url('/')); ?>" class="site-logo" rel="home" aria-label="<?php bloginfo('name'); ?>">
+                    <svg class="logo-dot" width="6" height="6" viewBox="0 0 6 6"><circle cx="3" cy="3" r="3" fill="#008ec2"/></svg><span class="logo-path">/pcsolucion</span>
+                </a>
+            <?php endif; ?>
         </div>
         
         <div class="header-search-wrapper">

@@ -36,9 +36,8 @@ get_header();
 
                         <footer class="post-footer">
                             <div class="post-meta">
-                                <?php $commit_hash = substr(md5(get_the_ID()), 0, 7); ?>
                                 <span class="commit-hash" title="<?php esc_attr_e('ID del commit (ficticio)', 'github-theme'); ?>">
-                                    <?php echo $commit_hash; ?>
+                                    <?php echo github_theme_get_post_commit_hash(); ?>
                                 </span>
                                 <span class="file-size" title="<?php esc_attr_e('Peso total estimado (HTML + Imágenes)', 'github-theme'); ?>">
                                     <?php echo github_theme_get_total_download_size(); ?>

@@ -21,10 +21,9 @@ get_header();
             <h1 class="entry-title"><?php the_title(); ?></h1>
 
             <div class="post-meta">
-                <?php $commit_hash = substr(md5(get_the_ID()), 0, 7); ?>
-                <span class="commit-hash" title="<?php esc_attr_e('ID del commit (ficticio)', 'github-theme'); ?>">
-                    <?php echo $commit_hash; ?>
-                </span>
+                <div class="commit-hash" title="Commit Hash">
+                    <?php echo github_theme_get_post_commit_hash(); ?>
+                </div>
                 <span class="file-size" title="<?php esc_attr_e('Peso total estimado (HTML + Imágenes)', 'github-theme'); ?>">
                     <?php echo github_theme_get_total_download_size(); ?>
                 </span>
@@ -75,7 +74,7 @@ get_header();
             <div class="toc-box">
                 <h3>Contenido</h3>
                 <nav id="table-of-contents">
-                    <!-- JS will populate this -->
+                    <?php echo github_theme_generate_toc(get_the_content()); ?>
                 </nav>
             </div>
             <?php dynamic_sidebar('sidebar-1'); ?>
