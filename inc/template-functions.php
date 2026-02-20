@@ -28,6 +28,7 @@ function github_theme_get_category_color( $category_id ) {
             'noticias'     => '#24292e', // Dark Grey
             'programacion' => '#f34b7d', // Pink
             'seguridad'    => '#d73a49', // Red
+            'seo'          => '#bc8cff', // Lavender (SEO/Data)
             'streaming'    => '#9146ff', // Twitch Purple
             'tecnologia'   => '#00bcd4', // Cyan
             'videojuegos'  => '#2ea44f', // Green

@@ -1,0 +1,99 @@
+/**
+ * Forms & Buttons Styles
+ * Extracted from style.css for better modularity.
+ */
+
+/* Form Inputs */
+input[type="text"],
+input[type="email"],
+input[type="search"]:not(.AppHeader-search-input),
+input[type="password"],
+textarea,
+select {
+    width: 100%;
+    padding: 8px 12px;
+    background-color: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 6px;
+    color: var(--github-text-primary);
+    font-family: var(--github-font-sans);
+    font-size: 14px;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--github-accent);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.06);
+}
+
+/* Generic GitHub Buttons */
+.btn, 
+button, 
+input[type="submit"], 
+input[type="reset"], 
+input[type="button"],
+.wp-block-button__link {
+    display: inline-block;
+    padding: 5px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    white-space: nowrap;
+    vertical-align: middle;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    appearance: none;
+    transition: 80ms cubic-bezier(0.3, 0, 0.5, 1);
+    transition-property: color, background-color, border-color;
+    text-decoration: none;
+    background-color: var(--btn-bg);
+    color: var(--github-text-primary);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+}
+
+.btn:hover,
+button:hover,
+input[type="submit"]:hover {
+    background-color: var(--btn-bg-hover);
+    border-color: #8b949e;
+}
+
+.btn:active,
+button:active {
+    background-color: rgba(48, 54, 61, 0.7);
+    box-shadow: inset 0 1px 0 rgba(0,0,0,0.1);
+}
+
+/* Primary Button (Green) */
+.btn-primary, 
+.button-primary,
+#searchsubmit {
+    color: #ffffff !important;
+    background-color: var(--btn-primary-bg);
+    border-color: rgba(240, 246, 252, 0.1);
+}
+
+.btn-primary:hover,
+#searchsubmit:hover {
+    background-color: var(--btn-primary-bg-hover);
+    border-color: rgba(240, 246, 252, 0.1);
+}
+
+/* Specific Search Form */
+.search-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.search-form input[type="search"] {
+    flex: 1;
+}
+
+.search-form button {
+    white-space: nowrap;
+}

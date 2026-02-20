@@ -1,9 +1,11 @@
 <?php
 /**
- * Template personalizado para el formulario de búsqueda
- *
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 ?>
 
 <form role="search" method="get" class="search-form" action="<?php echo esc_url(home_url('/')); ?>">

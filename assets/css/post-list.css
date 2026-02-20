@@ -1,0 +1,208 @@
+/* Entradas del Blog - Modularizado */
+.post-list {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 12px;
+}
+
+@media (min-width: 768px) {
+    .post-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.post-item {
+    display: flex;
+    flex-direction: column;
+    background: var(--github-bg-secondary);
+    border: 1px solid var(--github-border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.post-item:hover {
+    border-color: #333333;
+    background-color: rgba(250, 250, 250, 0.02);
+}
+
+/* Override from style.css lower section */
+.post-item:hover {
+    border-color: #444444;
+}
+
+.post-item::after {
+    content: '→';
+    position: absolute;
+    right: 20px;
+    top: 18px;
+    font-size: 13px;
+    color: var(--github-text-tertiary);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    font-family: var(--github-font-sans);
+}
+
+.post-item:hover::after {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.post-header {
+    margin-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.post-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 0;
+    line-height: 1.5;
+    font-family: var(--github-font-sans);
+    letter-spacing: normal;
+}
+
+.post-title a {
+    color: var(--github-text-primary);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.post-title a:hover {
+    color: var(--github-accent);
+}
+
+.post-excerpt {
+    display: none;
+}
+
+.post-footer {
+    margin-top: 12px;
+    padding-top: 0;
+    border-top: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0;
+}
+
+.post-meta {
+    font-size: 12px;
+    color: var(--github-text-tertiary);
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+    font-family: var(--github-font-mono);
+    white-space: nowrap;
+}
+
+.commit-hash,
+.file-size,
+.post-date {
+    font-family: var(--github-font-mono);
+    color: #6a737d;
+    font-size: 12px;
+    margin-right: 8px;
+    position: relative;
+    padding-right: 8px;
+    display: inline-flex;
+    align-items: center;
+    text-transform: lowercase;
+}
+
+.commit-hash::after,
+.file-size::after,
+.post-date::after {
+    content: '·';
+    position: absolute;
+    right: -2px;
+    color: var(--github-text-tertiary);
+    opacity: 0.5;
+}
+
+/* Remove dot from the last element */
+.post-meta > *:last-child::after {
+    display: none;
+}
+
+/* Cleanup specific post-date styles if any */
+.post-date time {
+    color: inherit;
+}
+
+/* Categorías estilo GitHub */
+.post-categories {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+    margin-bottom: 0;
+    align-items: center;
+}
+
+.post-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--github-text-tertiary);
+    text-decoration: none;
+    font-size: 12px;
+    padding: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transition: color 0.2s ease;
+    font-family: var(--github-font-mono);
+}
+
+.post-category:hover {
+    color: var(--github-text-primary);
+}
+
+.repo-language-color {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: var(--category-color, #586e75);
+    flex-shrink: 0;
+}
+
+.category-name {
+    font-size: 11px;
+    font-weight: 500;
+    color: inherit;
+    font-family: var(--github-font-mono);
+}
+
+.post-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+.tag {
+    display: inline-block;
+    padding: 3px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--github-text-secondary);
+    background-color: var(--github-accent-subtle);
+    border: 1px solid var(--github-border);
+    border-radius: 4px;
+    text-decoration: none;
+    font-family: var(--github-font-mono);
+    transition: all 0.2s ease;
+}
+
+.tag:hover {
+    color: var(--github-text-primary);
+    border-color: #444444;
+}

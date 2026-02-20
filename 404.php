@@ -1,9 +1,11 @@
 <?php
 /**
- * Template para página 404 (No encontrada)
- *
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 get_header();
 ?>

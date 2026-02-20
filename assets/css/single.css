@@ -139,6 +139,242 @@
     text-decoration-color: var(--github-text-primary);
 }
 
+/* Code Snippets & Syntax Highlighting */
+.entry-content code {
+    font-family: var(--github-font-mono);
+    font-size: 85%;
+    background-color: var(--github-bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--github-text-primary);
+}
+
+.entry-content pre {
+    position: relative;
+    background: var(--github-bg-primary);
+    border: 1px solid var(--github-border);
+    border-radius: 8px;
+    padding: 44px 20px 20px 50px;
+    overflow-x: auto;
+    margin-bottom: 24px;
+    transition: border-color 0.2s ease;
+}
+
+.entry-content pre::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 32px;
+    background: var(--github-bg-secondary);
+    border-bottom: 1px solid var(--github-border);
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    pointer-events: none;
+}
+
+.entry-content pre::after {
+    content: "•••";
+    position: absolute;
+    top: 8px;
+    left: 16px;
+    color: #484f58;
+    font-size: 20px;
+    line-height: 1;
+    letter-spacing: 2px;
+    font-family: sans-serif;
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.entry-content pre:hover {
+    border-color: #444444;
+}
+
+.entry-content pre code {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
+    font-family: var(--github-font-mono);
+    font-size: 14px;
+    line-height: 1.6;
+    display: block;
+    color: #e6edf3;
+}
+
+.code-language-label {
+    position: absolute;
+    top: 0;
+    left: 70px;
+    height: 32px;
+    background: var(--github-bg-primary);
+    color: var(--github-text-primary);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: lowercase;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--github-border);
+    font-family: var(--github-font-mono);
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.copy-button {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    z-index: 10;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 24px;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+}
+
+.entry-content pre:hover .copy-button {
+    opacity: 1;
+}
+
+.copy-button:hover {
+    background: rgba(110, 118, 129, 0.2);
+    border-color: #8b949e;
+}
+
+.copy-button svg {
+    width: 14px;
+    height: 14px;
+    fill: #8b949e;
+}
+
+.copy-button.copied {
+    border-color: var(--github-success);
+}
+
+.copy-button.copied svg {
+    fill: var(--github-success);
+}
+
+.line-numbers-rows {
+    position: absolute;
+    top: 44px;
+    left: 0;
+    width: 40px;
+    letter-spacing: -1px;
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    user-select: none;
+    pointer-events: none;
+    text-align: right;
+    padding-right: 10px;
+}
+
+.line-numbers-rows span {
+    display: block;
+    counter-increment: linenumber;
+    color: rgba(139, 148, 158, 0.3);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Typography & Layout */
+.post-article .entry-content {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--github-text-primary);
+    text-align: left;
+    font-family: var(--github-font-sans);
+}
+
+.entry-content blockquote {
+    border-left: 4px solid var(--github-accent);
+    padding-left: 16px;
+    margin: 24px 0;
+    color: var(--github-text-secondary);
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 16px 24px;
+    border-radius: 0 6px 6px 0;
+}
+
+.entry-content ul,
+.entry-content ol {
+    margin-left: 24px;
+    margin-bottom: 24px;
+}
+
+.entry-content li {
+    margin-bottom: 8px;
+}
+
+.entry-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid var(--github-border);
+    margin: 32px 0;
+}
+
+.entry-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+}
+
+.entry-content table th,
+.entry-content table td {
+    border: 1px solid var(--github-border);
+    padding: 10px 14px;
+    text-align: left;
+}
+
+.entry-content table th {
+    background-color: var(--github-bg-tertiary);
+    font-weight: 600;
+}
+
+/* Steps List (Tutorial Pattern) */
+.entry-content ol.steps-list {
+    counter-reset: tutorial-steps;
+    list-style: none;
+    margin-left: 0;
+}
+
+.entry-content ol.steps-list li {
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 24px;
+}
+
+.entry-content ol.steps-list li::before {
+    counter-increment: tutorial-steps;
+    content: counter(tutorial-steps);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 28px;
+    height: 28px;
+    background-color: var(--github-bg-tertiary);
+    border: 1px solid var(--github-border);
+    border-radius: 50%;
+    text-align: center;
+    line-height: 26px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--github-text-primary);
+}
+
+/* Table of Contents */
 .toc-box {
     background: var(--github-bg-secondary);
     border: 1px solid var(--github-border);
@@ -160,10 +396,6 @@
     padding-bottom: 12px;
     border-bottom: 1px solid var(--github-border);
     font-family: var(--github-font-mono);
-}
-
-.toc-box h3::before {
-    content: none;
 }
 
 #table-of-contents ul {
@@ -217,32 +449,6 @@
     padding-left: 36px;
     font-size: 13px;
     color: var(--github-text-tertiary);
-}
-
-.post-tags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid var(--github-border);
-}
-
-.post-tags a {
-    padding: 4px 10px;
-    background: var(--github-accent-subtle);
-    border: 1px solid var(--github-border);
-    border-radius: 16px;
-    color: var(--github-text-secondary);
-    text-decoration: none;
-    font-size: 12px;
-    font-family: var(--github-font-mono);
-    transition: all 0.2s ease;
-}
-
-.post-tags a:hover {
-    color: var(--github-text-primary);
-    border-color: #444444;
 }
 
 @media (max-width: 1024px) {

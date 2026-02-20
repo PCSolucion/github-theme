@@ -1,9 +1,11 @@
 <?php
 /**
- * Footer del tema
- *
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 ?>
 
 <footer class="site-footer">

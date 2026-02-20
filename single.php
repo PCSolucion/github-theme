@@ -1,8 +1,12 @@
 <?php
 /**
- * Template para entradas individuales
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 get_header();
 ?>
 

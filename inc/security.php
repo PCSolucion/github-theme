@@ -238,34 +238,29 @@ add_action('template_redirect', 'github_theme_block_ldap_injection', 0);
  * Limpiar query de búsqueda para prevenir inyección SQL y LDAP
  */
 function github_theme_sanitize_search_query($query) {
-    if ($query->is_search && !is_admin()) {
-        // Limpiar el término de búsqueda
-        $search_term = get_search_query();
+    if ($query->is_search && !is_admin() && $query->is_main_query()) {
+        // Obtener el término directamente de la URL para evitar filtros previos
+        $s = isset($_GET['s']) ? $_GET['s'] : '';
         
-        // Eliminar caracteres peligrosos - ser más restrictivo
-        $search_term = strip_tags($search_term);
-        
-        // Eliminar caracteres de inyección LDAP específicamente
+        // 1. Limpieza profunda
+        $search_term = strip_tags($s);
         $search_term = str_replace(array('*', '(', ')', '\\', '|', '&', '!', chr(0)), '', $search_term);
-        
-        // Eliminar cualquier otro carácter especial
         $search_term = preg_replace('/[^\p{L}\p{N}\s\-_\.]/u', '', $search_term);
+        $search_term = trim(preg_replace('/\s+/', ' ', $search_term));
+        $search_term = mb_substr($search_term, 0, 100);
         
-        // Limitar longitud (máximo 100 caracteres)
-        $search_term = substr($search_term, 0, 100);
-        
-        // Normalizar espacios múltiples
-        $search_term = preg_replace('/\s+/', ' ', $search_term);
-        $search_term = trim($search_term);
-        
-        // Actualizar query
-        if (!empty($search_term)) {
-            $query->set('s', $search_term);
-        } else {
-            // Si la búsqueda queda vacía después de sanitizar, cancelar la búsqueda
-            $query->set('s', '');
-            $query->is_search = false;
+        // 2. Validación de "Junk Search"
+        // Si el término es demasiado corto (ej. < 2 caracteres) o queda vacío
+        if (mb_strlen($search_term) < 2) {
+            // No cancelamos is_search (para mantener el template search.php)
+            // pero forzamos que no devuelva nada sin estresar la base de datos
+            $query->set('s', ''); 
+            $query->set('post__in', array(0)); // Fuerza 0 resultados
+            return;
         }
+        
+        // 3. Aplicar término limpio
+        $query->set('s', $search_term);
     }
     return $query;
 }

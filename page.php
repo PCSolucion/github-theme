@@ -1,9 +1,11 @@
 <?php
 /**
- * Template para páginas estáticas
- *
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 get_header();
 ?>

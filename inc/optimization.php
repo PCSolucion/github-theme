@@ -69,12 +69,89 @@ function github_disable_heartbeat() {
 add_action('init', 'github_disable_heartbeat', 1);
 
 /**
- * Agregar sugerencias de recursos (preload para CSS crítico)
+ * Agregar sugerencias de recursos (preload y preconnect) para mejorar el rendimiento
  */
 function github_preload_critical_assets() {
     $version = GITHUB_THEME_VERSION;
-    // Preload del CSS principal con su versión correspondiente para evitar duplicados
-    echo '<link rel="preload" href="' . get_stylesheet_uri() . '?ver=' . $version . '" as="style">' . "\n";
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css?ver=' . $version . '" as="style">' . "\n";
+
+    // 1. Preconnect a dominios externos críticos
+    echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
+    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
+    echo '<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>' . "\n";
+
+    // 2. Preload de fuentes críticas (Geist Sans y Mono)
+    // Estas son las fuentes principales de la UI y código
+    echo '<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/files/geist-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
+    echo '<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fontsource/geist-mono@5.0.3/files/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
+
+    // 3. Preload del CSS principal (Sin versión para concordar con la optimización de cacheo)
+    echo '<link rel="preload" href="' . get_stylesheet_uri() . '" as="style">' . "\n";
+    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
 }
 add_action('wp_head', 'github_preload_critical_assets', 1);
+
+/**
+ * Generar automáticamente IDs para encabezados h2 y h3
+ * Esto permite el funcionamiento de enlaces de ancla y mejora el SEO.
+ */
+function github_theme_auto_heading_ids($content) {
+    if (is_singular() && in_the_loop() && is_main_query()) {
+        $content = preg_replace_callback('/<(h[2-3])([^>]*)>(.*?)<\/h[2-3]>/i', function($matches) {
+            $tag = $matches[1];
+            $attributes = $matches[2];
+            $title = $matches[3];
+            
+            // Si ya tiene un ID, no lo tocamos
+            if (strpos($attributes, 'id=') !== false) {
+                return $matches[0];
+            }
+            
+            // Generar ID a partir del texto (slugify)
+            $id = sanitize_title(wp_strip_all_tags($title));
+            
+            return "<{$tag}{$attributes} id=\"{$id}\">{$title}</{$tag}>";
+        }, $content);
+    }
+    return $content;
+}
+add_filter('the_content', 'github_theme_auto_heading_ids', 10);
+
+/**
+ * Eliminar query strings (?ver=) de assets estáticos (CSS y JS)
+ * Mejora el rendimiento al permitir que CDNs y proxies cacheen mejor los archivos.
+ */
+function github_theme_remove_script_version($src) {
+    if (strpos($src, '?ver=') || strpos($src, '&ver=')) {
+        $src = remove_query_arg('ver', $src);
+    }
+    return $src;
+}
+add_filter('style_loader_src', 'github_theme_remove_script_version', 9999);
+add_filter('script_loader_src', 'github_theme_remove_script_version', 9999);
+
+/**
+ * Eliminar bloques de CSS y SVG innecesarios del core (Gutenberg Bloat)
+ */
+function github_theme_remove_wp_bloat() {
+    // Eliminar estilos globales de bloques (inline CSS)
+    wp_dequeue_style('global-styles');
+    
+    // Eliminar los filtros SVG de duotono de los bloques
+    remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
+    remove_action('render_block', 'wp_render_duotone_support', 10);
+}
+add_action('wp_enqueue_scripts', 'github_theme_remove_wp_bloat', 100);
+
+/**
+ * Desactivar jQuery en el Front-end
+ * Mejora el rendimiento eliminando una librería pesada.
+ * Se mantiene en el admin para no romper el editor de bloques o la gestión de WP.
+ */
+function github_theme_remove_jquery() {
+    if (!is_admin()) {
+        wp_deregister_script('jquery');
+        wp_deregister_script('jquery-core');
+        wp_deregister_script('jquery-migrate');
+    }
+}
+add_action('wp_enqueue_scripts', 'github_theme_remove_jquery', 1);

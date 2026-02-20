@@ -125,7 +125,7 @@ function github_theme_social_meta_tags() {
     $site_description = get_bloginfo('description');
     $site_url = home_url('/');
     
-    // Obtener imagen por defecto (logo del sitio o primera imagen del tema)
+    // Obtener imagen por defecto
     $default_image = get_template_directory_uri() . '/assets/img/logo.svg';
     if (has_custom_logo()) {
         $custom_logo_id = get_theme_mod('custom_logo');
@@ -135,85 +135,31 @@ function github_theme_social_meta_tags() {
         }
     }
     
-    // Inicializar variables
-    $og_title = '';
-    $og_description = '';
-    $og_image = $default_image;
-    $og_url = '';
-    $og_type = 'website';
-    $twitter_card = 'summary_large_image';
-    
-    // Página de inicio
+    // 1. Título optimizado (Uso de estándar WP + Limitación)
     if (is_front_page() || is_home()) {
         $og_title = $site_name;
-        $og_description = $site_description ?: 'Blog de tecnología especializado en tutoriales y guías sobre Windows, Linux y WordPress.';
-        $og_url = $site_url;
-        $og_type = 'website';
-    }
-    // Post individual
-    elseif (is_single()) {
-        global $post;
-        
-        $og_title = get_the_title();
-        $og_description = github_theme_meta_description();
-        $og_url = get_permalink();
-        $og_type = 'article';
-        
-        // Imagen destacada desactivada por política de diseño
-
-    }
-    // Página
-    elseif (is_page()) {
-        $og_title = get_the_title();
-        $og_description = github_theme_meta_description();
-        $og_url = get_permalink();
-        $og_type = 'website';
-        
-        // Imagen destacada desactivada por política de diseño
-
-    }
-    // Categoría
-    elseif (is_category()) {
-        $category = get_queried_object();
-        $og_title = single_cat_title('', false) . ' - ' . $site_name;
-        $og_description = github_theme_meta_description();
-        $og_url = get_category_link($category->term_id);
-        $og_type = 'website';
-    }
-    // Etiqueta
-    elseif (is_tag()) {
-        $tag = get_queried_object();
-        $og_title = single_tag_title('', false) . ' - ' . $site_name;
-        $og_description = github_theme_meta_description();
-        $og_url = get_tag_link($tag->term_id);
-        $og_type = 'website';
-    }
-    // Autor
-    elseif (is_author()) {
-        $author = get_queried_object();
-        $og_title = 'Artículos de ' . $author->display_name . ' - ' . $site_name;
-        $og_description = github_theme_meta_description();
-        $og_url = get_author_posts_url($author->ID);
-        $og_type = 'profile';
-    }
-    // Búsqueda
-    elseif (is_search()) {
-        $og_title = 'Resultados de búsqueda: ' . get_search_query() . ' - ' . $site_name;
-        $og_description = github_theme_meta_description();
-        $og_url = get_search_link();
-        $og_type = 'website';
-    }
-    // Fallback
-    else {
-        $og_title = $site_name;
-        $og_description = $site_description ?: github_theme_meta_description();
-        $og_url = $site_url;
-        $og_type = 'website';
+    } else {
+        $og_title = wp_get_document_title();
     }
     
-    // Limpiar y escapar valores
+    // Limitar título a ~65 caracteres (estándar SEO para social)
     $og_title = wp_strip_all_tags($og_title);
+    if (mb_strlen($og_title) > 65) {
+        $og_title = mb_substr($og_title, 0, 62) . '...';
+    }
+
+    // 2. Descripción optimizada
+    $og_description = github_theme_meta_description();
+    // La función github_theme_meta_description ya limita a 160, aseguramos limpieza
     $og_description = wp_strip_all_tags($og_description);
+
+    // 3. Otros Metadatos
+    $og_image = $default_image;
+    $og_url = get_permalink();
+    if (is_front_page() || is_home()) $og_url = home_url('/');
+    
+    $og_type = is_single() ? 'article' : 'website';
+    $twitter_card = 'summary_large_image';
     
     // Generar las etiquetas
     ?>

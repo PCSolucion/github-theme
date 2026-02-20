@@ -1,9 +1,11 @@
 <?php
 /**
- * Template principal del blog
- *
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 get_header();
 ?>

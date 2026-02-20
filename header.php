@@ -1,9 +1,11 @@
 <?php
 /**
- * Header del tema
- *
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>

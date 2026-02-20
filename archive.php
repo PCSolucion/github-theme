@@ -1,9 +1,11 @@
 <?php
 /**
- * Template para archivos (categoría, etiquetas, fechas, etc.)
- *
- * @package GitHubThem
+ * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 get_header();
 ?>

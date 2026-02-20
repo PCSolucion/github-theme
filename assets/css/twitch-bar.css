@@ -1,0 +1,120 @@
+/* Barra de notificación de Twitch Stream */
+.twitch-stream-bar {
+    background: linear-gradient(135deg, #9146FF 0%, #772CE8 100%);
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    box-shadow: 0 2px 8px rgba(145, 70, 255, 0.3);
+    animation: slideDown 0.4s ease-out;
+}
+
+/* Ajustar posición cuando hay admin bar de WordPress */
+.admin-bar .twitch-stream-bar {
+    top: 32px;
+}
+
+@media screen and (max-width: 782px) {
+    .admin-bar .twitch-stream-bar {
+        top: 46px;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.twitch-stream-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 10px 24px;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.twitch-stream-link::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+}
+
+.twitch-stream-link:hover::before {
+    left: 100%;
+}
+
+.twitch-stream-link:hover {
+    background: linear-gradient(135deg, #a259ff 0%, #8839f0 100%);
+}
+
+.twitch-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+}
+
+.twitch-text {
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+.twitch-cta {
+    font-weight: 500;
+    opacity: 0.9;
+    transition: transform 0.3s ease;
+}
+
+.twitch-stream-link:hover .twitch-cta {
+    transform: translateX(4px);
+}
+
+/* Responsive para móviles */
+@media (max-width: 640px) {
+    .twitch-stream-link {
+        font-size: 13px;
+        padding: 8px 16px;
+        gap: 8px;
+    }
+
+    .twitch-icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    .twitch-cta {
+        display: none;
+    }
+}

@@ -1,0 +1,52 @@
+/**
+ * Pagination Styles
+ * Extracted from style.css for better modularity.
+ */
+
+.pagination {
+    margin: 40px 0;
+    text-align: center;
+}
+
+.pagination .nav-links {
+    display: inline-flex;
+    justify-content: center;
+    gap: 4px;
+}
+
+.pagination .page-numbers {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    background-color: var(--btn-bg);
+    border: 1px solid var(--btn-border);
+    border-radius: 6px;
+    color: var(--github-text-primary);
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.pagination .page-numbers:hover:not(.current) {
+    background-color: var(--btn-bg-hover);
+    border-color: #8b949e;
+}
+
+.pagination .page-numbers.current {
+    background-color: var(--github-accent);
+    color: var(--github-bg-primary);
+    border-color: var(--github-accent);
+    font-weight: 600;
+}
+
+.pagination .page-numbers.prev,
+.pagination .page-numbers.next {
+    background-color: transparent;
+    border-color: transparent;
+}
+
+.pagination .page-numbers.prev:hover,
+.pagination .page-numbers.next:hover {
+    color: var(--github-accent);
+    background-color: rgba(255, 255, 255, 0.06);
+}

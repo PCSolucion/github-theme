@@ -1,9 +1,11 @@
 <?php
 /**
- * Template para resultados de búsqueda
- *
  * @package GitHubTheme
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
 
 get_header();
 ?>
