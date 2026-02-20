@@ -225,20 +225,31 @@ document.addEventListener('DOMContentLoaded', function () {
         document.addEventListener('mousemove', (e) => {
             if (tooltip.style.opacity === '0') return;
 
+            // Volver a posicionar arriba por defecto
             const tooltipHeight = tooltip.offsetHeight;
             const tooltipWidth = tooltip.offsetWidth;
-            const offset = 35; // Aumentado aún más para evitar que el puntero tape el contenido
+            const offset = 15;
 
-            // Forzar posición siempre abajo del cursor
-            tooltip.classList.add('bottom');
-            let top = e.clientY + offset;
+            let top = e.clientY - tooltipHeight - offset;
             let left = e.clientX;
+
+            // Si no hay espacio arriba, mostrar abajo
+            if (top < 10) {
+                tooltip.classList.add('bottom');
+                top = e.clientY + offset;
+            } else {
+                tooltip.classList.remove('bottom');
+            }
 
             if (left - (tooltipWidth / 2) < 10) left = (tooltipWidth / 2) + 10;
             else if (left + (tooltipWidth / 2) > window.innerWidth - 10) left = window.innerWidth - 10 - (tooltipWidth / 2);
 
             tooltip.style.top = top + 'px';
             tooltip.style.left = left + 'px';
+            
+            // Añadir transición suave (opcional, necesita CSS pero lo activamos aquí)
+            tooltip.style.transition = 'opacity 0.2s ease, transform 0.2s ease';
+            tooltip.style.transform = 'translate(-50%, 0)';
         });
     }
     initContributionsTooltip();
