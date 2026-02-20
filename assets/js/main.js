@@ -1,505 +1,305 @@
 /**
- * JavaScript principal para GitHub Theme
+ * JavaScript principal para GitHub Theme (Vanilla JS Version)
+ * Independiente de jQuery para mejorar el rendimiento.
  */
 
-(function ($) {
+document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
-    $(document).ready(function () {
-
-        // Smooth scroll para enlaces internos
-        $('a[href^="#"]').on('click', function (e) {
-            var target = $(this.getAttribute('href'));
-            if (target.length) {
+    // 1. Smooth scroll para enlaces internos
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href === '#') return;
+            
+            const target = document.querySelector(href);
+            if (target) {
                 e.preventDefault();
-                $('html, body').stop().animate({
-                    scrollTop: target.offset().top - 80
-                }, 1000);
-            }
-        });
+                const offset = 80;
+                const bodyRect = document.body.getBoundingClientRect().top;
+                const elementRect = target.getBoundingClientRect().top;
+                const elementPosition = elementRect - bodyRect;
+                const offsetPosition = elementPosition - offset;
 
-        // Mejorar la experiencia del formulario de búsqueda
-        $('.search-form input[type="search"]').on('focus', function () {
-            $(this).closest('.search-form').addClass('focused');
-        }).on('blur', function () {
-            $(this).closest('.search-form').removeClass('focused');
-        });
-
-        // Animación suave para elementos al hacer scroll
-        if (window.IntersectionObserver) {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            // Observar elementos con la clase 'observe'
-            document.querySelectorAll('.post-item, .single-post, .page-content').forEach(function (el) {
-                el.classList.add('observe');
-                observer.observe(el);
-            });
-        }
-
-        // Lazy loading para imágenes (si el navegador no lo soporta nativamente)
-        if ('loading' in HTMLImageElement.prototype === false) {
-            const images = document.querySelectorAll('img[loading="lazy"]');
-
-            if ('IntersectionObserver' in window) {
-                const imageObserver = new IntersectionObserver(function (entries, observer) {
-                    entries.forEach(function (entry) {
-                        if (entry.isIntersecting) {
-                            const img = entry.target;
-                            img.src = img.dataset.src;
-                            img.classList.remove('lazy');
-                            imageObserver.unobserve(img);
-                        }
-                    });
-                });
-
-                images.forEach(function (img) {
-                    imageObserver.observe(img);
+                window.scrollTo({
+                    top: offsetPosition,
+                    behavior: 'smooth'
                 });
             }
-        }
-
-        // Mejorar la navegación móvil
-        var $mobileMenuToggle = $('.mobile-menu-toggle');
-        var $mainNavigation = $('.main-navigation');
-
-        if ($mobileMenuToggle.length) {
-            $mobileMenuToggle.on('click', function (e) {
-                e.preventDefault();
-                $mainNavigation.toggleClass('active');
-                $(this).toggleClass('active');
-            });
-        }
-
-        // Cerrar menú móvil al hacer clic fuera
-        $(document).on('click', function (e) {
-            if (!$(e.target).closest('.main-navigation, .mobile-menu-toggle').length) {
-                $mainNavigation.removeClass('active');
-                $mobileMenuToggle.removeClass('active');
-            }
         });
-
     });
 
-    // Funcionalidad de Copiar al Portapapeles
-    $(document).ready(function () {
-        $('pre').each(function () {
-            var $pre = $(this);
-            var $button = $('<button class="copy-button" aria-label="Copiar al portapapeles"><svg aria-hidden="true" viewBox="0 0 16 16" version="1.1"><path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path></svg></button>');
+    // 2. Mejorar la experiencia del formulario de búsqueda
+    document.querySelectorAll('.search-form input[type="search"]').forEach(input => {
+        const form = input.closest('.search-form');
+        if (!form) return;
 
-            $pre.css('position', 'relative');
-            $pre.append($button);
+        input.addEventListener('focus', () => form.classList.add('focused'));
+        input.addEventListener('blur', () => form.classList.remove('focused'));
+    });
 
-            $button.on('click', function () {
-                var code = $pre.find('code').text();
+    // 3. Animación suave para elementos al hacer scroll (IntersectionObserver)
+    if (window.IntersectionObserver) {
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-                navigator.clipboard.writeText(code).then(function () {
-                    $button.addClass('copied');
-                    setTimeout(function () {
-                        $button.removeClass('copied');
-                    }, 2000);
-                }, function (err) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.post-item, .single-post, .page-content').forEach(el => {
+            el.classList.add('observe');
+            observer.observe(el);
+        });
+    }
+
+    // 4. Mejorar la navegación móvil
+    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+    const mainNavigation = document.querySelector('.main-navigation');
+
+    if (mobileMenuToggle && mainNavigation) {
+        mobileMenuToggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            mainNavigation.classList.toggle('active');
+            mobileMenuToggle.classList.toggle('active');
+        });
+
+        // Cerrar menú móvil al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (!mainNavigation.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+                mainNavigation.classList.remove('active');
+                mobileMenuToggle.classList.remove('active');
+            }
+        });
+    }
+
+    // 5. Funcionalidad de Copiar al Portapapeles (Solo en posts)
+    if (document.querySelector('.entry-content')) {
+        document.querySelectorAll('pre').forEach(pre => {
+            pre.style.position = 'relative';
+            const button = document.createElement('button');
+            button.className = 'copy-button';
+            button.setAttribute('aria-label', 'Copiar al portapapeles');
+            button.innerHTML = '<svg aria-hidden="true" viewBox="0 0 16 16" version="1.1"><path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path></svg>';
+            
+            pre.appendChild(button);
+
+            button.addEventListener('click', () => {
+                const code = pre.querySelector('code');
+                if (!code) return;
+
+                navigator.clipboard.writeText(code.textContent).then(() => {
+                    button.classList.add('copied');
+                    setTimeout(() => button.classList.remove('copied'), 2000);
+                }).catch(err => {
                     console.error('Error al copiar: ', err);
                 });
             });
         });
-    });
-
-    // Generar Tabla de Contenidos (TOC)
-    // Utilidad para crear slugs (IDs limpios)
-    function slugify(text) {
-        return text.toString().toLowerCase().trim()
-            .replace(/\s+/g, '-')           // Reemplazar espacios por -
-            .replace(/[^\w\-]+/g, '')       // Eliminar caracteres no deseados
-            .replace(/\-\-+/g, '-')         // Reemplazar múltiples - por uno solo
-            .replace(/^-+/, '')             // Eliminar - al principio
-            .replace(/-+$/, '');            // Eliminar - al final
     }
 
-    function generateTOC() {
-        try {
-            var $tocContainer = $('#table-of-contents');
-            var $headings = $('.entry-content h2, .entry-content h3').filter(function () {
-                return $(this).text().trim().length > 0;
-            });
+    // 6. Generar Tabla de Contenidos (TOC) - Solo en artículos con contenedor TOC
+    function initTOC() {
+        const tocContainer = document.getElementById('table-of-contents');
+        const contentArea = document.querySelector('.entry-content');
+        if (!tocContainer || !contentArea) return;
 
-            if ($headings.length === 0 || $tocContainer.length === 0) {
-                $('.toc-box').hide();
-                return;
+        const headings = contentArea.querySelectorAll('h2, h3');
+        const validHeadings = Array.from(headings).filter(h => h.textContent.trim().length > 0);
+
+        if (validHeadings.length === 0) {
+            const tocBox = document.querySelector('.toc-box');
+            if (tocBox) tocBox.style.display = 'none';
+            return;
+        }
+
+        const ul = document.createElement('ul');
+
+        validHeadings.forEach((heading, index) => {
+            const rawTitle = heading.textContent.trim();
+            let id = heading.getAttribute('id');
+
+            if (!id) {
+                id = rawTitle.toLowerCase().trim()
+                    .replace(/\s+/g, '-')
+                    .replace(/[^\w\-]+/g, '')
+                    .replace(/\-\-+/g, '-')
+                    .replace(/^-+/, '')
+                    .replace(/-+$/, '') || 'heading-' + index;
+                
+                if (document.getElementById(id)) id += '-' + index;
+                heading.setAttribute('id', id);
             }
 
-            var $ul = $('<ul></ul>');
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.setAttribute('href', '#' + id);
+            a.textContent = rawTitle;
+            a.className = heading.tagName.toLowerCase() === 'h3' ? 'toc-h3' : 'toc-h2';
 
-            $headings.each(function (index) {
-                var $heading = $(this);
-                var rawTitle = $heading.text().trim();
-                var id = $heading.attr('id');
+            li.appendChild(a);
+            ul.appendChild(li);
+        });
 
-                // Generar ID descriptivo si no tiene
-                if (!id) {
-                    id = slugify(rawTitle) || 'heading-' + index;
-                    // Asegurar que el ID sea único en el documento
-                    if ($('#' + id).length > 0) {
-                        id = id + '-' + index;
+        tocContainer.innerHTML = '';
+        tocContainer.appendChild(ul);
+
+        // Scroll Spy optimizado
+        if (window.IntersectionObserver) {
+            const spyOptions = {
+                rootMargin: '-100px 0px -70% 0px',
+                threshold: 0
+            };
+
+            const spyObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        if (id) {
+                            tocContainer.querySelectorAll('a').forEach(link => link.classList.remove('active'));
+                            const activeLink = tocContainer.querySelector(`a[href="#${id}"]`);
+                            if (activeLink) activeLink.classList.add('active');
+                        }
                     }
-                    $heading.attr('id', id);
-                }
-
-                var tagName = $heading.prop('tagName').toLowerCase();
-                var className = tagName === 'h3' ? 'toc-h3' : 'toc-h2';
-
-                var $li = $('<li></li>');
-                var $a = $('<a></a>')
-                    .attr('href', '#' + id)
-                    .text(rawTitle)
-                    .addClass(className);
-
-                $li.append($a);
-                $ul.append($li);
-            });
-
-            $tocContainer.empty().append($ul);
-
-            // Scroll Spy optimizado con IntersectionObserver
-            if ('IntersectionObserver' in window) {
-                const observerOptions = {
-                    rootMargin: '-100px 0px -70% 0px',
-                    threshold: 0
-                };
-
-                const observer = new IntersectionObserver(function(entries) {
-                    entries.forEach(function(entry) {
-                        if (entry.isIntersecting) {
-                            const id = entry.target.getAttribute('id');
-                            if (id) {
-                                $tocContainer.find('a').removeClass('active');
-                                $tocContainer.find('a[href="#' + id + '"]').addClass('active');
-                            }
-                        }
-                    });
-                }, observerOptions);
-
-                $headings.each(function() {
-                    observer.observe(this);
                 });
-            } else {
-                // Fallback para navegadores antiguos
-                $(window).on('scroll.toc', function () {
-                    var scrollPos = $(window).scrollTop();
-                    var offset = 120;
+            }, spyOptions);
 
-                    $headings.each(function () {
-                        var refElement = $(this);
-                        if (refElement.offset().top <= scrollPos + offset) {
-                            var id = refElement.attr('id');
-                            $tocContainer.find('a').removeClass('active');
-                            $tocContainer.find('a[href="#' + id + '"]').addClass('active');
-                        }
-                    });
-                });
-            }
-        } catch (error) {
-            console.error('Error generating TOC:', error);
-            $('.toc-box').hide();
+            validHeadings.forEach(h => spyObserver.observe(h));
         }
     }
+    initTOC();
 
-    generateTOC();
 
-    // Magic Line Effect (Ping Pong Animation)
-    function initMagicLine() {
-        var $nav = $('.main-navigation');
-        var $line = $('<div class="magic-line"></div>');
-        var $activeItem = $nav.find('.current-menu-item a');
-        var $items = $nav.find('a');
-
-        if ($nav.length === 0) return;
-
-        $nav.append($line);
-        $line.show();
-
-        var currentLeft = 0;
-        var targetLeft = 0;
-        var isAnimating = false;
-        var animationStart = 0;
-        var startLeft = 0;
-        var duration = 600;
-
-        // Initial Position
-        if ($activeItem.length) {
-            var navOffset = $nav.offset().left;
-            var elOffset = $activeItem.offset().left;
-            currentLeft = (elOffset - navOffset) + 8;
-            targetLeft = currentLeft;
-
-            $line.css({
-                'left': currentLeft + 'px',
-                'opacity': '1'
-            });
-        } else {
-            $line.css('opacity', '0');
-        }
-
-        function animate(timestamp) {
-            if (!animationStart) animationStart = timestamp;
-            var progress = Math.min((timestamp - animationStart) / duration, 1);
-
-            var ease = 1 - Math.pow(1 - progress, 4);
-            var newLeft = startLeft + (targetLeft - startLeft) * ease;
-            var bounceHeight = 30;
-            var y = -bounceHeight * (4 * ease * (1 - ease));
-
-            $line.css({
-                'left': newLeft + 'px',
-                'transform': 'translateY(calc(-50% + ' + y + 'px))'
-            });
-
-            if (progress < 1) {
-                requestAnimationFrame(animate);
-            } else {
-                isAnimating = false;
-                currentLeft = targetLeft;
-                $line.css('transform', 'translateY(-50%)');
-            }
-        }
-
-        function moveLine($el) {
-            if ($el.length) {
-                var navOffset = $nav.offset().left;
-                var elOffset = $el.offset().left;
-
-                var newTarget = (elOffset - navOffset) + 8;
-
-                if (newTarget !== targetLeft) {
-                    var currentVisualLeft = parseFloat($line.css('left'));
-                    startLeft = isNaN(currentVisualLeft) ? newTarget : currentVisualLeft;
-
-                    targetLeft = newTarget;
-                    animationStart = 0;
-                    isAnimating = true;
-                    $line.css('opacity', '1');
-                    requestAnimationFrame(animate);
-                }
-            } else {
-                $line.css('opacity', '0');
-            }
-        }
-
-        // Hover Events - Only return to active when leaving entire nav
-        $items.on('mouseenter', function () {
-            moveLine($(this));
-        });
-
-        $nav.on('mouseleave', function () {
-            if ($activeItem.length) {
-                moveLine($activeItem);
-            } else {
-                $line.css('opacity', '0');
-            }
-        });
-
-        // Update on resize
-        $(window).on('resize', function () {
-            if ($activeItem.length) {
-                var navOffset = $nav.offset().left;
-                var elOffset = $activeItem.offset().left;
-                var pos = (elOffset - navOffset) + 8;
-
-                $line.css('left', pos + 'px');
-                currentLeft = pos;
-                targetLeft = pos;
-            }
-        });
-    }
-
-    initMagicLine();
-
-    // Verificar estado del stream de Twitch
-    function checkTwitchStream() {
-        var $streamBar = $('.twitch-stream-bar');
-        var channel = $streamBar.data('channel');
-
-        if (!channel) return;
-
-        // Calcular el offset base según si hay admin bar de WordPress
-        var hasAdminBar = $('body').hasClass('admin-bar');
-        var adminBarHeight = 0;
-
-        if (hasAdminBar) {
-            // La admin bar tiene 32px en desktop y 46px en móvil
-            adminBarHeight = ($(window).width() > 782) ? 32 : 46;
-        }
-
-        // Usar la API de Twitch (requiere Client ID)
-        // Como alternativa, usamos un método que verifica si el canal está en vivo
-        // mediante el endpoint público de Twitch
-
-        fetch('https://decapi.me/twitch/uptime/' + channel)
-            .then(response => response.text())
-            .then(data => {
-                // Si el canal está offline, la API devuelve un mensaje de error
-                // Si está online, devuelve el tiempo de uptime
-                if (data && !data.includes('offline') && !data.includes('error')) {
-                    // El canal está en vivo
-                    $streamBar.fadeIn(400);
-                    // Ajustar el top del header (admin bar + barra de twitch)
-                    var headerTop = adminBarHeight + 40;
-                    $('.site-header').css('top', headerTop + 'px');
-                } else {
-                    // El canal está offline
-                    $streamBar.hide();
-                    // Solo el admin bar si existe
-                    $('.site-header').css('top', adminBarHeight + 'px');
-                }
-            })
-            .catch(error => {
-                console.log('No se pudo verificar el estado del stream');
-                // En caso de error, ocultar la barra
-                $streamBar.hide();
-                $('.site-header').css('top', adminBarHeight + 'px');
-            });
-    }
-
-    // Verificar el estado del stream al cargar la página
-    checkTwitchStream();
-
-    // Verificar cada 2 minutos si el estado cambió
-    setInterval(checkTwitchStream, 120000);
-
-    // Tooltip dinámico para el calendario de contribuciones
+    // 8. Tooltip dinámico para Calendario de Contribuciones (Solo en Home)
     function initContributionsTooltip() {
-        var $tooltip = $('<div id="github-tooltip" class="github-tooltip"></div>');
-        $('body').append($tooltip);
+        if (!document.querySelector('.contribution-cell')) return;
 
-        $(document).on('mouseenter', '.contribution-cell[data-tooltip]', function () {
-            var text = $(this).data('tooltip');
-            var titles = $(this).data('titles');
+        const tooltip = document.createElement('div');
+        tooltip.id = 'github-tooltip';
+        tooltip.className = 'github-tooltip';
+        document.body.appendChild(tooltip);
 
-            if (!text) return;
+        document.addEventListener('mouseover', (e) => {
+            const cell = e.target.closest('.contribution-cell[data-tooltip]');
+            if (!cell) return;
 
-            var content = '<div style="font-weight:600; margin-bottom:4px;">' + text + '</div>';
+            const text = cell.dataset.tooltip;
+            const titles = cell.dataset.titles;
+            const dateStr = cell.dataset.date;
+            
+            if (!text || !dateStr) return;
 
+            // No mostrar si la fecha es futura (comparación basada en fecha local)
+            const dateParts = dateStr.split('-');
+            const cellDate = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            if (cellDate > today) return;
+
+            let content = `<div style="font-weight:600; margin-bottom:4px;">${text}</div>`;
             if (titles) {
-                var titleList = titles.split('|||');
+                const titleList = titles.split('|||');
                 content += '<div style="font-size:11px; color:#8b949e; border-top:1px solid rgba(255,255,255,0.1); padding-top:4px; margin-top:4px;">';
-                titleList.forEach(function (title) {
-                    content += '<div style="margin-bottom:2px;">• ' + title + '</div>';
-                });
+                titleList.forEach(title => content += `<div style="margin-bottom:2px;">• ${title}</div>`);
                 content += '</div>';
             }
 
-            $tooltip.html(content).css('opacity', '1');
+            tooltip.innerHTML = content;
+            tooltip.style.opacity = '1';
         });
 
-        $(document).on('mouseleave', '.contribution-cell[data-tooltip]', function () {
-            $tooltip.css('opacity', '0');
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.closest('.contribution-cell[data-tooltip]')) {
+                tooltip.style.opacity = '0';
+            }
         });
 
-        $(document).on('mousemove', '.contribution-cell[data-tooltip]', function (e) {
-            var tooltipHeight = $tooltip.outerHeight();
-            var tooltipWidth = $tooltip.outerWidth();
-            var offset = 15; // Espacio entre cursor/elemento y tooltip
+        document.addEventListener('mousemove', (e) => {
+            if (tooltip.style.opacity === '0') return;
 
-            // Posición por defecto: Arriba del cursor
-            var top = e.clientY - offset;
-            var left = e.clientX;
+            const tooltipHeight = tooltip.offsetHeight;
+            const tooltipWidth = tooltip.offsetWidth;
+            const offset = 35; // Aumentado aún más para evitar que el puntero tape el contenido
 
-            // Verificar si choca con el borde superior
-            // Si la posición top menos la altura del tooltip es menor que 0 (o un margen seguro)
-            if (top - tooltipHeight < 10) {
-                // Mostrar abajo
-                $tooltip.addClass('bottom');
-                top = e.clientY + offset;
-            } else {
-                // Mostrar arriba
-                $tooltip.removeClass('bottom');
-            }
+            // Forzar posición siempre abajo del cursor
+            tooltip.classList.add('bottom');
+            let top = e.clientY + offset;
+            let left = e.clientX;
 
-            // Verificar bordes laterales (opcional, pero buena práctica)
-            if (left - (tooltipWidth / 2) < 10) {
-                left = (tooltipWidth / 2) + 10;
-            } else if (left + (tooltipWidth / 2) > $(window).width() - 10) {
-                left = $(window).width() - 10 - (tooltipWidth / 2);
-            }
+            if (left - (tooltipWidth / 2) < 10) left = (tooltipWidth / 2) + 10;
+            else if (left + (tooltipWidth / 2) > window.innerWidth - 10) left = window.innerWidth - 10 - (tooltipWidth / 2);
 
-            $tooltip.css({
-                'top': top + 'px',
-                'left': left + 'px'
-            });
+            tooltip.style.top = top + 'px';
+            tooltip.style.left = left + 'px';
         });
     }
-
-    // Fixes visuales: Enlaces con imágenes y Encabezados vacíos
-    function fixVisuals() {
-        // 1. Quitar subrayado/borde a enlaces que contienen imágenes
-        $('.entry-content a').has('img').addClass('image-link').css({
-            'border': 'none',
-            'text-decoration': 'none',
-            'background': 'none',
-            'padding': '0'
-        });
-
-        // 2. Ocultar encabezados vacíos (que solo tienen espacios)
-        $('.entry-content h2, .entry-content h3, .entry-content h4').each(function () {
-            if ($(this).text().trim().length === 0) {
-                $(this).hide(); // Ocultar completamente
-                $(this).addClass('hidden-heading'); // Clase auxiliar
-            }
-        });
-    }
-
-    // Mejoras para bloques de código: Etiquetas de lenguaje y Números de línea
-    function enhanceCodeBlocks() {
-        $('pre code').each(function () {
-            var $code = $(this);
-            var $pre = $code.parent();
-
-            // 1. Detectar lenguaje
-            var classes = $code.attr('class') || '';
-            var langMatch = classes.match(/language-([a-z0-9]+)|lang-([a-z0-9]+)/);
-            var lang = langMatch ? (langMatch[1] || langMatch[2]) : '';
-
-            if (lang) {
-                // Añadir etiqueta de lenguaje
-                var $label = $('<div class="code-language-label"></div>').text(lang);
-                $pre.append($label);
-            }
-
-            // 2. Añadir números de línea
-            var text = $code.text();
-            // Contar líneas (split por \n). Si termina en \n, no contar la última línea vacía si es solo un salto
-            var lines = text.split('\n');
-            if (lines.length > 0 && lines[lines.length - 1] === '') {
-                lines.pop();
-            }
-            var lineCount = lines.length;
-
-            if (lineCount > 1) {
-                var $lineNumbers = $('<span aria-hidden="true" class="line-numbers-rows"></span>');
-                for (var i = 0; i < lineCount; i++) {
-                    $lineNumbers.append('<span></span>');
-                }
-                $pre.prepend($lineNumbers);
-                $pre.addClass('line-numbers'); // Clase para estilos específicos si se necesita
-            }
-        });
-    }
-
-    enhanceCodeBlocks();
-
-    fixVisuals();
-
     initContributionsTooltip();
 
-})(jQuery);
+    // 9. Fixes visuales (Vanilla)
+    function fixVisuals() {
+        // Enlaces con imágenes
+        document.querySelectorAll('.entry-content a').forEach(a => {
+            if (a.querySelector('img')) {
+                a.classList.add('image-link');
+                a.style.border = 'none';
+                a.style.textDecoration = 'none';
+                a.style.background = 'none';
+                a.style.padding = '0';
+            }
+        });
+
+        // Encabezados vacíos
+        document.querySelectorAll('.entry-content h2, .entry-content h3, .entry-content h4').forEach(h => {
+            if (h.textContent.trim().length === 0) {
+                h.style.display = 'none';
+                h.classList.add('hidden-heading');
+            }
+        });
+    }
+    fixVisuals();
+
+    // 10. Mejora Bloques de Código (Vanilla)
+    function enhanceCodeBlocks() {
+        document.querySelectorAll('pre code').forEach(code => {
+            const pre = code.parentElement;
+            
+            // Etiqueta lenguaje
+            const classes = code.className || '';
+            const langMatch = classes.match(/language-([a-z0-9]+)|lang-([a-z0-9]+)/);
+            const lang = langMatch ? (langMatch[1] || langMatch[2]) : '';
+
+            if (lang) {
+                const label = document.createElement('div');
+                label.className = 'code-language-label';
+                label.textContent = lang;
+                pre.appendChild(label);
+            }
+
+            // Números de línea
+            const text = code.textContent;
+            const lines = text.split('\n');
+            if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
+            
+            if (lines.length > 1) {
+                const lineNumbers = document.createElement('span');
+                lineNumbers.setAttribute('aria-hidden', 'true');
+                lineNumbers.className = 'line-numbers-rows';
+                for (let i = 0; i < lines.length; i++) {
+                    lineNumbers.appendChild(document.createElement('span'));
+                }
+                pre.prepend(lineNumbers);
+                pre.classList.add('line-numbers');
+            }
+        });
+    }
+    enhanceCodeBlocks();
+
+});

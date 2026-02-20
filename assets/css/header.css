@@ -230,19 +230,3 @@ svg.logo-dot {
     color: var(--github-text-primary);
 }
 
-/* Magic Line (Bouncing Dot) */
-.magic-line {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    left: 0;
-    width: 6px;
-    height: 6px;
-    background-color: #008ec2;
-    transition: left 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-    pointer-events: none;
-    border-radius: 50%;
-    z-index: 10;
-    display: none;
-    opacity: 0;
-}

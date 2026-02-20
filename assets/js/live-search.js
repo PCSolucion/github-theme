@@ -43,6 +43,7 @@
                         type="search"
                         class="live-search-input"
                         placeholder="Buscar artículos…"
+                        aria-label="Buscar artículos en tiempo real"
                         autocomplete="off"
                         spellcheck="false"
                     />

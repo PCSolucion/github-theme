@@ -16,8 +16,8 @@
   
   /* Text Colors */
   --github-text-primary: #fafafa; /* Bright white */
-  --github-text-secondary: #a1a1a1; /* Soft gray */
-  --github-text-tertiary: #666666; /* Muted/Placeholder */
+  --github-text-secondary: #adbac7; /* Soft gray-blue (Better contrast) */
+  --github-text-tertiary: #8b949e; /* Muted/Placeholder (WCAG compliant) */
   
   /* Accents */
   --github-accent: #ffffff;

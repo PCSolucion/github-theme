@@ -209,3 +209,24 @@ function github_theme_social_meta_tags() {
     <link rel="canonical" href="<?php echo esc_url($og_url); ?>">
     <?php
 }
+
+/**
+ * SEO: Redirigir páginas de adjuntos al post original
+ * Evita el 'thin content' redirigiendo la URL del attachment al contenido padre.
+ */
+function github_theme_redirect_attachment_pages() {
+    if (is_attachment()) {
+        global $post;
+        
+        if (!empty($post->post_parent) && is_numeric($post->post_parent)) {
+            // Redirigir al post padre
+            wp_safe_redirect(get_permalink($post->post_parent), 301);
+            exit;
+        } else {
+            // Si no tiene padre, al home
+            wp_safe_redirect(home_url('/'), 301);
+            exit;
+        }
+    }
+}
+add_action('template_redirect', 'github_theme_redirect_attachment_pages');

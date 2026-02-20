@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
         placeholder="<?php esc_attr_e('Buscar...', 'github-theme'); ?>" 
         value="<?php echo esc_attr(get_search_query()); ?>" 
         name="s" 
+        aria-label="<?php esc_attr_e('Buscar contenido', 'github-theme'); ?>"
         required 
         maxlength="100"
         pattern="[^*()\|&amp;!]*"

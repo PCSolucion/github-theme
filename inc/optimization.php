@@ -133,8 +133,18 @@ add_filter('script_loader_src', 'github_theme_remove_script_version', 9999);
  * Eliminar bloques de CSS y SVG innecesarios del core (Gutenberg Bloat)
  */
 function github_theme_remove_wp_bloat() {
-    // Eliminar estilos globales de bloques (inline CSS)
+    // Eliminar estilos globales de bloques (inline CSS) y variantes
     wp_dequeue_style('global-styles');
+    wp_dequeue_style('wp-block-library');
+    wp_dequeue_style('wp-block-library-theme');
+    wp_dequeue_style('classic-theme-styles');
+    
+    // Eliminar Dashicons y Thickbox del frontend (ahorro de ~40KB)
+    if (!is_admin()) {
+        wp_dequeue_style('dashicons');
+        wp_dequeue_style('thickbox');
+        wp_deregister_script('thickbox');
+    }
     
     // Eliminar los filtros SVG de duotono de los bloques
     remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
@@ -143,15 +153,106 @@ function github_theme_remove_wp_bloat() {
 add_action('wp_enqueue_scripts', 'github_theme_remove_wp_bloat', 100);
 
 /**
+ * Añadir atributo 'defer' a scripts seleccionados para no bloquear el renderizado
+ */
+function github_theme_add_defer_attribute($tag, $handle) {
+    $scripts_to_defer = array('github-theme-live-search');
+    
+    if (in_array($handle, $scripts_to_defer)) {
+        return str_replace(' src', ' defer src', $tag);
+    }
+    return $tag;
+}
+add_filter('script_loader_tag', 'github_theme_add_defer_attribute', 10, 2);
+
+/**
  * Desactivar jQuery en el Front-end
  * Mejora el rendimiento eliminando una librería pesada.
  * Se mantiene en el admin para no romper el editor de bloques o la gestión de WP.
  */
 function github_theme_remove_jquery() {
-    if (!is_admin()) {
+    // Permitir jQuery solo en admin y en artículos individuales (donde se usa Thickbox)
+    if (!is_admin() && !is_singular()) {
         wp_deregister_script('jquery');
         wp_deregister_script('jquery-core');
         wp_deregister_script('jquery-migrate');
     }
 }
 add_action('wp_enqueue_scripts', 'github_theme_remove_jquery', 1);
+
+/**
+ * Deshabilitar Emojis de WordPress (Performance Bloat)
+ */
+function github_theme_disable_emojis() {
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('admin_print_scripts', 'print_emoji_detection_script');
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    remove_action('admin_print_styles', 'print_emoji_styles');
+    remove_filter('the_content_feed', 'wp_staticize_emoji');
+    remove_filter('comment_text_rss', 'wp_staticize_emoji');
+    remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+    
+    // Eliminar también de TinyMCE si fuera necesario
+    add_filter('tiny_mce_plugins', 'github_theme_disable_emojis_tinymce');
+    
+    // Eliminar el DNS prefetch para s.w.org
+    add_filter('wp_resource_hints', 'github_theme_remove_emoji_dns_prefetch', 10, 2);
+}
+add_action('init', 'github_theme_disable_emojis');
+
+function github_theme_disable_emojis_tinymce($plugins) {
+    if (is_array($plugins)) {
+        return array_diff($plugins, array('wpemoji'));
+    }
+    return array();
+}
+
+function github_theme_remove_emoji_dns_prefetch($urls, $relation_type) {
+    if ('dns-prefetch' === $relation_type) {
+        $emoji_svg_url = apply_filters('emoji_svg_url', 'https://s.w.org/images/core/emoji/15.0.3/svg/');
+        $urls = array_diff($urls, array($emoji_svg_url));
+    }
+    return $urls;
+}
+
+/**
+ * Optimización de Localización: Forzar lang="es-ES"
+ * Mejora la precisión del SEO para el mercado español.
+ */
+function github_theme_localize_html_tag($output) {
+    return 'lang="es-ES"';
+}
+add_filter('language_attributes', 'github_theme_localize_html_tag');
+
+/**
+ * Limpieza de Resource Hints: Eliminar dns-prefetch redundantes
+ * Si usamos preconnect, el dns-prefetch es innecesario y ensucia el head.
+ */
+function github_theme_clean_resource_hints($urls, $relation_type) {
+    if ('dns-prefetch' === $relation_type) {
+        $preconnect_domains = array(
+            'fonts.googleapis.com',
+            'fonts.gstatic.com',
+            'cdn.jsdelivr.net'
+        );
+        
+        foreach ($urls as $key => $url) {
+            foreach ($preconnect_domains as $domain) {
+                if (strpos($url, $domain) !== false) {
+                    unset($urls[$key]);
+                }
+            }
+        }
+    }
+    return $urls;
+}
+add_filter('wp_resource_hints', 'github_theme_clean_resource_hints', 20, 2);
+
+/**
+ * Bloqueo Agresivo de Dashicons: Eliminar incluso si se inyectan tarde
+ */
+add_action('wp_print_styles', function() {
+    if (!is_admin()) {
+        wp_dequeue_style('dashicons');
+    }
+}, 100);

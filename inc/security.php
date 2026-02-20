@@ -22,13 +22,30 @@ function github_remove_version_info() {
     
     // 2. Eliminar versión de los feeds RSS
     add_filter('the_generator', '__return_empty_string');
+
+    // 3. Eliminar enlaces de descubrimiento de la REST API y oEmbed
+    remove_action('wp_head', 'rest_output_link_wp_head', 10);
+    remove_action('wp_head', 'wp_oembed_add_discovery_links', 10);
+    remove_action('wp_head', 'wp_oembed_add_host_js');
+    remove_action('template_redirect', 'rest_output_link_header', 11);
 }
 add_action('init', 'github_remove_version_info');
 
 /**
- * Seguridad: Ocultar usuarios en REST API y sitemap
+ * Seguridad: Desactivar XML-RPC y pingbacks
+ * Evita ataques de fuerza bruta y DDoS amplification.
  */
 add_filter('xmlrpc_enabled', '__return_false');
+add_filter('wp_headers', function($headers) {
+    unset($headers['X-Pingback']);
+    return $headers;
+});
+remove_action('wp_head', 'rsd_link');
+remove_action('wp_head', 'wlwmanifest_link');
+
+/**
+ * Seguridad: Ocultar usuarios en REST API y sitemap
+ */
 
 add_filter( 'rest_endpoints', function( $endpoints ) {
     // Solo ocultar endpoints sensibles para usuarios NO logueados
@@ -37,6 +54,10 @@ add_filter( 'rest_endpoints', function( $endpoints ) {
         // Ocultar usuarios (Enumeración)
         if ( isset( $endpoints['/wp/v2/users'] ) ) unset( $endpoints['/wp/v2/users'] );
         if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+        
+        // Ocultar posts (Anti-scraping)
+        if ( isset( $endpoints['/wp/v2/posts'] ) ) unset( $endpoints['/wp/v2/posts'] );
+        if ( isset( $endpoints['/wp/v2/posts/(?P<id>[\d]+)'] ) ) unset( $endpoints['/wp/v2/posts/(?P<id>[\d]+)'] );
     }
 
     return $endpoints;
@@ -353,7 +374,57 @@ function github_theme_security_headers($headers) {
         // Si no existe, creamos una básica pero permisiva para el tema
         $headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " . $style_src . "; " . $font_src . "; img-src 'self' data: https:; " . $connect_src . ";";
     }
+
+    // 2. Cabeceras de protección básicas
+    $headers['X-Frame-Options']         = 'SAMEORIGIN';
+    $headers['X-Content-Type-Options']  = 'nosniff';
+    $headers['X-XSS-Protection']        = '1; mode=block';
+    $headers['Referrer-Policy']         = 'strict-origin-when-cross-origin';
+
+    // 3. HSTS (Fuerza HTTPS) - Solo aplicar si el sitio está en HTTPS
+    if ( is_ssl() ) {
+        $headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload';
+    }
     
     return $headers;
 }
 add_filter('wp_headers', 'github_theme_security_headers', 999);
+
+/**
+ * Seguridad y Rendimiento: Deshabilitar Comentarios por Completo
+ * Dado que el tema no utiliza comentarios, cerramos todas las vías de entrada y gestión.
+ */
+function github_theme_disable_comments_logic() {
+    // 1. Cerrar comentarios y trackbacks en nuevos posts
+    add_filter( 'comments_open', '__return_false', 20, 2 );
+    add_filter( 'pings_open', '__return_false', 20, 2 );
+
+    // 2. Cerrar comentarios y trackbacks existentes
+    add_filter( 'comments_array', '__return_empty_array', 10, 2 );
+
+    // 3. Eliminar soporte para comentarios en types de post
+    $post_types = get_post_types();
+    foreach ( $post_types as $post_type ) {
+        if ( post_type_supports( $post_type, 'comments' ) ) {
+            remove_post_type_support( $post_type, 'comments' );
+            remove_post_type_support( $post_type, 'trackbacks' );
+        }
+    }
+
+    // 4. Eliminar menús de comentarios del panel de administración
+    if ( is_admin() ) {
+        remove_menu_page( 'edit-comments.php' );
+    }
+}
+add_action( 'init', 'github_theme_disable_comments_logic' );
+
+// 5. Eliminar el menú de comentarios de la barra superior
+add_action( 'wp_before_admin_bar_render', function() {
+    global $wp_admin_bar;
+    $wp_admin_bar->remove_menu( 'comments' );
+});
+
+// 6. Eliminar widgets de comentarios recientes si existieran
+add_action( 'widgets_init', function() {
+    unregister_widget( 'WP_Widget_Recent_Comments' );
+});

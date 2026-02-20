@@ -107,7 +107,7 @@
 .file-size,
 .post-date {
     font-family: var(--github-font-mono);
-    color: #6a737d;
+    color: var(--github-text-tertiary);
     font-size: 12px;
     margin-right: 8px;
     position: relative;

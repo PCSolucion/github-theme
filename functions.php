@@ -129,42 +129,52 @@ function github_theme_scripts() {
         null
     );
 
+    // 1. Estilos Globales (Siempre necesarios)
     wp_enqueue_style( 'github-theme-variables', get_template_directory_uri() . '/assets/css/variables.css', array(), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-twitch-bar', get_template_directory_uri() . '/assets/css/twitch-bar.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
     wp_enqueue_style( 'github-theme-header', get_template_directory_uri() . '/assets/css/header.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-post-list', get_template_directory_uri() . '/assets/css/post-list.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
     wp_enqueue_style( 'github-theme-footer', get_template_directory_uri() . '/assets/css/footer.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-contributions', get_template_directory_uri() . '/assets/css/contributions.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-widgets', get_template_directory_uri() . '/assets/css/widgets.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-forms', get_template_directory_uri() . '/assets/css/forms.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-pagination', get_template_directory_uri() . '/assets/css/pagination.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
     wp_enqueue_style( 'github-live-search', get_template_directory_uri() . '/assets/css/live-search.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
     
+    // 2. Estilos de Listados (Home, Archivos, Búsqueda)
+    if ( ! is_singular() ) {
+        wp_enqueue_style( 'github-theme-post-list', get_template_directory_uri() . '/assets/css/post-list.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
+    }
+
+    // 3. Paginación (Solo donde hay navegación de posts)
+    if ( is_home() || is_archive() || is_search() ) {
+        wp_enqueue_style( 'github-theme-pagination', get_template_directory_uri() . '/assets/css/pagination.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
+    }
+
+    // 4. Contribuciones (Solo en la Home)
+    if ( is_home() || is_front_page() ) {
+        wp_enqueue_style( 'github-theme-contributions', get_template_directory_uri() . '/assets/css/contributions.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
+    }
+
+    // 5. Widgets y Formularios (Solo si hay sidebar o es un post/página)
+    if ( is_singular() || is_active_sidebar( 'sidebar-1' ) ) {
+        wp_enqueue_style( 'github-theme-widgets', get_template_directory_uri() . '/assets/css/widgets.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
+        wp_enqueue_style( 'github-theme-forms', get_template_directory_uri() . '/assets/css/forms.css', array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
+    }
+
+    // 6. Hoja de estilos principal y Layout Base (Carga después de los componentes)
     wp_enqueue_style( 'github-theme-style', get_stylesheet_uri(), array( 
         'github-theme-variables', 
-        'github-theme-twitch-bar', 
         'github-theme-header',
-        'github-theme-post-list',
-        'github-theme-footer',
-        'github-theme-widgets',
-        'github-theme-forms'
+        'github-theme-footer'
     ), GITHUB_THEME_VERSION );
     
     wp_enqueue_style( 'github-theme-main',  get_template_directory_uri() . '/assets/css/main.css', array( 
-        'github-theme-variables',
-        'github-theme-contributions',
-        'github-theme-pagination'
+        'github-theme-variables'
     ), GITHUB_THEME_VERSION );
 
+    // 7. Estilos exclusivos de lectura (Single)
     if ( is_singular() ) {
         wp_enqueue_style( 'github-theme-single', get_template_directory_uri() . '/assets/css/single.css', array( 
-            'github-theme-variables',
-            'github-theme-widgets',
-            'github-theme-forms'
+            'github-theme-variables'
         ), GITHUB_THEME_VERSION );
     }
 
-    wp_enqueue_script( 'github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array( 'jquery' ), GITHUB_THEME_VERSION, true );
+    wp_enqueue_script( 'github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array(), GITHUB_THEME_VERSION, true );
 
     // Live Search — Búsqueda en tiempo real
     wp_enqueue_script( 'github-theme-live-search', get_template_directory_uri() . '/assets/js/live-search.js', array(), time(), true );
@@ -217,6 +227,9 @@ add_action( 'wp_enqueue_scripts', 'github_dequeue_dashicons', 999 );
  * Soporta: JPG, JPEG, PNG, GIF, WebP, AVIF, SVG.
  */
 function github_theme_lightbox_init() {
+    if ( ! is_singular() ) {
+        return;
+    }
     wp_enqueue_script( 'thickbox' );
     wp_enqueue_style( 'thickbox' );
 

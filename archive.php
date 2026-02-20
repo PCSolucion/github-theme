@@ -73,6 +73,7 @@ get_header();
                 'mid_size' => 2,
                 'prev_text' => '← Anterior',
                 'next_text' => 'Siguiente →',
+                'screen_reader_text' => ' ',
             ));
             ?>
             
