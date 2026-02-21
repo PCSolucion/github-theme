@@ -91,8 +91,8 @@ function github_preload_critical_assets() {
 add_action('wp_head', 'github_preload_critical_assets', 1);
 
 /**
- * Generar automáticamente IDs para encabezados h2 y h3
- * Esto permite el funcionamiento de enlaces de ancla y mejora el SEO.
+ * Generar automáticamente IDs y enlaces de ancla para encabezados h2 y h3
+ * Esto permite el funcionamiento de enlaces de ancla, mejora el SEO y facilita compartir secciones específicas.
  */
 function github_theme_auto_heading_ids($content) {
     if (is_singular() && in_the_loop() && is_main_query()) {
@@ -101,15 +101,33 @@ function github_theme_auto_heading_ids($content) {
             $attributes = $matches[2];
             $title = $matches[3];
             
-            // Si ya tiene un ID, no lo tocamos
-            if (strpos($attributes, 'id=') !== false) {
-                return $matches[0];
+            // Si ya tiene un ID, lo extraemos. Si no, lo generamos.
+            $id = '';
+            if (preg_match('/id="([^"]+)"/', $attributes, $id_match)) {
+                $id = $id_match[1];
+            } else {
+                $id = sanitize_title(wp_strip_all_tags($title));
+                $attributes .= " id=\"{$id}\"";
             }
             
-            // Generar ID a partir del texto (slugify)
-            $id = sanitize_title(wp_strip_all_tags($title));
+            // Inyectar el enlace de ancla
+            $anchor = sprintf(
+                '<a href="#%s" class="heading-anchor" aria-label="Enlace permanente a esta sección" title="Copiar enlace a esta sección">#</a>',
+                esc_attr($id)
+            );
             
-            return "<{$tag}{$attributes} id=\"{$id}\">{$title}</{$tag}>";
+            return "<{$tag}{$attributes}>{$anchor}{$title}</{$tag}>";
+        }, $content);
+
+        // También dar IDs automáticos a los bloques de código para poder referenciarlos
+        $snippet_count = 0;
+        $content = preg_replace_callback('/<pre([^>]*)>/i', function($matches) use (&$snippet_count) {
+            $attrs = $matches[1];
+            if (strpos($attrs, 'id=') !== false) {
+                return $matches[0];
+            }
+            $snippet_count++;
+            return "<pre{$attrs} id=\"code-snippet-{$snippet_count}\">";
         }, $content);
     }
     return $content;

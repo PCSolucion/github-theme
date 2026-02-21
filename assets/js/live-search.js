@@ -33,34 +33,72 @@
   function createOverlay() {
     overlay = document.createElement("div");
     overlay.className = "live-search-overlay";
-    overlay.innerHTML = `
-            <div class="live-search-modal">
-                <div class="live-search-header">
-                    <svg class="live-search-icon" viewBox="0 0 16 16" width="20" height="20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z"></path>
-                    </svg>
-                    <input
-                        type="search"
-                        class="live-search-input"
-                        placeholder="Buscar artículos…"
-                        aria-label="Buscar artículos en tiempo real"
-                        autocomplete="off"
-                        spellcheck="false"
-                    />
-                    <kbd class="live-search-kbd">ESC</kbd>
-                </div>
-                <div class="live-search-results"></div>
-                <div class="live-search-footer">
-                    <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
-                    <span><kbd>↵</kbd> abrir</span>
-                    <span><kbd>esc</kbd> cerrar</span>
-                </div>
-            </div>
-        `;
+
+    var modal = document.createElement("div");
+    modal.className = "live-search-modal";
+
+    var header = document.createElement("div");
+    header.className = "live-search-header";
+
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "live-search-icon");
+    svg.setAttribute("viewBox", "0 0 16 16");
+    svg.setAttribute("width", "20");
+    svg.setAttribute("height", "20");
+    svg.setAttribute("fill", "currentColor");
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("fill-rule", "evenodd");
+    path.setAttribute("d", "M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z");
+    svg.appendChild(path);
+    header.appendChild(svg);
+
+    var input = document.createElement("input");
+    input.type = "search";
+    input.className = "live-search-input";
+    input.placeholder = "Buscar artículos…";
+    input.setAttribute("aria-label", "Buscar artículos en tiempo real");
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    header.appendChild(input);
+
+    var kbdEsc = document.createElement("kbd");
+    kbdEsc.className = "live-search-kbd";
+    kbdEsc.textContent = "ESC";
+    header.appendChild(kbdEsc);
+
+    modal.appendChild(header);
+
+    var resultsContainerDiv = document.createElement("div");
+    resultsContainerDiv.className = "live-search-results";
+    modal.appendChild(resultsContainerDiv);
+
+    var footer = document.createElement("div");
+    footer.className = "live-search-footer";
+
+    var span1 = document.createElement("span");
+    var kbdUp = document.createElement("kbd"); kbdUp.textContent = "↑";
+    var kbdDown = document.createElement("kbd"); kbdDown.textContent = "↓";
+    span1.appendChild(kbdUp); span1.appendChild(kbdDown); span1.appendChild(document.createTextNode(" navegar"));
+    
+    var span2 = document.createElement("span");
+    var kbdEnter = document.createElement("kbd"); kbdEnter.textContent = "↵";
+    span2.appendChild(kbdEnter); span2.appendChild(document.createTextNode(" abrir"));
+
+    var span3 = document.createElement("span");
+    var kbdEscFooter = document.createElement("kbd"); kbdEscFooter.textContent = "esc";
+    span3.appendChild(kbdEscFooter); span3.appendChild(document.createTextNode(" cerrar"));
+
+    footer.appendChild(span1);
+    footer.appendChild(span2);
+    footer.appendChild(span3);
+
+    modal.appendChild(footer);
+    overlay.appendChild(modal);
+
     document.body.appendChild(overlay);
 
     resultsContainer = overlay.querySelector(".live-search-results");
-    const modalInput = overlay.querySelector(".live-search-input");
+    var modalInput = overlay.querySelector(".live-search-input");
 
     // Eventos del input
     modalInput.addEventListener("input", function () {
@@ -95,7 +133,7 @@
     document.body.style.overflow = "hidden";
     
     searchInput.value = "";
-    resultsContainer.innerHTML = renderEmptyState();
+    setHTML(resultsContainer, renderEmptyState());
     selectedIndex = -1;
     currentResults = [];
 
@@ -133,13 +171,13 @@
     }
 
     if (query.length < MIN_CHARS) {
-      resultsContainer.innerHTML = renderEmptyState();
+      setHTML(resultsContainer, renderEmptyState());
       selectedIndex = -1;
       currentResults = [];
       return;
     }
 
-    resultsContainer.innerHTML = renderLoading();
+    setHTML(resultsContainer, renderLoading());
 
     debounceTimer = setTimeout(function () {
       performSearch(query);
@@ -166,9 +204,9 @@
         currentResults = posts;
         selectedIndex = -1;
         if (!posts.length) {
-          resultsContainer.innerHTML = renderNoResults(query);
+          setHTML(resultsContainer, renderNoResults(query));
         } else {
-          resultsContainer.innerHTML = renderResults(posts, query);
+          setHTML(resultsContainer, renderResults(posts, query));
         }
       })
       .catch(function (err) {
@@ -199,10 +237,7 @@
           })
           .slice(0, MAX_RESULTS)
           .map(function(p) {
-            var thumb = '';
-            try { thumb = p._embedded['wp:featuredmedia'][0].media_details.sizes.thumbnail.source_url; } catch(e) {}
-            var cats = '';
-            try { cats = p._embedded['wp:term'][0].map(function(t){ return t.name; }).join(', '); } catch(e) {}
+            var cats = p._embedded?.['wp:term']?.[0]?.map(function(t){ return t.name; }).join(', ') || '';
             return {
               id: p.id,
               title: p.title.rendered,
@@ -214,11 +249,11 @@
           });
         currentResults = filtered;
         selectedIndex = -1;
-        resultsContainer.innerHTML = filtered.length ? renderResults(filtered, query) : renderNoResults(query);
+        setHTML(resultsContainer, filtered.length ? renderResults(filtered, query) : renderNoResults(query));
       })
       .catch(function(err) {
         if (err.name === 'AbortError') return;
-        resultsContainer.innerHTML = renderError();
+        setHTML(resultsContainer, renderError());
       });
   }
 
@@ -277,108 +312,163 @@
   // RENDERERS
   // =========================================================================
   function renderEmptyState() {
-    return (
-      '<div class="live-search-empty">' +
-      '<svg viewBox="0 0 16 16" width="32" height="32" fill="currentColor" style="opacity:0.3">' +
-      '<path fill-rule="evenodd" d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z"></path>' +
-      "</svg>" +
-      "<p>Escribe para buscar artículos</p>" +
-      "</div>"
-    );
+    var div = document.createElement('div');
+    div.className = 'live-search-empty';
+    
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", "0 0 16 16");
+    svg.setAttribute("width", "32");
+    svg.setAttribute("height", "32");
+    svg.setAttribute("fill", "currentColor");
+    svg.setAttribute("style", "opacity:0.3");
+    var path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("fill-rule", "evenodd");
+    path.setAttribute("d", "M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z");
+    svg.appendChild(path);
+    
+    var p = document.createElement('p');
+    p.textContent = "Escribe para buscar artículos";
+    
+    div.appendChild(svg);
+    div.appendChild(p);
+    return div;
   }
 
   function renderLoading() {
-    return (
-      '<div class="live-search-loading">' +
-      '<div class="live-search-spinner"></div>' +
-      "<p>Buscando…</p>" +
-      "</div>"
-    );
+    var div = document.createElement('div');
+    div.className = 'live-search-loading';
+    var spinner = document.createElement('div');
+    spinner.className = 'live-search-spinner';
+    var p = document.createElement('p');
+    p.textContent = "Buscando…";
+    div.appendChild(spinner);
+    div.appendChild(p);
+    return div;
   }
 
   function renderNoResults(query) {
-    return (
-      '<div class="live-search-empty">' +
-      '<p>No se encontraron resultados para <strong>"' +
-      escapeHTML(query) +
-      '"</strong></p>' +
-      "</div>"
-    );
+    var div = document.createElement('div');
+    div.className = 'live-search-empty';
+    var p = document.createElement('p');
+    p.appendChild(document.createTextNode("No se encontraron resultados para "));
+    var strong = document.createElement('strong');
+    strong.textContent = '"' + query + '"';
+    p.appendChild(strong);
+    div.appendChild(p);
+    return div;
   }
 
   function renderError() {
-    return (
-      '<div class="live-search-empty">' +
-      "<p>Error al buscar. Inténtalo de nuevo.</p>" +
-      "</div>"
-    );
+    var div = document.createElement('div');
+    div.className = 'live-search-empty';
+    var p = document.createElement('p');
+    p.textContent = "Error al buscar. Inténtalo de nuevo.";
+    div.appendChild(p);
+    return div;
   }
 
   function renderResults(posts, query) {
-    var html = "";
+    var frag = document.createDocumentFragment();
     posts.forEach(function (post) {
-      // Detección automática de formato (endpoint custom vs estándar)
       var title   = (typeof post.title === 'string') ? post.title : (post.title && post.title.rendered) || 'Sin título';
       var excerpt = (typeof post.excerpt === 'string') ? post.excerpt : stripHTML((post.excerpt && post.excerpt.rendered) || '');
       if (excerpt.length > 120) excerpt = excerpt.substring(0, 120) + '…';
       var date       = formatDate(post.date);
       var categories = (typeof post.categories === 'string') ? post.categories : getCategories(post);
 
-      // Resaltado de texto
-      title   = highlightMatch(title, query);
-      excerpt = highlightMatch(excerpt, query);
+      var div = document.createElement('div');
+      div.className = 'live-search-item';
+      div.setAttribute('data-url', post.link);
 
-      html +=
-        '<div class="live-search-item" data-url="' + escapeAttr(post.link) + '">' +
-        '<a href="' + escapeAttr(post.link) + '" class="live-search-item-link">' +
-        '<div class="live-search-item-content">' +
-        '<div class="live-search-item-title">' + title + "</div>" +
-        '<div class="live-search-item-excerpt">' + excerpt + "</div>" +
-        '<div class="live-search-item-meta">' +
-        '<span class="live-search-item-date">' + escapeHTML(date) + "</span>" +
-        (categories ? '<span class="live-search-item-cat">' + escapeHTML(categories) + "</span>" : "") +
-        "</div>" +
-        "</div>" +
-        '<svg class="live-search-item-arrow" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">' +
-        '<path fill-rule="evenodd" d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z"></path>' +
-        "</svg>" +
-        "</a>" +
-        "</div>";
+      var a = document.createElement('a');
+      a.href = post.link;
+      a.className = 'live-search-item-link';
+
+      var content = document.createElement('div');
+      content.className = 'live-search-item-content';
+
+      var titleDiv = document.createElement('div');
+      titleDiv.className = 'live-search-item-title';
+      titleDiv.appendChild(highlightMatch(title, query));
+
+      var excerptDiv = document.createElement('div');
+      excerptDiv.className = 'live-search-item-excerpt';
+      excerptDiv.appendChild(highlightMatch(excerpt, query));
+
+      var metaDiv = document.createElement('div');
+      metaDiv.className = 'live-search-item-meta';
+
+      var dateSpan = document.createElement('span');
+      dateSpan.className = 'live-search-item-date';
+      dateSpan.textContent = date;
+      metaDiv.appendChild(dateSpan);
+
+      if (categories) {
+        var catSpan = document.createElement('span');
+        catSpan.className = 'live-search-item-cat';
+        catSpan.textContent = categories;
+        metaDiv.appendChild(catSpan);
+      }
+
+      content.appendChild(titleDiv);
+      content.appendChild(excerptDiv);
+      content.appendChild(metaDiv);
+
+      a.appendChild(content);
+
+      var arrowSvg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      arrowSvg.setAttribute("class", "live-search-item-arrow");
+      arrowSvg.setAttribute("viewBox", "0 0 16 16");
+      arrowSvg.setAttribute("width", "16");
+      arrowSvg.setAttribute("height", "16");
+      arrowSvg.setAttribute("fill", "currentColor");
+      var arrowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      arrowPath.setAttribute("fill-rule", "evenodd");
+      arrowPath.setAttribute("d", "M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z");
+      arrowSvg.appendChild(arrowPath);
+
+      a.appendChild(arrowSvg);
+      div.appendChild(a);
+      frag.appendChild(div);
     });
-    return html;
+    return frag;
   }
 
   // =========================================================================
   // HELPERS
   // =========================================================================
   function stripHTML(html) {
-    var tmp = document.createElement("div");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || "";
   }
 
-  function escapeHTML(str) {
-    var div = document.createElement("div");
-    div.appendChild(document.createTextNode(str));
-    return div.innerHTML;
-  }
-
-  function escapeAttr(str) {
-    return str
-      .replace(/&/g, "&amp;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+  function setHTML(node, content) {
+    while (node.firstChild) {
+      node.removeChild(node.firstChild);
+    }
+    if (content) {
+      node.appendChild(content);
+    }
   }
 
   function highlightMatch(text, query) {
-    if (!query) return text;
+    if (!query) return document.createTextNode(text);
     var regex = new RegExp(
       "(" + query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")",
       "gi",
     );
-    return text.replace(regex, "<mark>$1</mark>");
+    var frag = document.createDocumentFragment();
+    var parts = text.split(regex);
+    for (var i = 0; i < parts.length; i++) {
+      if (i % 2 === 1) { // Coincidencia
+        var mark = document.createElement('mark');
+        mark.textContent = parts[i];
+        frag.appendChild(mark);
+      } else if (parts[i]) {
+        frag.appendChild(document.createTextNode(parts[i]));
+      }
+    }
+    return frag;
   }
 
   function formatDate(dateStr) {
@@ -389,7 +479,7 @@
 
 
   function getCategories(post) {
-    try { return post._embedded["wp:term"][0].map(function (t) { return t.name; }).join(", "); } catch (e) { return ""; }
+    return post._embedded?.["wp:term"]?.[0]?.map(function (t) { return t.name; }).join(", ") || "";
   }
 
   // =========================================================================

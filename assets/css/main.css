@@ -133,7 +133,7 @@
 .nav-previous a:hover,
 .nav-next a:hover {
     background-color: var(--btn-bg-hover);
-    border-color: #8b949e;
+    border-color: var(--github-text-tertiary);
 }
 
 .nav-subtitle {
@@ -343,5 +343,5 @@
 
 .tag:hover {
     color: var(--github-text-primary);
-    border-color: #444444;
+    border-color: var(--github-text-tertiary);
 }

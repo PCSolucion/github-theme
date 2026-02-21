@@ -209,20 +209,22 @@
 }
 
 .contribution-cell.low {
-    background-color: #2e2e2e;
+    background-color: #404040; /* Más visible que antes (#2e) */
 }
 
 .contribution-cell.medium {
-    background-color: #555555;
+    background-color: #707070; /* Más claro que antes (#55) */
 }
 
 .contribution-cell.high {
-    background-color: #909090;
+    background-color: #aaaaaa; /* Soluciona el "muy oscuro" (#90) */
 }
 
 .contribution-cell.very-high {
-    background-color: var(--github-accent);
+    background-color: #c5c5c5; /* Reducido un pelín más de #dddddd para suavizar */
 }
+
+
 
 /* Legend Colors — Monochrome */
 .legend-cell.none {
@@ -230,20 +232,22 @@
 }
 
 .legend-cell.low {
-    background-color: #2e2e2e;
+    background-color: #404040;
 }
 
 .legend-cell.medium {
-    background-color: #555555;
+    background-color: #707070;
 }
 
 .legend-cell.high {
-    background-color: #909090;
+    background-color: #aaaaaa;
 }
 
 .legend-cell.very-high {
-    background-color: var(--github-accent);
+    background-color: #c5c5c5;
 }
+
+
 
 /* Discreet Dropdown */
 .contrib-cat-select {

@@ -106,24 +106,49 @@
     scroll-margin-top: 120px;
 }
 
-/* Anchor link icon on hover */
-.post-article .entry-content h2:hover::before,
-.post-article .entry-content h3:hover::before {
-    content: "🔗";
+/* Anchor links para encabezados */
+.post-article .entry-content h2,
+.post-article .entry-content h3 {
+    position: relative;
+}
+
+.heading-anchor {
     position: absolute;
     left: -28px;
     top: 50%;
     transform: translateY(-50%);
-    font-size: 16px;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-    cursor: pointer;
+    font-size: 18px;
+    color: var(--github-accent);
+    text-decoration: none !important;
+    opacity: 0;
+    transition: all 0.2s ease;
+    padding: 4px;
+    line-height: 1;
+    font-family: var(--github-font-mono);
 }
 
-.post-article .entry-content h2:hover::before,
-.post-article .entry-content h3:hover::before {
-    opacity: 1;
+.post-article .entry-content h2:hover .heading-anchor,
+.post-article .entry-content h3:hover .heading-anchor {
+    opacity: 0.6;
+    left: -24px;
 }
+
+.heading-anchor:hover {
+    opacity: 1 !important;
+    transform: translateY(-50%) scale(1.2);
+}
+
+/* Efecto de resaltado cuando se navega a un ancla */
+:target {
+    scroll-margin-top: 100px;
+    animation: target-highlight 2s ease-out;
+}
+
+@keyframes target-highlight {
+    0% { background-color: rgba(56, 139, 253, 0.15); }
+    100% { background-color: transparent; }
+}
+
 
 .post-article .entry-content p {
     margin-bottom: 16px;
@@ -476,4 +501,153 @@
     }
 }
 
+/* ==========================================================================
+   Technical Posts Styles (Merged from technical-posts.css)
+   ========================================================================== */
 
+.tldr-box {
+    background-color: color-mix(in srgb, var(--github-text-secondary) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--github-text-secondary) 20%, transparent);
+    padding: 20px;
+    border-radius: 4px;
+    margin-bottom: 35px;
+}
+
+.tldr-title {
+    margin: 0 0 10px 0;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    opacity: 0.6;
+    font-weight: 700;
+}
+
+.tldr-list {
+    margin: 0;
+    padding-left: 20px;
+    line-height: 1.5;
+    font-weight: 500;
+}
+
+.tldr-item {
+    margin-bottom: 8px;
+}
+
+.expert-quote {
+    background-color: color-mix(in srgb, var(--github-text-secondary) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--github-text-secondary) 20%, transparent);
+    border-radius: 8px;
+    padding: 20px;
+    margin: 25px 0;
+    font-style: italic;
+}
+
+.expert-quote footer {
+    margin-top: 10px;
+    font-size: 0.85em;
+    opacity: 0.7;
+    font-style: normal;
+    font-weight: 500;
+}
+
+/* Callouts Base */
+.tech-callout {
+    margin: 32px 0;
+    padding: 20px;
+    border-left: 3px solid transparent;
+    font-family: var(--github-font-main, sans-serif);
+}
+
+.tech-callout-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: var(--github-font-mono, monospace);
+}
+
+.tech-callout-content {
+    color: var(--github-text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Callouts Variations */
+.tech-callout.note {
+    border-left-color: var(--github-warning);
+    background: color-mix(in srgb, var(--github-warning) 3%, transparent);
+}
+.tech-callout.note .tech-callout-label { color: var(--github-warning); }
+
+.tech-callout.glossary {
+    border-left-color: var(--github-text-tertiary);
+    background: color-mix(in srgb, var(--github-text-tertiary) 5%, transparent);
+}
+.tech-callout.glossary .tech-callout-label { color: var(--github-text-primary); }
+
+.tech-callout.tip {
+    border-left-color: var(--github-success);
+    background: color-mix(in srgb, var(--github-success) 3%, transparent);
+}
+.tech-callout.tip .tech-callout-label { color: var(--github-success); }
+
+.tech-callout.error {
+    border-left-color: var(--github-danger);
+    background: color-mix(in srgb, var(--github-danger) 3%, transparent);
+}
+.tech-callout.error .tech-callout-label { color: var(--github-danger); }
+
+/* Query Result Snippet */
+.query-result-box {
+    margin: 40px 0;
+    padding: 25px;
+    border: 1px solid var(--github-border);
+    border-radius: 4px;
+    background: var(--github-bg-tertiary);
+    font-family: var(--github-font-main, sans-serif);
+}
+
+.query-result-label {
+    display: block;
+    margin-bottom: 12px;
+    color: var(--github-text-primary);
+    font-family: var(--github-font-mono, monospace);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.query-result-content {
+    color: var(--github-text-primary);
+    line-height: 1.6;
+    font-size: 1rem;
+}
+
+.query-result-content strong {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--github-text-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* Summary Table */
+.summary-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 25px 0;
+    border: 1px solid color-mix(in srgb, var(--github-text-secondary) 20%, transparent);
+}
+
+.summary-table thead tr {
+    background-color: color-mix(in srgb, var(--github-text-secondary) 10%, transparent);
+}
+
+.summary-table th,
+.summary-table td {
+    padding: 12px;
+    border: 1px solid color-mix(in srgb, var(--github-text-secondary) 20%, transparent);
+    text-align: left;
+}
