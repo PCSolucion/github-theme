@@ -89,13 +89,34 @@ document.addEventListener('DOMContentLoaded', function () {
             button.setAttribute('aria-label', 'Copiar al portapapeles');
             button.insertAdjacentHTML('beforeend', '<svg aria-hidden="true" viewBox="0 0 16 16" version="1.1"><path fill-rule="evenodd" d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"></path><path fill-rule="evenodd" d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"></path></svg>');
             
-            pre.appendChild(button);
+            const header = pre.closest('.code-block-wrapper')?.querySelector('.code-block-header');
+            if (header) {
+                header.appendChild(button);
+            } else {
+                pre.appendChild(button);
+            }
 
             button.addEventListener('click', () => {
+                // Si no hay etiqueta code, cogemos el texto del pre ignorando los elementos inyectados (como los números y botón)
                 const code = pre.querySelector('code');
-                if (!code) return;
+                let textToCopy = '';
+                
+                if (code) {
+                    textToCopy = code.textContent;
+                } else {
+                    // Clonamos el pre para limpiar botón y números de línea sin afectar la vista original
+                    const clone = pre.cloneNode(true);
+                    const btn = clone.querySelector('.copy-button');
+                    if(btn) btn.remove();
+                    const lineNums = clone.querySelector('.line-numbers-rows');
+                    if(lineNums) lineNums.remove();
+                    const labels = clone.querySelector('.code-language-label');
+                    if(labels) labels.remove();
+                    
+                    textToCopy = clone.textContent;
+                }
 
-                navigator.clipboard.writeText(code.textContent).then(() => {
+                navigator.clipboard.writeText(textToCopy).then(() => {
                     button.classList.add('copied');
                     setTimeout(() => button.classList.remove('copied'), 2000);
                 }).catch(err => {
@@ -264,25 +285,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 10. Mejora Bloques de Código (Vanilla)
     function enhanceCodeBlocks() {
-        document.querySelectorAll('pre code').forEach(code => {
-            const pre = code.parentElement;
+        document.querySelectorAll('pre').forEach(pre => {
+            if (pre.classList.contains('line-numbers')) return; // Ya procesado
             
+            const targetElement = pre.querySelector('code') || pre;
+
             // Etiqueta lenguaje ahora se maneja en el servidor (SSR) via inc/optimization.php
-            /*
-            const classes = code.className || '';
-            const langMatch = classes.match(/language-([a-z0-9]+)|lang-([a-z0-9]+)/);
-            const lang = langMatch ? (langMatch[1] || langMatch[2]) : '';
-
-            if (lang && !pre.querySelector('.code-language-label')) {
-                const label = document.createElement('div');
-                label.className = 'code-language-label';
-                label.textContent = lang;
-                pre.appendChild(label);
-            }
-            */
-
+            
             // Números de línea
-            const text = code.textContent;
+            let text = '';
+            
+            if (pre.querySelector('code')) {
+                text = targetElement.textContent;
+            } else {
+                // Si es un pre puro, cogemos el texto sin los botones/labels que inyectamos antes
+                const clone = pre.cloneNode(true);
+                const btn = clone.querySelector('.copy-button');
+                if(btn) btn.remove();
+                const labels = clone.querySelector('.code-language-label');
+                if(labels) labels.remove();
+                text = clone.textContent;
+            }
+
             const lines = text.split('\n');
             if (lines.length > 0 && lines[lines.length - 1] === '') lines.pop();
             
@@ -295,9 +319,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 pre.prepend(lineNumbers);
                 pre.classList.add('line-numbers');
+                
+                // Forzar sincronización de altura si el pre tiene padding
+                const computedStyle = window.getComputedStyle(pre);
+                const paddingTop = computedStyle.getPropertyValue('padding-top');
+                lineNumbers.style.top = paddingTop;
             }
         });
     }
+    enhanceCodeBlocks();
+
     // 11. Anchor Links Copy (Deep Linking)
     function setupAnchorLinks() {
         document.querySelectorAll('.heading-anchor').forEach(anchor => {
@@ -329,4 +360,31 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     setupAnchorLinks();
 
+    // 12. Fallback CSS for Line Numbers (Ensures visibility if CSS file is cached)
+    const style = document.createElement('style');
+    style.textContent = `
+        .line-numbers-rows {
+            position: absolute;
+            top: 44px;
+            left: 0;
+            width: 40px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: right;
+            padding-right: 10px;
+            pointer-events: none;
+        }
+        .line-numbers-rows span {
+            display: block;
+            counter-increment: linenumber;
+            content: counter(linenumber) !important;
+            color: #484f58 !important;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+        pre.line-numbers {
+            padding-left: 55px !important;
+            counter-reset: linenumber;
+        }
+    `;
+    document.head.appendChild(style);
 });

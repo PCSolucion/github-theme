@@ -19,6 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     <?php github_theme_social_meta_tags(); ?>
     <?php endif; ?>
     <link rel="profile" href="https://gmpg.org/xfn/11">
+    <link rel="icon" href="<?php echo esc_url(get_template_directory_uri() . '/assets/img/favicon.png'); ?>" sizes="32x32" />
     <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>

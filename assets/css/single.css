@@ -21,10 +21,9 @@
     font-weight: 700;
     color: var(--github-text-primary);
     margin: 16px 0;
-    font-family: var(--github-font-mono);
-    letter-spacing: -0.04em;
-    text-transform: lowercase;
-    line-height: 1.2;
+    font-family: var(--github-font-sans);
+    letter-spacing: -0.01em;
+    line-height: 1.25;
 }
 
 .single-hero .post-meta {
@@ -33,7 +32,7 @@
     flex-wrap: wrap;
     color: var(--github-text-secondary);
     font-size: 14px;
-    font-family: var(--github-font-mono);
+    font-family: var(--github-font-sans);
 }
 
 .single-hero .post-meta svg {
@@ -89,8 +88,8 @@
     font-weight: 600;
     color: var(--github-text-primary);
     position: relative;
-    font-family: var(--github-font-mono);
-    letter-spacing: -0.02em;
+    font-family: var(--github-font-sans);
+    letter-spacing: -0.01em;
     scroll-margin-top: 120px;
 }
 
@@ -101,7 +100,7 @@
     font-weight: 600;
     color: var(--github-text-primary);
     position: relative;
-    font-family: var(--github-font-mono);
+    font-family: var(--github-font-sans);
     letter-spacing: -0.01em;
     scroll-margin-top: 120px;
 }
@@ -176,54 +175,72 @@
     color: var(--github-text-primary);
 }
 
-.entry-content pre {
-    position: relative;
+.code-block-wrapper {
+    position: relative !important;
     background: var(--github-bg-primary);
     border: 1px solid var(--github-border);
     border-radius: 8px;
-    padding: 44px 20px 20px 20px; /* Reducido de 50px a 20px por defecto */
-    overflow-x: auto;
     margin-bottom: 24px;
+    overflow: hidden;
     transition: border-color 0.2s ease;
 }
 
-/* Solo aplicar padding extra si hay números de línea */
-.entry-content pre.line-numbers {
-    padding-left: 55px;
+.code-block-wrapper:hover {
+    border-color: #444444;
 }
 
-
-.entry-content pre::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 32px;
+.code-block-header {
     background: var(--github-bg-secondary);
     border-bottom: 1px solid var(--github-border);
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
-    pointer-events: none;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Empujar etiquetas al final */
+    padding: 0 8px 0 16px;
+    position: relative;
+    z-index: 2;
 }
 
-.entry-content pre::after {
+/* Dots in header */
+.code-block-header::before {
     content: "•••";
-    position: absolute;
-    top: 5px; /* Ajustado para mejor centrado vertical en la barra de 32px */
-    left: 16px;
     color: #484f58;
     font-size: 18px;
     line-height: 1;
     letter-spacing: 2px;
     font-family: sans-serif;
-    pointer-events: none;
     opacity: 0.5;
+    flex-shrink: 0;
 }
 
+.code-header-meta {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin-left: auto;
+}
 
-.entry-content pre:hover {
-    border-color: #444444;
+.entry-content pre {
+    position: relative;
+    background: transparent; /* El fondo lo da el wrapper */
+    border: none;
+    border-radius: 0;
+    padding: 20px;
+    overflow-x: auto;
+    margin-bottom: 0;
+    white-space: pre; /* NO envolver líneas para sincronizar con números */
+}
+
+/* Solo aplicar padding extra si hay números de línea */
+.entry-content pre.line-numbers {
+    padding-left: 55px;
+    counter-reset: linenumber;
+}
+
+/* Removidos pseudo-elementos antiguos de pre */
+.entry-content pre::before,
+.entry-content pre::after {
+    display: none !important;
 }
 
 .entry-content pre code {
@@ -231,39 +248,31 @@
     padding: 0;
     border-radius: 0;
     font-family: var(--github-font-mono);
-    font-size: 14px;
+    font-size: 13px;
     line-height: 1.6;
     display: block;
     color: #e6edf3;
 }
 
-.code-language-label {
-    position: absolute;
-    top: 0;
-    right: 48px; /* Espacio para el botón de copiar */
-    height: 31px;
-    background: transparent; /* Sin fondo propio para integrarse en la barra */
+.code-block-header .code-language-label {
     color: var(--github-text-tertiary);
     font-size: 10px;
     font-weight: 600;
     text-transform: uppercase;
     padding: 0 12px;
+    height: 100%;
     display: flex;
     align-items: center;
     border-left: 1px solid var(--github-border);
     font-family: var(--github-font-mono);
     letter-spacing: 1px;
     pointer-events: none;
-    z-index: 2;
+    flex-shrink: 0;
 }
 
 
 
 .copy-button {
-    position: absolute;
-    top: 4px;
-    right: 8px;
-    z-index: 10;
     background: transparent;
     border: 1px solid transparent;
     border-radius: 6px;
@@ -276,9 +285,23 @@
     height: 24px;
     transition: all 0.2s ease;
     opacity: 0.6;
+    flex-shrink: 0;
 }
 
-.entry-content pre:hover .copy-button {
+/* Scoped positioning for header and pre */
+.code-block-header .copy-button {
+    position: relative;
+    margin-left: 4px;
+}
+
+.entry-content pre .copy-button {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 10;
+}
+
+.code-block-wrapper:hover .copy-button {
     opacity: 1;
 }
 
@@ -303,7 +326,7 @@
 
 .line-numbers-rows {
     position: absolute;
-    top: 44px;
+    top: 20px; /* Sincronizado con padding-top del pre */
     left: 0;
     width: 40px;
     letter-spacing: -1px;
@@ -317,9 +340,15 @@
 .line-numbers-rows span {
     display: block;
     counter-increment: linenumber;
-    color: rgba(139, 148, 158, 0.3);
-    font-size: 13px;
+}
+
+.line-numbers-rows span::before {
+    content: counter(linenumber);
+    color: rgba(139, 148, 158, 0.45);
+    font-size: 13px; /* Sincronizado con el código real */
+    font-family: var(--github-font-mono); /* Obligatorio para alineación perfecta */
     line-height: 1.6;
+    display: block;
 }
 
 /* Typography & Layout */
@@ -506,31 +535,54 @@
    ========================================================================== */
 
 .tldr-box {
-    background-color: color-mix(in srgb, var(--github-text-secondary) 5%, transparent);
-    border: 1px solid color-mix(in srgb, var(--github-text-secondary) 20%, transparent);
-    padding: 20px;
-    border-radius: 4px;
-    margin-bottom: 35px;
+    background: color-mix(in srgb, #008ec2 6%, rgba(13, 17, 23, 0.5));
+    border: none;
+    padding: 16px 24px;
+    border-radius: 6px;
+    margin: -8px 0 32px 0; /* Eliminado margen superior y ajustado para que empiece mÃ¡s arriba */
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(4px);
 }
 
 .tldr-title {
+    color: #008ec2;
     margin: 0 0 10px 0;
-    font-size: 0.8rem;
+    font-size: 13px;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    opacity: 0.6;
+    letter-spacing: 0.1em;
     font-weight: 700;
+    font-family: var(--github-font-sans);
+    line-height: 1.2;
 }
 
 .tldr-list {
     margin: 0;
-    padding-left: 20px;
-    line-height: 1.5;
-    font-weight: 500;
+    padding: 0;
+    list-style: none;
 }
 
 .tldr-item {
-    margin-bottom: 8px;
+    margin-bottom: 8px; /* Espacio mÃ¡s ajustado entre puntos */
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--github-text-secondary);
+    position: relative;
+    padding-left: 20px;
+}
+
+.tldr-item:last-child {
+    margin-bottom: 0;
+}
+
+.tldr-item::before {
+    content: "\2022";
+    color: #008ec2;
+    font-size: 18px;
+    line-height: 1.6; /* Alineado verticalmente con el texto */
+    position: absolute;
+    left: 0;
+    top: -1px;
 }
 
 .expert-quote {
@@ -561,11 +613,11 @@
 .tech-callout-label {
     display: block;
     margin-bottom: 8px;
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    font-family: var(--github-font-mono, monospace);
+    font-family: var(--github-font-sans);
 }
 
 .tech-callout-content {

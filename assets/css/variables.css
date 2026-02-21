@@ -5,6 +5,22 @@
  * visual inspirada en el diseño minimalista de GitHub y npmx.dev.
  */
 
+@font-face {
+  font-family: 'Geist Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/geist-sans-latin-400-normal.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../fonts/geist-mono-latin-400-normal.woff2') format('woff2');
+}
+
 :root {
   /* npmx.dev palette */
   /* npmx.dev settings palette */
@@ -31,10 +47,10 @@
   
   /* Fonts */
   --github-font-mono:
-    "Geist Mono", "JetBrains Mono", "SFMono-Regular", Consolas,
+    "Geist Mono", "SFMono-Regular", Consolas,
     "Liberation Mono", Menlo, monospace;
   --github-font-sans:
-    "Geist Sans", "Geist", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Geist Sans", "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI",
     "Noto Sans", Helvetica, Arial, sans-serif;
 
   /* Button Tokens */

@@ -77,15 +77,13 @@ function github_preload_critical_assets() {
     // 1. Preconnect a dominios externos críticos
     echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
     echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-    echo '<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>' . "\n";
-
     // 2. Preload de fuentes críticas (Geist Sans y Mono)
-    // Estas son las fuentes principales de la UI y código
-    echo '<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fontsource/geist-sans@5.0.3/files/geist-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
-    echo '<link rel="preload" href="https://cdn.jsdelivr.net/npm/@fontsource/geist-mono@5.0.3/files/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
+    // Estas son las fuentes principales de la UI y código, servidas localmente
+    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
+    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
 
     // 3. Preload del CSS principal (Sin versión para concordar con la optimización de cacheo)
-    echo '<link rel="preload" href="' . get_stylesheet_uri() . '" as="style">' . "\n";
+    // style.css ya no se precarga porque ahora va incrustado (inline) en el head.
     echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
 }
 add_action('wp_head', 'github_preload_critical_assets', 1);
@@ -397,40 +395,48 @@ add_action('wp_print_styles', function() {
     }
 }, 100);
 function github_theme_code_snippets_schema($content) {
-    // Solo en posts o páginas individuales
     if (!is_singular()) {
         return $content;
     }
 
-    // 1. Procesar tags <pre>
-    $content = preg_replace_callback('/<pre([^>]*)>/i', function($matches) {
+    // 1. Procesar bloques <pre> completos
+    $content = preg_replace_callback('/<pre([^>]*)>(.*?)<\/pre>/is', function($matches) {
         $attrs = $matches[1];
+        $inner_content = $matches[2];
         
-        // Si ya tiene el esquema, no hacemos nada
-        if (strpos($attrs, 'SoftwareSourceCode') !== false) {
-            return $matches[0];
-        }
-
+        // Extraer lenguaje si existe en las clases
         $language = 'text';
         if (preg_match('/class="[^"]*language-([^"\s]+)[^"]*"/i', $attrs, $lang_match)) {
             $language = $lang_match[1];
         }
 
-        // Etiqueta visual del lenguaje
-        $visual_label = sprintf(
-            '<div class="code-language-label">%s</div>',
-            esc_html($language)
-        );
+        // Si el contenido ya trae un label interno (como el de la skill), lo limpiamos para no duplicar
+        $inner_content = preg_replace('/<div class="code-language-label">.*?<\/div>/is', '', $inner_content);
 
+        // Limpiar atributos de schema si ya existen para evitar duplicados en el nuevo pre
+        $attrs = preg_replace('/itemscope|itemtype="[^"]*"|itemprop="[^"]*"/i', '', $attrs);
+
+        // Estructura robusta: Wrapper > Header (Label en Meta) + Pre
         return sprintf(
-            '<pre%s itemscope itemtype="http://schema.org/SoftwareSourceCode">%s<meta itemprop="programmingLanguage" content="%s">',
+            '<div class="code-block-wrapper">' .
+                '<div class="code-block-header">' .
+                    '<div class="code-header-meta">' .
+                        '<span class="code-language-label">%s</span>' .
+                    '</div>' .
+                '</div>' .
+                '<pre%s itemscope itemtype="http://schema.org/SoftwareSourceCode">' .
+                    '<meta itemprop="programmingLanguage" content="%s">' .
+                    '%s' . 
+                '</pre>' .
+            '</div>',
+            esc_html($language),
             $attrs,
-            $visual_label,
-            esc_attr($language)
+            esc_attr($language),
+            $inner_content
         );
     }, $content);
 
-    // 2. Procesar tags <code> dentro de los <pre> ya marcados (o todos)
+    // 2. Asegurar que el code tenga el itemprop
     $content = preg_replace_callback('/<code([^>]*)>/i', function($matches) {
         $attrs = $matches[1];
         if (strpos($attrs, 'itemprop="text"') !== false) {
