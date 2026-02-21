@@ -248,91 +248,89 @@ function github_theme_render_contributions_table() {
     echo '</div>';
     
     echo '<div class="header-right">';
-    if (!empty($available_years)) {
-        echo '<div class="contributions-year-selector">';
-        foreach ($available_years as $year) {
-            $active_class = ($year == $selected_year) ? ' active' : '';
-            $current_url = add_query_arg('contrib_year', $year, remove_query_arg('contrib_cat'));
-            echo '<a href="' . esc_url($current_url) . '" class="year-link' . esc_attr($active_class) . '">' . esc_html($year) . '</a>';
-        }
-        echo '</div>';
-    }
+    // Movido al lateral
     echo '</div>'; // End header-right
     echo '</div>'; // End contributions-header
     
-    echo '<div class="contributions-calendar">';
-    
-    // Etiquetas de meses
-    echo '<div class="contributions-months">';
-    echo '<div class="month-spacer"></div>';
-    $week_col = 0;
-    $last_shown_month = 0;
-    
-    foreach ($weeks as $week_idx => $week) {
-        if (isset($month_positions[$week_col])) {
-            $month_num = $month_positions[$week_col];
-            if ($month_num != $last_shown_month) {
-                echo '<span class="month-label">' . esc_html($months[$month_num]) . '</span>';
-                $last_shown_month = $month_num;
-            } else {
-                echo '<span class="month-label empty"></span>';
+    echo '<div class="contributions-calendar-wrapper">';
+        echo '<div class="contributions-calendar">';
+            // Etiquetas de meses
+            echo '<div class="contributions-months">';
+            echo '<div class="month-spacer"></div>';
+            $week_col = 0;
+            $last_shown_month = 0;
+            
+            foreach ($weeks as $week_idx => $week) {
+                if (isset($month_positions[$week_col])) {
+                    $month_num = $month_positions[$week_col];
+                    if ($month_num != $last_shown_month) {
+                        echo '<span class="month-label">' . esc_html($months[$month_num]) . '</span>';
+                        $last_shown_month = $month_num;
+                    } else {
+                        echo '<span class="month-label empty"></span>';
+                    }
+                } else {
+                    echo '<span class="month-label empty"></span>';
+                }
+                $week_col++;
             }
-        } else {
-            echo '<span class="month-label empty"></span>';
-        }
-        $week_col++;
-    }
-    echo '</div>';
-    
-    // Grid principal
-    echo '<div class="contributions-grid">';
-    
-    // Días de la semana
-    $weekdays = array('L', 'M', 'X', 'J', 'V', 'S', 'D');
-    echo '<div class="contributions-weekdays">';
-    foreach ($weekdays as $day) {
-        echo '<span class="weekday-label">' . esc_html($day) . '</span>';
-    }
-    echo '</div>';
-    
-    // Renderizar semanas
-    foreach ($weeks as $week) {
-        echo '<div class="contributions-week">';
-        foreach ($week as $day) {
-            if ($day === null) {
-                echo '<div class="contribution-cell empty"></div>';
-            } else {
-                
-                echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" 
-                      data-tooltip="' . esc_attr($day['tooltip']) . '" 
-                      data-titles="' . esc_attr($day['titles']) . '" 
-                      data-date="' . esc_attr($day['date']) . '" 
-                      data-count="' . esc_attr($day['count']) . '"></div>';
+            echo '</div>';
+            
+            // Grid principal
+            echo '<div class="contributions-grid">';
+            
+            // Días de la semana
+            $weekdays = array('L', 'M', 'X', 'J', 'V', 'S', 'D');
+            echo '<div class="contributions-weekdays">';
+            foreach ($weekdays as $day) {
+                echo '<span class="weekday-label">' . esc_html($day) . '</span>';
             }
-        }
-        echo '</div>';
-    }
-    
-    echo '</div>';
-    
-    // Footer solo con Leyenda (sin rachas)
-    echo '<div class="contributions-footer">';
-    
-    // Leyenda
-    echo '<div class="contributions-legend">';
-    echo '<span class="legend-label">Menos</span>';
-    echo '<div class="legend-cells">';
-    echo '<div class="legend-cell none"></div>';
-    echo '<div class="legend-cell low"></div>';
-    echo '<div class="legend-cell medium"></div>';
-    echo '<div class="legend-cell high"></div>';
-    echo '<div class="legend-cell very-high"></div>';
-    echo '</div>';
-    echo '<span class="legend-label">Más</span>';
-    echo '</div>';
-    
-    echo '</div>'; // End contributions-footer
-    
-    echo '</div>'; // End contributions-calendar
-    echo '</div>'; // End contributions-container
+            echo '</div>';
+            
+            // Renderizar semanas
+            foreach ($weeks as $week) {
+                echo '<div class="contributions-week">';
+                foreach ($week as $day) {
+                    if ($day === null) {
+                        echo '<div class="contribution-cell empty"></div>';
+                    } else {
+                        
+                        echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" 
+                              data-tooltip="' . esc_attr($day['tooltip']) . '" 
+                              data-titles="' . esc_attr($day['titles']) . '" 
+                              data-date="' . esc_attr($day['date']) . '" 
+                              data-count="' . esc_attr($day['count']) . '"></div>';
+                    }
+                }
+                echo '</div>';
+            }
+            echo '</div>'; // End contributions-grid
+        echo '</div>'; // End contributions-calendar
+
+        // Sidebar derecha que contiene Años + Leyenda
+        echo '<div class="contributions-sidebar">';
+            if (!empty($available_years)) {
+                echo '<div class="contributions-year-grid">';
+                foreach ($available_years as $year) {
+                    $active_class = ($year == $selected_year) ? ' active' : '';
+                    $current_url = add_query_arg('contrib_year', $year, remove_query_arg('contrib_cat'));
+                    echo '<a href="' . esc_url($current_url) . '" class="year-link' . esc_attr($active_class) . '">' . esc_html($year) . '</a>';
+                }
+                echo '</div>';
+            }
+
+            // Leyenda integrada en el sidebar
+            echo '<div class="contributions-legend">';
+                echo '<span class="legend-label">Menos</span>';
+                echo '<div class="legend-cells">';
+                    echo '<div class="legend-cell none"></div>';
+                    echo '<div class="legend-cell low"></div>';
+                    echo '<div class="legend-cell medium"></div>';
+                    echo '<div class="legend-cell high"></div>';
+                    echo '<div class="legend-cell very-high"></div>';
+                echo '</div>';
+                echo '<span class="legend-label">Más</span>';
+            echo '</div>';
+        echo '</div>'; // End contributions-sidebar
+    echo '</div>'; // End contributions-calendar-wrapper
 }

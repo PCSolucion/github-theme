@@ -60,18 +60,87 @@
     font-weight: 500;
 }
 
-/* Calendar Container */
-.contributions-calendar {
+/* Calendar Wrapper & Sidebar Unified */
+.contributions-calendar-wrapper {
+    display: flex;
+    justify-content: flex-start; /* Alineado a la izquierda */
+    gap: 20px;
+    align-items: flex-start;
     width: 100%;
+}
+
+.contributions-calendar {
+    flex: 0 1 auto;
+    min-width: 0;
     overflow-x: auto;
     padding-bottom: 8px;
+}
+
+.contributions-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+    padding-top: 24px;
+    width: auto; /* Se ajusta al contenido de las columnas */
+}
+
+/* Grid de años ultra-compacto: 6 columnas = solo 3 filas para 14-18 años */
+.contributions-year-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 40px); 
+    gap: 3px;
+}
+
+.contributions-year-grid .year-link {
+    display: block;
+    text-align: center;
+    padding: 4px 0;
+    font-size: 11px;
+    color: var(--github-text-tertiary);
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.contributions-year-grid .year-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--github-text-primary);
+}
+
+.contributions-year-grid .year-link.active {
+    background: var(--github-bg-tertiary);
+    color: var(--github-text-primary);
+    border-color: var(--github-border);
+    font-weight: 600;
+}
+
+/* Leyenda horizontal y compacta alineada a la derecha */
+.contributions-legend {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end; /* Alineado a la derecha */
+    gap: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--github-border);
+}
+
+.contributions-legend .legend-label {
+    font-size: 10px; /* Un pelín más grande */
+    opacity: 0.9;
+}
+
+.legend-cells {
+    display: flex;
+    gap: 2px;
 }
 
 /* Months Row */
 .contributions-months {
     display: flex;
     margin-bottom: 8px;
-    gap: 3px;
+    gap: 2px;
 }
 
 .month-spacer {
@@ -84,15 +153,18 @@
     font-size: 11px;
     font-family: var(--github-font-sans);
     color: var(--github-text-tertiary);
-    width: 14px;
-    min-width: 14px;
+    width: 13px;
+    min-width: 13px;
     text-align: left;
+    padding-left: 8px;
+    white-space: nowrap;
+    overflow: visible;
 }
 
 .month-label.empty {
     visibility: hidden;
-    width: 14px;
-    min-width: 14px;
+    width: 12px;
+    min-width: 12px;
 }
 
 /* Grid Container */
@@ -106,8 +178,8 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    width: 25px;
-    min-width: 25px;
+    width: 30px;
+    min-width: 30px;
     flex-shrink: 0;
 }
 
@@ -115,10 +187,11 @@
     font-size: 10px;
     font-family: var(--github-font-sans);
     color: var(--github-text-tertiary);
-    height: 11px;
-    line-height: 11px;
+    height: 13px;
+    line-height: 13px;
     text-align: right;
-    padding-right: 6px;
+    padding-right: 8px;
+    opacity: 0.6;
 }
 
 /* Individual Week Column */
@@ -126,13 +199,13 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    width: 11px;
+    width: 13px;
 }
 
 /* Individual Cell */
 .contribution-cell {
-    width: 11px;
-    height: 11px;
+    width: 13px;
+    height: 13px;
     border-radius: 2px;
     transition: all 0.12s ease;
     cursor: default;
@@ -148,14 +221,9 @@
     visibility: hidden;
 }
 
-/* Footer */
+/* Eliminamos el footer antiguo ya que está integrado en el sidebar */
 .contributions-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin-top: 10px;
-    padding-top: 8px;
-    border-top: 1px solid var(--github-border);
+    display: none;
 }
 
 /* Legend */
@@ -163,7 +231,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 10px;
+    font-size: 11px;
     font-family: var(--github-font-sans);
 }
 
@@ -174,11 +242,11 @@
 
 .legend-cells {
     display: flex;
-    gap: 2px;
+    gap: 3px;
 }
 
 .legend-cell {
-    width: 11px;
+    width: 11px; /* Un poco más pequeños que los cuadros de actividad */
     height: 11px;
     border-radius: 2px;
 }
@@ -292,14 +360,14 @@
     }
 
     .contributions-weekdays {
-        width: 95px;
+        width: 28px;
         margin-right: 0;
     }
 
     .weekday-label {
         width: 95px;
         min-width: 95px;
-        font-size: 10px;
+        font-size: 11px;
         height: 12px;
     }
 
@@ -310,7 +378,7 @@
     }
 
     .month-spacer {
-        width: 38px;
+        width: 28px;
         height: 18px;
     }
 
@@ -344,9 +412,29 @@
         gap: 2px;
     }
 
-    .legend-cell {
-        width: 12px;
-        height: 12px;
+    .contributions-calendar-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .contributions-sidebar {
+        width: 100%;
+        padding-top: 0;
+        border-top: 1px solid var(--github-border);
+        padding-top: 16px;
+    }
+
+    .contributions-year-grid {
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    }
+
+    .contributions-legend {
+        flex-direction: row;
+        justify-content: center;
+        border-top: none;
+        padding-top: 8px;
     }
 }
 
