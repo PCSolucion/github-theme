@@ -251,7 +251,7 @@ function github_theme_render_contributions_table() {
     // Header simplificado - solo título y selector de años
     echo '<div class="contributions-header">';
     echo '<div class="header-left">';
-    echo '<h2 class="contributions-title">Actividad</h2>';
+    echo '<h2 class="contributions-title"></h2>';
     echo '</div>';
     
     echo '<div class="header-right">';

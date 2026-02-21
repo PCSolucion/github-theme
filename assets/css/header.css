@@ -105,10 +105,10 @@ svg.logo-dot {
 
 .AppHeader-search-input {
     width: 100%;
-    padding: 11px 70px 11px 38px;
+    padding: 11px 70px 11px 22px;
     background: var(--github-bg-secondary) !important;
     border: 1px solid var(--github-border);
-    border-radius: 8px;
+    border-radius: 6px;
     color: var(--github-text-primary) !important;
     font-size: 14px;
     font-family: var(--github-font-mono);
@@ -147,8 +147,8 @@ svg.logo-dot {
     transform: translateY(-50%);
     color: var(--github-text-tertiary);
     font-family: var(--github-font-mono);
-    font-size: 10px !important;
-    font-weight: 300 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
     line-height: 1.5;
     pointer-events: none;
     z-index: 5;

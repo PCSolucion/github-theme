@@ -38,28 +38,6 @@ document.addEventListener('DOMContentLoaded', function () {
         input.addEventListener('blur', () => form.classList.remove('focused'));
     });
 
-    // 3. Animación suave para elementos al hacer scroll (IntersectionObserver)
-    if (window.IntersectionObserver) {
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.post-item, .single-post, .page-content').forEach(el => {
-            el.classList.add('observe');
-            observer.observe(el);
-        });
-    }
-
     // 4. Mejorar la navegación móvil
     const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
     const mainNavigation = document.querySelector('.main-navigation');

@@ -24,9 +24,14 @@ get_header();
                 <div class="commit-hash" title="Commit Hash">
                     <?php echo github_theme_get_post_commit_hash(); ?>
                 </div>
+                <?php 
+                $file_size = github_theme_get_total_download_size();
+                if ( ! empty( $file_size ) ) : 
+                ?>
                 <span class="file-size" title="<?php esc_attr_e('Peso total estimado (HTML + Imágenes)', 'github-theme'); ?>">
-                    <?php echo github_theme_get_total_download_size(); ?>
+                    <?php echo $file_size; ?>
                 </span>
+                <?php endif; ?>
                 <span class="post-date">
                     <time datetime="<?php echo esc_attr(get_the_date('c')); ?>">
                         <?php echo get_the_date(); ?>

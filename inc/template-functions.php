@@ -143,42 +143,15 @@ function github_theme_get_total_download_size( $post_id = null ) {
     $cached_size = get_post_meta($post_id, '_github_total_size', true);
     if ($cached_size !== '') {
         $total_bytes = intval($cached_size);
-    } else {
-        // Fallback: Calcular si no existe el meta (posts antiguos no actualizados)
-        $post = get_post( $post_id );
-        if ( ! $post ) {
-            return '0kb';
-        }
-
-        $content_size = strlen( $post->post_content );
-        $overhead_size = 14300; 
-        $total_bytes = $content_size + $overhead_size;
-
-        if ( has_post_thumbnail( $post ) ) {
-            $thumb_id = get_post_thumbnail_id( $post );
-            $thumb_path = get_attached_file( $thumb_id );
-            if ( $thumb_path && file_exists( $thumb_path ) ) {
-                $total_bytes += filesize( $thumb_path );
-            }
-        }
-
-        if ( preg_match_all( '/class="[^"]*wp-image-(\d+)[^"]*"/', $post->post_content, $matches ) ) {
-            $image_ids = array_unique( $matches[1] );
-            foreach ( $image_ids as $img_id ) {
-                $img_path = get_attached_file( $img_id );
-                if ( $img_path && file_exists( $img_path ) ) {
-                    $total_bytes += filesize( $img_path );
-                }
-            }
+        if ( $total_bytes >= 1048576 ) {
+            return number_format( $total_bytes / 1048576, 1 ) . 'mb';
+        } else {
+            return number_format( $total_bytes / 1024, 1 ) . 'kb';
         }
     }
 
-    // Formatear
-    if ( $total_bytes >= 1048576 ) {
-        return number_format( $total_bytes / 1048576, 1 ) . 'mb';
-    } else {
-        return number_format( $total_bytes / 1024, 1 ) . 'kb';
-    }
+    // Si no existe, descartamos la información para optimizar el rendimiento.
+    return '';
 }
 
 /**
