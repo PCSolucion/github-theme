@@ -131,12 +131,6 @@ function github_theme_render_contributions_table() {
     // Obtener datos SIN filtro de categoría
     $contributions = github_theme_get_contributions_data($selected_year, null);
     
-    // Calcular total de contribuciones
-    $total_contributions = 0;
-    foreach ($contributions as $day_data) {
-        $total_contributions += $day_data['count'];
-    }
-    
     // Crear array con todos los días del año seleccionado
     $year_start = new DateTime($selected_year . '-01-01');
     $year_end = new DateTime($selected_year . '-12-31');
@@ -248,27 +242,22 @@ function github_theme_render_contributions_table() {
     
     echo '<div class="contributions-container">';
     
-    // Header simplificado - solo título y selector de años
-    echo '<div class="contributions-header">';
-    echo '<div class="header-left">';
-    echo '<h2 class="contributions-title"></h2>';
-    echo '</div>';
-    
-    echo '<div class="header-right">';
-    
-    // Selector de años
+    // Header con desplegable de años
     if (!empty($available_years)) {
-        echo '<div class="contributions-year-selector">';
+        echo '<div class="contributions-header">';
+        echo '<div class="contributions-year-dropdown">';
+        echo '<select class="year-select" onchange="window.location.href=this.value" aria-label="Seleccionar año">';
         foreach ($available_years as $year) {
-            $active_class = ($year == $selected_year) ? ' active' : '';
-            // Eliminar filtro de categoría de la URL
+            $selected = ($year == $selected_year) ? ' selected' : '';
             $current_url = add_query_arg('contrib_year', $year, remove_query_arg('contrib_cat'));
-            echo '<a href="' . esc_url($current_url) . '" class="year-link' . esc_attr($active_class) . '">' . esc_html($year) . '</a>';
+            echo '<option value="' . esc_url($current_url) . '"' . $selected . '>' . esc_html($year) . '</option>';
         }
+        echo '</select>';
         echo '</div>';
+        echo '</div>'; // End contributions-header
     }
-    echo '</div>'; // End header-right
-    echo '</div>'; // End contributions-header
+    
+    echo '<div class="contributions-body">';
     
     echo '<div class="contributions-calendar">';
     
@@ -344,5 +333,7 @@ function github_theme_render_contributions_table() {
     echo '</div>'; // End contributions-footer
     
     echo '</div>'; // End contributions-calendar
+    
+    echo '</div>'; // End contributions-body
     echo '</div>'; // End contributions-container
 }
