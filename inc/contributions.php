@@ -241,23 +241,24 @@ function github_theme_render_contributions_table() {
     }
     
     echo '<div class="contributions-container">';
+    // Header
+    echo '<div class="contributions-header">';
+    echo '<div class="header-left">';
+    echo '<h2 class="contributions-title"></h2>';
+    echo '</div>';
     
-    // Header con desplegable de años
+    echo '<div class="header-right">';
     if (!empty($available_years)) {
-        echo '<div class="contributions-header">';
-        echo '<div class="contributions-year-dropdown">';
-        echo '<select class="year-select" onchange="window.location.href=this.value" aria-label="Seleccionar año">';
+        echo '<div class="contributions-year-selector">';
         foreach ($available_years as $year) {
-            $selected = ($year == $selected_year) ? ' selected' : '';
+            $active_class = ($year == $selected_year) ? ' active' : '';
             $current_url = add_query_arg('contrib_year', $year, remove_query_arg('contrib_cat'));
-            echo '<option value="' . esc_url($current_url) . '"' . $selected . '>' . esc_html($year) . '</option>';
+            echo '<a href="' . esc_url($current_url) . '" class="year-link' . esc_attr($active_class) . '">' . esc_html($year) . '</a>';
         }
-        echo '</select>';
         echo '</div>';
-        echo '</div>'; // End contributions-header
     }
-    
-    echo '<div class="contributions-body">';
+    echo '</div>'; // End header-right
+    echo '</div>'; // End contributions-header
     
     echo '<div class="contributions-calendar">';
     
@@ -333,7 +334,5 @@ function github_theme_render_contributions_table() {
     echo '</div>'; // End contributions-footer
     
     echo '</div>'; // End contributions-calendar
-    
-    echo '</div>'; // End contributions-body
     echo '</div>'; // End contributions-container
 }

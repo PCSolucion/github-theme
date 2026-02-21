@@ -70,6 +70,8 @@
 
     var resultsContainerDiv = document.createElement("div");
     resultsContainerDiv.className = "live-search-results";
+    resultsContainerDiv.setAttribute("aria-live", "polite"); // Accessibility fix
+    resultsContainerDiv.setAttribute("role", "listbox"); // Accessibility fix
     modal.appendChild(resultsContainerDiv);
 
     var footer = document.createElement("div");
@@ -154,8 +156,8 @@
       abortController = null;
     }
     
-    // No devolvemos el foco automáticamente al trigger para evitar conflictos
-    // con eventos 'focus' que podrían reabrir el modal accidentalmente.
+    // No devolvemos el foco automáticamente al trigger (headerInput)
+    // para evitar conflictos con el evento 'focus' que reabriría el modal inmediatamente.
   }
 
   // =========================================================================

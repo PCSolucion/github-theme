@@ -48,16 +48,17 @@ function github_theme_live_search_handler( WP_REST_Request $request ) {
     $per_page = min( (int) $request->get_param( 'per_page' ), 20 );
     $like     = '%' . $wpdb->esc_like( $term ) . '%';
 
-    // Búsqueda directa en post_title — rápida y exacta
+    // Búsqueda directa en post_title y post_content
     $results = $wpdb->get_results(
         $wpdb->prepare(
-            "SELECT ID, post_title, post_excerpt, post_date, post_name
+            "SELECT ID, post_title, post_excerpt, post_content, post_date, post_name
              FROM {$wpdb->posts}
              WHERE post_status = 'publish'
                 AND post_type  = 'post'
-                AND post_title LIKE %s
+                AND (post_title LIKE %s OR post_content LIKE %s)
              ORDER BY post_date DESC
              LIMIT %d",
+            $like,
             $like,
             $per_page
         )
@@ -74,10 +75,14 @@ function github_theme_live_search_handler( WP_REST_Request $request ) {
         $cats       = get_the_category( $post_id );
         $categories = ! empty( $cats ) ? implode( ', ', wp_list_pluck( $cats, 'name' ) ) : '';
 
+        // Excerpt mejorado
+        $excerpt_source = ! empty( $post->post_excerpt ) ? $post->post_excerpt : strip_shortcodes( $post->post_content );
+        $excerptText = wp_trim_words( strip_tags( $excerpt_source ), 20, '…' );
+
         $data[] = array(
             'id'         => $post_id,
             'title'      => $post->post_title,
-            'excerpt'    => wp_trim_words( strip_tags( $post->post_excerpt ), 20, '…' ),
+            'excerpt'    => $excerptText,
             'date'       => $post->post_date,
             'link'       => get_permalink( $post_id ),
             'categories' => $categories,
