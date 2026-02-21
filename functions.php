@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // =============================================================================
 
 /** Versión del tema para control de caché (Cache Busting) */
-define( 'GITHUB_THEME_VERSION', time() ); // Version temporal para desarrollo y cache busting
+define( 'GITHUB_THEME_VERSION', '1.0.5' ); // Versión estática para permitir caché en producción
 
 
 // =============================================================================
@@ -318,14 +318,6 @@ function github_theme_lightbox_init() {
 }
 add_action( 'wp_enqueue_scripts', 'github_theme_lightbox_init' );
 
-/**
- * Permitir subida de archivos SVG.
- */
-function github_theme_mime_types( $mimes ) {
-    $mimes['svg'] = 'image/svg+xml';
-    return $mimes;
-}
-add_filter( 'upload_mimes', 'github_theme_mime_types' );
 
 
 // =============================================================================

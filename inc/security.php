@@ -178,105 +178,25 @@ function github_theme_search_rate_limit() {
 }
 add_action('template_redirect', 'github_theme_search_rate_limit', 1);
 
-/**
- * PROTECCIÓN CONTRA INYECCIÓN LDAP
- */
-function github_theme_block_ldap_injection() {
-    // NO ejecutar en el área de administración
-    if (is_admin()) {
-        return;
-    }
-    
-    // Solo procesar si hay parámetros GET
-    if (empty($_GET)) {
-        return;
-    }
-    
-    // Obtener la query string completa
-    $query_string = isset($_SERVER['QUERY_STRING']) ? urldecode($_SERVER['QUERY_STRING']) : '';
-    $request_uri = isset($_SERVER['REQUEST_URI']) ? urldecode($_SERVER['REQUEST_URI']) : '';
-    
-    // Patrones de inyección LDAP a bloquear
-    $ldap_patterns = array(
-        '/\x00/',                    // Caracteres NUL
-        '/%00/',                     // NUL codificado
-        '/\*\)/',                    // *) - patrón típico de LDAP injection
-        '/\(\|/',                    // (| - patrón OR en LDAP
-        '/\(\&/',                    // (& - patrón AND en LDAP
-        '/\)\)/',                    // )) - cierre de múltiples filtros
-        '/\(\*/',                    // (* - wildcard en filtro
-        '/\\\\[0-9a-fA-F]{2}/',    // Escape hex de LDAP
-        '/uid=\*/',                  // Enumeración de usuarios LDAP
-        '/cn=\*/',                   // Common name wildcard
-        '/objectclass=\*/',          // Object class enumeration
-    );
-    
-    // Verificar query string y URI
-    foreach ($ldap_patterns as $pattern) {
-        if (preg_match($pattern, $query_string) || preg_match($pattern, $request_uri)) {
-            // Responder con error 400 Bad Request
-            status_header(400);
-            wp_die(
-                '<h1>Solicitud no válida</h1>' .
-                '<p>La solicitud contiene caracteres no permitidos.</p>' .
-                '<p><a href="' . esc_url(home_url('/')) . '">Volver al inicio</a></p>',
-                'Solicitud no válida',
-                array(
-                    'response' => 400,
-                    'back_link' => true
-                )
-            );
-        }
-    }
-    
-    // Verificar específicamente el parámetro de búsqueda 's'
-    if (isset($_GET['s'])) {
-        $search = $_GET['s'];
-        
-        // Caracteres prohibidos en búsqueda LDAP
-        $forbidden_chars = array('*', '(', ')', '\\', chr(0), '|', '&', '!');
-        
-        foreach ($forbidden_chars as $char) {
-            if (strpos($search, $char) !== false) {
-                // Redirigir a búsqueda limpia
-                $clean_search = str_replace($forbidden_chars, '', $search);
-                $clean_search = trim($clean_search);
-                
-                if (!empty($clean_search)) {
-                    wp_safe_redirect(add_query_arg('s', urlencode($clean_search), home_url('/')));
-                    exit;
-                } else {
-                    wp_safe_redirect(home_url('/'));
-                    exit;
-                }
-            }
-        }
-    }
-}
-add_action('template_redirect', 'github_theme_block_ldap_injection', 0);
 
 /**
- * Limpiar query de búsqueda para prevenir inyección SQL y LDAP
+ * Limpiar query de búsqueda para prevenir inyecciones y caracteres no deseados
  */
 function github_theme_sanitize_search_query($query) {
     if ($query->is_search && !is_admin() && $query->is_main_query()) {
-        // Obtener el término directamente de la URL para evitar filtros previos
+        // Obtener el término directamente de la URL
         $s = isset($_GET['s']) ? $_GET['s'] : '';
         
-        // 1. Limpieza profunda
+        // 1. Limpieza profunda y eliminación de etiquetas/caracteres especiales
         $search_term = strip_tags($s);
-        $search_term = str_replace(array('*', '(', ')', '\\', '|', '&', '!', chr(0)), '', $search_term);
         $search_term = preg_replace('/[^\p{L}\p{N}\s\-_\.]/u', '', $search_term);
         $search_term = trim(preg_replace('/\s+/', ' ', $search_term));
         $search_term = mb_substr($search_term, 0, 100);
         
-        // 2. Validación de "Junk Search"
-        // Si el término es demasiado corto (ej. < 2 caracteres) o queda vacío
+        // 2. Validación de búsqueda vacía o demasiado corta
         if (mb_strlen($search_term) < 2) {
-            // No cancelamos is_search (para mantener el template search.php)
-            // pero forzamos que no devuelva nada sin estresar la base de datos
             $query->set('s', ''); 
-            $query->set('post__in', array(0)); // Fuerza 0 resultados
+            $query->set('post__in', array(0)); 
             return;
         }
         
