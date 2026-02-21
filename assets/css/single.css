@@ -460,7 +460,7 @@
     margin: 0 0 12px 12px;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-family: var(--github-font-mono);
+    font-family: var(--github-font-sans);
 }
 
 #table-of-contents ul {
@@ -479,7 +479,7 @@
     color: var(--github-text-secondary);
     text-decoration: none;
     font-size: 13px;
-    font-family: var(--github-font-mono);
+    font-family: var(--github-font-sans);
     transition: all 0.2s ease;
     border-radius: 6px;
     line-height: 1.4;

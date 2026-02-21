@@ -50,6 +50,20 @@ function github_optimize_queries() {
     // Deshabilitar REST API links en el head
     remove_action('wp_head', 'rest_output_link_wp_head');
     remove_action('template_redirect', 'rest_output_link_header', 11);
+
+    // --- Limpieza de Head (SEO y Seguridad) ---
+    remove_action('wp_head', 'rsd_link');              // Editar mediante RSD (Really Simple Discovery)
+    remove_action('wp_head', 'wlwmanifest_link');      // Windows Live Writer
+    remove_action('wp_head', 'wp_generator');          // Versión de WordPress
+    remove_action('wp_head', 'wp_shortlink_wp_head');  // Enlaces cortos
+    
+    // Deshabilitar enlaces automáticos de Feed RSS
+    remove_action('wp_head', 'feed_links', 2);         // Feed general
+    remove_action('wp_head', 'feed_links_extra', 3);   // Feed de comentarios, categorías, etc.
+
+    // Deshabilitar reglas de especulación por defecto (WP Core 6.5+)
+    remove_action('wp_head', 'wp_enqueue_speculation_rules');
+    remove_action('wp_footer', 'wp_enqueue_speculation_rules');
 }
 add_action('init', 'github_optimize_queries');
 
@@ -69,21 +83,16 @@ function github_disable_heartbeat() {
 add_action('init', 'github_disable_heartbeat', 1);
 
 /**
- * Agregar sugerencias de recursos (preload y preconnect) para mejorar el rendimiento
+ * Agregar sugerencias de recursos (preload) para mejorar el rendimiento
  */
 function github_preload_critical_assets() {
-    $version = GITHUB_THEME_VERSION;
+    // 1. Preload de fuentes críticas (Geist Sans y Mono) con ALTA PRIORIDAD
+    // Estas son las fuentes principales de la UI y código, servidas localmente.
+    // Usamos fetchpriority="high" para que el navegador las descargue antes que cualquier otra cosa.
+    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high">' . "\n";
+    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high">' . "\n";
 
-    // 1. Preconnect a dominios externos críticos
-    echo '<link rel="preconnect" href="https://fonts.googleapis.com">' . "\n";
-    echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>' . "\n";
-    // 2. Preload de fuentes críticas (Geist Sans y Mono)
-    // Estas son las fuentes principales de la UI y código, servidas localmente
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>' . "\n";
-
-    // 3. Preload del CSS principal (Sin versión para concordar con la optimización de cacheo)
-    // style.css ya no se precarga porque ahora va incrustado (inline) en el head.
+    // 2. Preload del CSS principal
     echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
 }
 add_action('wp_head', 'github_preload_critical_assets', 1);
@@ -149,22 +158,30 @@ add_filter('script_loader_src', 'github_theme_remove_script_version', 9999);
  * Eliminar bloques de CSS y SVG innecesarios del core (Gutenberg Bloat)
  */
 function github_theme_remove_wp_bloat() {
-    // Eliminar estilos globales de bloques (inline CSS) y variantes
-    wp_dequeue_style('global-styles');
-    wp_dequeue_style('wp-block-library');
-    wp_dequeue_style('wp-block-library-theme');
-    wp_dequeue_style('classic-theme-styles');
-    
     // Eliminar Dashicons y Thickbox del frontend (ahorro de ~40KB)
     if (!is_admin()) {
         wp_dequeue_style('dashicons');
         wp_dequeue_style('thickbox');
         wp_deregister_script('thickbox');
+        
+        // Eliminar estilos globales de bloques (inline CSS) y variantes de Gutenberg
+        wp_dequeue_style('global-styles');
+        wp_dequeue_style('wp-block-library');
+        wp_dequeue_style('wp-block-library-theme');
+        wp_dequeue_style('classic-theme-styles');
+
+        // WordPress 6.7+: Eliminar CSS de auto-sizes para imágenes lazy-load
+        wp_dequeue_style('wp-img-auto-sizes-contain');
+        add_filter('wp_img_tag_add_auto_sizes', '__return_false');
     }
     
     // Eliminar los filtros SVG de duotono de los bloques
     remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
     remove_action('render_block', 'wp_render_duotone_support', 10);
+    
+    // Eliminar estilos inline de Gutenberg (Gutenberg Bloat)
+    remove_action('wp_enqueue_scripts', 'wp_enqueue_global_styles');
+    remove_action('wp_footer', 'wp_enqueue_global_styles', 1);
 }
 add_action('wp_enqueue_scripts', 'github_theme_remove_wp_bloat', 100);
 
@@ -365,6 +382,26 @@ function github_theme_speculative_loading() {
     ?>
     <script type="speculationrules">
     {
+      "prefetch": [
+        {
+          "source": "document",
+          "where": {
+            "and": [
+              { "href_matches": "<?php echo esc_url_raw(home_url('/')); ?>*" },
+              { "not": { "href_matches": [
+                "<?php echo admin_url(); ?>*",
+                "*/wp-login*",
+                "*/wp-content/*",
+                "*/wp-includes/*",
+                "*\\?*"
+              ]}},
+              { "not": { "selector_matches": "a[rel~=\"nofollow\"]" }},
+              { "not": { "selector_matches": ".no-prefetch, .no-prefetch a" }}
+            ]
+          },
+          "eagerness": "conservative"
+        }
+      ],
       "prerender": [
         {
           "source": "document",

@@ -65,7 +65,7 @@ svg.logo-dot {
 }
 
 .logo-path {
-    font-family: var(--github-font-mono);
+    font-family: var(--github-font-sans);
     font-size: 15px;
     font-weight: 500;
     color: #fafafa;

@@ -12,14 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 <head>
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <?php if (function_exists('github_theme_meta_description')) : ?>
-    <meta name="description" content="<?php echo esc_attr(github_theme_meta_description()); ?>">
-    <?php endif; ?>
     <?php if (function_exists('github_theme_social_meta_tags')) : ?>
     <?php github_theme_social_meta_tags(); ?>
     <?php endif; ?>
-    <link rel="profile" href="https://gmpg.org/xfn/11">
-    <link rel="icon" href="<?php echo esc_url(get_template_directory_uri() . '/assets/img/favicon.png'); ?>" sizes="32x32" />
     <?php wp_head(); ?>
 </head>
 <body <?php body_class(); ?>>
@@ -54,6 +49,9 @@ if ( ! defined( 'ABSPATH' ) ) {
                     name="s"
                     aria-label="Buscar contenido"
                     readonly
+                    role="button"
+                    aria-haspopup="dialog"
+                    aria-expanded="false"
                 />
                 <kbd class="AppHeader-search-kbd">Ctrl+K</kbd>
             </form>
@@ -63,9 +61,10 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php
             wp_nav_menu(array(
                 'theme_location' => 'primary',
-                'menu_class' => 'nav-menu',
-                'container' => false,
-                'fallback_cb' => 'github_theme_default_menu',
+                'menu_id'        => 'github-main-menu',
+                'menu_class'     => 'nav-menu',
+                'container'      => false,
+                'fallback_cb'    => 'github_theme_default_menu',
             ));
             ?>
         </nav>

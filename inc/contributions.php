@@ -289,22 +289,26 @@ function github_theme_render_contributions_table() {
             
             // Renderizar semanas
             foreach ($weeks as $week) {
-                echo '<div class="contributions-week">';
+                echo "\n" . '<div class="contributions-week">';
                 foreach ($week as $day) {
                     if ($day === null) {
                         echo '<div class="contribution-cell empty"></div>';
                     } else {
+                        $has_posts = ($day['count'] > 0);
+                        $accessibility = $has_posts ? ' tabindex="0" role="gridcell" aria-label="' . esc_attr($day['tooltip']) . '"' : '';
+                        $titles_data = $has_posts ? ' data-titles="' . esc_attr($day['titles']) . '"' : '';
                         
-                        echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" 
-                              data-tooltip="' . esc_attr($day['tooltip']) . '" 
-                              data-titles="' . esc_attr($day['titles']) . '" 
-                              data-date="' . esc_attr($day['date']) . '" 
-                              data-count="' . esc_attr($day['count']) . '"></div>';
+                        echo '<div class="contribution-cell ' . esc_attr($day['intensity']) . '" ' .
+                              'data-tooltip="' . esc_attr($day['tooltip']) . '" ' .
+                              $titles_data . ' ' .
+                              'data-date="' . esc_attr($day['date']) . '" ' .
+                              'data-count="' . esc_attr($day['count']) . '"' .
+                              $accessibility . '></div>';
                     }
                 }
                 echo '</div>';
             }
-            echo '</div>'; // End contributions-grid
+            echo "\n" . '</div>'; // End contributions-grid
         echo '</div>'; // End contributions-calendar
 
         // Sidebar derecha que contiene Años + Leyenda

@@ -1,48 +1,81 @@
 /* Estilos adicionales para GitHub Theme */
 
-.archive-header {
-    margin-bottom: 32px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--github-border);
-}
+/* =========================================
+   GLOBAL UTILITIES & COMPONENTS
+   ========================================= */
 
-.archive-title {
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--github-text-primary);
-    margin-bottom: 8px;
+/* Tipografía Mono & Minúsculas Consistente */
+.archive-title,
+.search-title,
+.nav-subtitle,
+.nav-title,
+.commit-hash,
+.file-size,
+.post-date,
+.tag {
     font-family: var(--github-font-mono);
     text-transform: lowercase;
-    letter-spacing: -0.03em;
 }
 
-.archive-description {
-    color: var(--github-text-secondary);
-    font-size: 16px;
-    margin-top: 8px;
+/* Scrollbar Personalizado */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
 }
 
+::-webkit-scrollbar-track {
+    background: var(--github-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--github-border);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--github-text-tertiary);
+}
+
+/* Selección de Texto */
+::selection {
+    background-color: var(--github-accent-subtle);
+    color: var(--github-text-primary);
+}
+
+::-moz-selection {
+    background-color: var(--github-accent-subtle);
+    color: var(--github-text-primary);
+}
+
+/* =========================================
+   LAYOUT & HEADERS
+   ========================================= */
+
+.archive-header,
 .search-header {
     margin-bottom: 32px;
     padding-bottom: 24px;
     border-bottom: 1px solid var(--github-border);
 }
 
-.search-title {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--github-text-primary);
-    margin-bottom: 16px;
-    font-family: var(--github-font-mono);
-    text-transform: lowercase;
-    letter-spacing: -0.02em;
+.archive-title a,
+.search-title a {
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.2s ease;
+}
+
+.archive-title a:hover,
+.archive-title a:focus,
+.search-title a:hover,
+.search-title a:focus {
+    opacity: 0.7;
+    outline: none;
 }
 
 .search-term {
     color: var(--github-accent);
 }
-
-/* .post-footer redundante movido a assets/css/post-list.css */
 
 .no-posts {
     background-color: var(--github-bg-secondary);
@@ -53,8 +86,8 @@
     color: var(--github-text-secondary);
 }
 
-
-.entry-footer {
+.entry-footer,
+.page-links {
     margin-top: 32px;
     padding-top: 24px;
     border-top: 1px solid var(--github-border);
@@ -66,39 +99,19 @@
     margin-right: 8px;
 }
 
-.page-links {
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 1px solid var(--github-border);
-}
-
-/* Page Links - Disabled in favor of new central button styles */
-/*
-.page-links a {
-    display: inline-block;
-    padding: 8px 12px;
-    margin: 0 4px;
-    background-color: var(--github-bg-tertiary);
-    border: 1px solid var(--github-border);
-    border-radius: 6px;
-    color: var(--github-accent);
-    text-decoration: none;
-}
-*/
-
 .page-links a:hover {
     border-color: var(--github-accent);
 }
 
-.error-actions {
-    margin-top: 32px;
-}
-
+.error-actions,
 .search-form-container {
     margin-top: 32px;
 }
 
-/* Navegación entre posts */
+/* =========================================
+   POST NAVIGATION
+   ========================================= */
+
 .post-navigation {
     margin-top: 48px;
     padding-top: 24px;
@@ -131,9 +144,13 @@
 }
 
 .nav-previous a:hover,
-.nav-next a:hover {
+.nav-next a:hover,
+.nav-previous a:focus,
+.nav-next a:focus {
     background-color: var(--btn-bg-hover);
     border-color: var(--github-text-tertiary);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--github-accent-subtle);
 }
 
 .nav-subtitle {
@@ -141,8 +158,6 @@
     font-size: 11px;
     color: var(--github-text-secondary);
     margin-bottom: 4px;
-    font-family: var(--github-font-mono);
-    text-transform: lowercase;
 }
 
 .nav-title {
@@ -150,70 +165,12 @@
     font-size: 14px;
     font-weight: 600;
     color: var(--github-text-primary);
-    font-family: var(--github-font-mono);
-    text-transform: lowercase;
 }
-
-
-
-/* Mejoras responsive */
-@media (max-width: 768px) {
-    .nav-links {
-        flex-direction: column;
-    }
-
-    .nav-previous,
-    .nav-next {
-        width: 100%;
-    }
-}
-
-/* Scrollbar personalizado */
-::-webkit-scrollbar {
-    width: 5px;
-    height: 5px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--github-bg-primary);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--github-border);
-    border-radius: 10px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--github-text-tertiary);
-}
-
-
-
-/* Selección de texto */
-::selection {
-    background-color: rgba(237, 237, 237, 0.2);
-    color: var(--github-text-primary);
-}
-
-::-moz-selection {
-    background-color: rgba(237, 237, 237, 0.2);
-    color: var(--github-text-primary);
-}
-
-/* Tabla de Contribuciones movida a assets/css/contributions.css */
 
 /* =========================================
-   SINGLE POST LAYOUT - HERO & GRID
+   ERROR PAGES
    ========================================= */
 
-
-/* Los estilos de Single Post han sido movidos a assets/css/single.css para optimización */
-
-
-/* Tooltips de Contribuciones movidos a assets/css/contributions.css */
-
-
-/* 404 Error Page */
 .error-404 {
     text-align: center;
     padding: 64px 24px;
@@ -234,7 +191,10 @@
 
 /* Cache busting - Updated: 2026-02-20 - Phase 3 Modular Cleanup */
 
-/* Shared Post Components (Metadata & Categories) */
+/* =========================================
+   POST METADATA (Shared Components)
+   ========================================= */
+
 .post-meta {
     font-size: 12px;
     color: var(--github-text-tertiary);
@@ -242,14 +202,12 @@
     gap: 6px;
     align-items: center;
     flex-wrap: nowrap;
-    font-family: var(--github-font-mono);
     white-space: nowrap;
 }
 
 .commit-hash,
 .file-size,
 .post-date {
-    font-family: var(--github-font-mono);
     color: var(--github-text-tertiary);
     font-size: 12px;
     margin-right: 8px;
@@ -257,31 +215,34 @@
     padding-right: 8px;
     display: inline-flex;
     align-items: center;
-    text-transform: lowercase;
 }
 
 .commit-hash {
     background-color: transparent;
     border: 1px solid var(--github-border);
     color: var(--github-text-secondary);
-    padding: 0 8px !important; /* Removes inherited padding and forces vertical flex centering */
+    padding: 2px 8px 0; /* Bajamos el texto 1px exactamente */
     border-radius: 4px;
     font-size: 11px;
-    line-height: 1 !important; /* Removes font standard line height interference */
     height: 20px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    vertical-align: middle;
     letter-spacing: 0.5px;
     transition: all 0.2s;
     cursor: default;
+    line-height: 1; /* Volvemos a 1 para que el padding tenga efecto real en el centrado */
+    box-sizing: border-box;
 }
 
-.commit-hash:hover {
-    color: var(--github-accent);
-    border-color: #555;
-    background-color: var(--github-bg-tertiary);
+.file-size,
+.post-date {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
 }
+
 
 .file-size::after,
 .post-date::after {
@@ -299,6 +260,10 @@
 .post-date time {
     color: inherit;
 }
+
+/* =========================================
+   CATEGORIES & TAGS
+   ========================================= */
 
 .post-categories {
     display: flex;
@@ -318,12 +283,15 @@
     padding: 0;
     background: transparent;
     border: none;
-    transition: color 0.15s ease;
+    transition: color 0.2s ease, opacity 0.2s ease;
     font-family: var(--github-font-sans);
 }
 
-.post-category:hover {
+.post-category:hover,
+.post-category:focus {
     color: var(--github-accent);
+    outline: none;
+    opacity: 0.8;
 }
 
 .repo-language-color {
@@ -360,13 +328,32 @@
     border: 1px solid var(--github-border);
     border-radius: 4px;
     text-decoration: none;
-    font-family: var(--github-font-mono);
     transition: all 0.2s ease;
 }
 
-.tag:hover {
+.tag:hover,
+.tag:focus {
     color: var(--github-text-primary);
     border-color: var(--github-text-tertiary);
+    outline: none;
+    box-shadow: 0 0 0 2px var(--github-accent-subtle);
 }
 
-@media (max-width: 768px) { .main-navigation { display: none !important; } }
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+
+@media (max-width: 768px) {
+    .nav-links {
+        flex-direction: column;
+    }
+
+    .nav-previous,
+    .nav-next {
+        width: 100%;
+    }
+
+    .main-navigation {
+        display: none !important;
+    }
+}

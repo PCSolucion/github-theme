@@ -29,10 +29,24 @@ function github_theme_meta_description() {
         } 
         // Si no hay excerpt, usar las primeras palabras del contenido
         else {
-            $content = wp_strip_all_tags($post->post_content);
-            $content = preg_replace('/\s+/', ' ', $content); // Normalizar espacios
-            $words = explode(' ', $content);
-            $description = implode(' ', array_slice($words, 0, 25));
+            $content = $post->post_content;
+            
+            // 1. Eliminar bloques decorativos (como el div de "Puntos Clave") antes de limpiar tags
+            // Buscamos divs que contengan "PUNTOS CLAVE" para ignorarlos en la descripción
+            $content = preg_replace('/<div[^>]*>.*?PUNTOS CLAVE.*?<\/div>/si', '', $content);
+            
+            // 2. Limpiar shortcodes para evitar que aparezcan en el texto
+            $content = strip_shortcodes($content);
+            
+            // 3. Limpiar tags y normalizar
+            $content = wp_strip_all_tags($content);
+            $content = preg_replace('/\s+/', ' ', $content);
+            $description = trim($content);
+            
+            if (!empty($description)) {
+                $words = explode(' ', $description);
+                $description = implode(' ', array_slice($words, 0, 30)); // Aumentamos a 30 palabras para mayor riqueza
+            }
         }
     }
     // Página de categoría
@@ -109,8 +123,9 @@ function github_theme_meta_description() {
     $description = preg_replace('/\s+/', ' ', $description);
     $description = trim($description);
     
-    if (strlen($description) > 160) {
-        $description = substr($description, 0, 157) . '...';
+    // Usar mb_ funciones para manejar correctamente acentos y caracteres especiales (UTF-8)
+    if (mb_strlen($description) > 160) {
+        $description = mb_substr($description, 0, 157) . '...';
     }
     
     return $description;
@@ -164,6 +179,9 @@ function github_theme_social_meta_tags() {
     // Generar las etiquetas
     ?>
     
+    <!-- SEO Standard -->
+    <meta name="description" content="<?php echo esc_attr($og_description); ?>">
+    
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="<?php echo esc_attr($og_type); ?>">
     <meta property="og:url" content="<?php echo esc_url($og_url); ?>">
@@ -176,7 +194,7 @@ function github_theme_social_meta_tags() {
     <?php if ($og_type === 'article' && is_single()) : ?>
     <meta property="article:published_time" content="<?php echo get_the_date('c'); ?>">
     <meta property="article:modified_time" content="<?php echo get_the_modified_date('c'); ?>">
-    <meta property="article:author" content="<?php echo esc_attr(get_the_author()); ?>">
+    <meta property="article:author" content="Redacción">
     <?php
     $categories = get_the_category();
     if ($categories) {
@@ -205,8 +223,6 @@ function github_theme_social_meta_tags() {
     // echo '<meta name="twitter:creator" content="@tu_usuario">' . "\n    ";
     ?>
     
-    <!-- URL Canónica -->
-    <link rel="canonical" href="<?php echo esc_url($og_url); ?>">
     <?php
 }
 
@@ -281,7 +297,7 @@ function github_theme_schema_markup() {
             ),
             "author" => array(
                 "@type" => "Person",
-                "name" => get_the_author_meta('display_name', $author_id),
+                "name" => "Redacción",
                 "url" => get_author_posts_url($author_id)
             ),
             "publisher" => array(
@@ -295,6 +311,45 @@ function github_theme_schema_markup() {
             "datePublished" => get_the_date('c'),
             "dateModified" => get_the_modified_date('c')
         );
+
+        // 3. BreadcrumbList Schema - Solo en posts individuales
+        $breadcrumbs = array(
+            "@context" => "https://schema.org",
+            "@type" => "BreadcrumbList",
+            "itemListElement" => array(
+                array(
+                    "@type" => "ListItem",
+                    "position" => 1,
+                    "name" => "Inicio",
+                    "item" => $site_url
+                )
+            )
+        );
+
+        $categories = get_the_category();
+        if ($categories) {
+            $category = $categories[0];
+            $breadcrumbs['itemListElement'][] = array(
+                "@type" => "ListItem",
+                "position" => 2,
+                "name" => $category->name,
+                "item" => get_category_link($category->term_id)
+            );
+            $breadcrumbs['itemListElement'][] = array(
+                "@type" => "ListItem",
+                "position" => 3,
+                "name" => get_the_title(),
+                "item" => get_permalink()
+            );
+        } else {
+            $breadcrumbs['itemListElement'][] = array(
+                "@type" => "ListItem",
+                "position" => 2,
+                "name" => get_the_title(),
+                "item" => get_permalink()
+            );
+        }
+        $schema['breadcrumbs'] = $breadcrumbs;
     }
 
     echo "\n<!-- Schema Markup by GitHub Theme -->\n";
@@ -303,3 +358,16 @@ function github_theme_schema_markup() {
     }
 }
 add_action('wp_head', 'github_theme_schema_markup');
+
+/**
+ * Optimizar la etiqueta Meta Robots para mejorar la visibilidad de fragmentos destacados (Featured Snippets)
+ */
+function github_theme_custom_robots($robots) {
+    if (is_singular()) {
+        $robots['max-snippet'] = -1;
+        $robots['max-image-preview'] = 'large';
+        $robots['max-video-preview'] = -1;
+    }
+    return $robots;
+}
+add_filter('wp_robots', 'github_theme_custom_robots');

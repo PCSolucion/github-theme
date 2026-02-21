@@ -14,9 +14,10 @@ if ( ! defined( 'ABSPATH' ) ) {
             <?php
             wp_nav_menu(array(
                 'theme_location' => 'footer',
-                'menu_class' => 'footer-menu',
-                'container' => false,
-                'fallback_cb' => 'github_theme_footer_default_menu',
+                'menu_id'        => 'github-footer-menu',
+                'menu_class'     => 'footer-menu',
+                'container'      => false,
+                'fallback_cb'    => 'github_theme_footer_default_menu',
             ));
             ?>
         </div>
