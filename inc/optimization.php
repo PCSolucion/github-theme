@@ -158,11 +158,19 @@ add_filter('script_loader_src', 'github_theme_remove_script_version', 9999);
  * Eliminar bloques de CSS y SVG innecesarios del core (Gutenberg Bloat)
  */
 function github_theme_remove_wp_bloat() {
-    // Eliminar Dashicons y Thickbox del frontend (ahorro de ~40KB)
     if (!is_admin()) {
+        // Eliminar Dashicons y Thickbox del frontend por completo
         wp_dequeue_style('dashicons');
+        wp_deregister_style('dashicons');
+        
         wp_dequeue_style('thickbox');
+        wp_deregister_style('thickbox');
+        wp_dequeue_script('thickbox');
         wp_deregister_script('thickbox');
+        
+        // Eliminar también el script de embed de WP
+        wp_deregister_script('wp-embed');
+        wp_dequeue_script('wp-embed');
         
         // Eliminar estilos globales de bloques (inline CSS) y variantes de Gutenberg
         wp_dequeue_style('global-styles');
@@ -189,7 +197,7 @@ add_action('wp_enqueue_scripts', 'github_theme_remove_wp_bloat', 100);
  * Añadir atributo 'defer' a scripts seleccionados para no bloquear el renderizado
  */
 function github_theme_add_defer_attribute($tag, $handle) {
-    $scripts_to_defer = array('github-theme-live-search');
+    $scripts_to_defer = array();
     
     if (in_array($handle, $scripts_to_defer)) {
         return str_replace(' src', ' defer src', $tag);
@@ -201,11 +209,9 @@ add_filter('script_loader_tag', 'github_theme_add_defer_attribute', 10, 2);
 /**
  * Desactivar jQuery en el Front-end
  * Mejora el rendimiento eliminando una librería pesada.
- * Se mantiene en el admin para no romper el editor de bloques o la gestión de WP.
  */
 function github_theme_remove_jquery() {
-    // Permitir jQuery solo en admin y en artículos individuales (donde se usa Thickbox)
-    if (!is_admin() && !is_singular()) {
+    if (!is_admin()) {
         wp_deregister_script('jquery');
         wp_deregister_script('jquery-core');
         wp_deregister_script('jquery-migrate');
@@ -338,8 +344,8 @@ function github_theme_generate_toc($content) {
         return '';
     }
 
-    // Extraer H2 y H3
-    preg_match_all('/<(h[2-3])([^>]*)>(.*?)<\/h[2-3]>/i', $content, $matches);
+    // Extraer solo H2
+    preg_match_all('/<(h2)([^>]*)>(.*?)<\/h2>/i', $content, $matches);
     
     if (empty($matches[0])) {
         return '<p class="no-toc-content">No hay encabezados en este artículo.</p>';
@@ -422,6 +428,8 @@ function github_theme_speculative_loading() {
     <?php
 }
 add_action('wp_footer', 'github_theme_speculative_loading');
+
+
 
 /**
  * Bloqueo Agresivo de Dashicons: Eliminar incluso si se inyectan tarde

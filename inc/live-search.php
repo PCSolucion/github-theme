@@ -30,7 +30,7 @@ function github_theme_register_live_search_endpoint() {
                 },
             ),
             'per_page' => array(
-                'default'           => 8,
+                'default'           => 15,
                 'sanitize_callback' => 'absint',
             ),
         ),
@@ -45,7 +45,7 @@ function github_theme_live_search_handler( WP_REST_Request $request ) {
     global $wpdb;
 
     $term     = $request->get_param( 'q' );
-    $per_page = min( (int) $request->get_param( 'per_page' ), 20 );
+    $per_page = min( (int) $request->get_param( 'per_page' ), 50 );
     $like     = '%' . $wpdb->esc_like( $term ) . '%';
 
     // Búsqueda directa en post_title y post_content

@@ -12,6 +12,9 @@ get_header();
 
 <div class="site-wrapper">
     <main class="content-area">
+        <?php if (is_home() || is_front_page()) : ?>
+            <h1 class="screen-reader-text"><?php bloginfo('name'); ?></h1>
+        <?php endif; ?>
 
 
         <?php 
@@ -35,18 +38,7 @@ get_header();
                         </header>
 
                         <footer class="post-footer">
-                            <div class="post-meta">
-                                <span class="commit-hash" title="<?php esc_attr_e('ID del commit (ficticio)', 'github-theme'); ?>"><?php echo github_theme_get_post_commit_hash(); ?></span>
-                                <?php 
-                                $file_size = github_theme_get_total_download_size();
-                                if ( ! empty( $file_size ) ) : 
-                                ?>
-                                <span class="file-size" title="<?php esc_attr_e('Peso total estimado (HTML + Imágenes)', 'github-theme'); ?>"><?php echo $file_size; ?></span>
-                                <?php endif; ?>
-                                <span class="post-date">
-                                    <time datetime="<?php echo esc_attr(get_the_date('c')); ?>"><?php echo get_the_date(); ?></time>
-                                </span>
-                            </div>
+                            <?php github_theme_post_meta(); ?>
                         </footer>
                     </article>
                 <?php endwhile; ?>

@@ -167,3 +167,31 @@ function github_theme_get_post_commit_hash( $post_id = null ) {
     
     return $hash;
 }
+
+/**
+ * Imprimir los metadatos del post (Hash, Tamaño, Fecha) de forma unificada.
+ *
+ * @param int|null $post_id ID del post.
+ */
+function github_theme_post_meta( $post_id = null ) {
+    $post_id = $post_id ?: get_the_ID();
+    $commit_hash = github_theme_get_post_commit_hash( $post_id );
+    $file_size = github_theme_get_total_download_size( $post_id );
+    $date = get_the_date( '', $post_id );
+    $datetime = get_the_date( 'c', $post_id );
+    ?>
+    <div class="post-meta">
+        <span class="commit-hash" title="<?php esc_attr_e( 'ID del commit (ficticio)', 'github-theme' ); ?>">
+            <?php echo esc_html( $commit_hash ); ?>
+        </span>
+        <?php if ( ! empty( $file_size ) ) : ?>
+            <span class="file-size" title="<?php esc_attr_e( 'Peso total estimado (HTML + Imágenes)', 'github-theme' ); ?>">
+                <?php echo esc_html( $file_size ); ?>
+            </span>
+        <?php endif; ?>
+        <span class="post-date">
+            <time datetime="<?php echo esc_attr( $datetime ); ?>"><?php echo esc_html( $date ); ?></time>
+        </span>
+    </div>
+    <?php
+}
