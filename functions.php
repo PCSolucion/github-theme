@@ -106,14 +106,8 @@ add_filter( 'use_block_editor_for_post_type', '__return_false', 10 );
  * Encolar estilos y scripts del tema.
  */
 function github_theme_scripts() {
-    // 1. Estilos Globales (Variables y Base)
-    wp_enqueue_style( 'github-theme-variables', get_template_directory_uri() . '/assets/css/variables.css', array(), GITHUB_THEME_VERSION );
-    wp_enqueue_style( 'github-theme-base-style', get_stylesheet_uri(), array( 'github-theme-variables' ), GITHUB_THEME_VERSION );
-
-    wp_enqueue_style( 'github-theme-main',  get_template_directory_uri() . '/assets/css/main.css', array( 
-        'github-theme-variables',
-        'github-theme-base-style'
-    ), GITHUB_THEME_VERSION );
+    // 1. Estilos Globales (Ahora incluyen variables y base)
+    wp_enqueue_style( 'github-theme-main',  get_template_directory_uri() . '/assets/css/main.css', array(), GITHUB_THEME_VERSION );
 
     wp_enqueue_style( 'github-theme-header', get_template_directory_uri() . '/assets/css/header.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
     // 2. Estilos de Listados (Home, Archivos, Búsqueda)

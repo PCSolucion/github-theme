@@ -12,67 +12,6 @@ Tags: dark, minimal, github-inspired, modern, clean
 */
 
 /* 
- * DESIGN SYSTEM & TOKENS 
- * Movidos a assets/css/variables.css 
+ * El contenido funcional de este archivo ha sido consolidado en assets/css/main.css
+ * para reducir las peticiones HTTP y mejorar el rendimiento.
  */
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: var(--github-font-sans);
-    background-color: var(--github-bg-primary);
-    color: var(--github-text-primary);
-    line-height: 1.6;
-    font-size: 14px;
-    letter-spacing: -0.011em;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-body.single,
-body.single-post {
-    margin-top: 0 !important;
-    padding-top: 0 !important;
-}
-
-/* 
- * NÚCLEO ESTRUCTURAL
- * Solo contiene el esqueleto básico del tema.
- * Los componentes se encuentran en assets/css/
- */
-
-.site-wrapper {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 24px;
-    min-height: calc(100vh - 200px);
-}
-
-.content-area {
-    padding: 32px 0;
-}
-
-/* 
- * UTILIDADES GLOBALES 
- */
-.text-center { text-align: center; }
-.mt-16 { margin-top: 16px; }
-.mb-16 { margin-bottom: 16px; }
-.mt-32 { margin-top: 32px; }
-.mb-32 { margin-bottom: 32px; }
-.hidden { display: none; }
-
-/* 
- * RESPONSIVE BÁSICO 
- */
-@media (max-width: 768px) {
-    .site-wrapper {
-        padding: 0 16px;
-    }
-}
-
-/* Cache busting - Updated: 2026-02-20 - Phase 3 Modular Cleanup */
