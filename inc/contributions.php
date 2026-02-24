@@ -118,7 +118,7 @@ add_action('delete_post', 'github_theme_clear_contributions_cache');
  */
 function github_theme_render_contributions_table() {
     // Obtener año seleccionado (sin filtro de categoría)
-    $selected_year = isset($_GET['contrib_year']) ? intval($_GET['contrib_year']) : intval(date('Y'));
+    $selected_year = isset($_GET['contrib_year']) ? absint($_GET['contrib_year']) : intval(date('Y'));
     
     // Obtener años disponibles
     $available_years = github_theme_get_available_years();

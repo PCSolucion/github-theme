@@ -184,8 +184,8 @@ add_action('template_redirect', 'github_theme_search_rate_limit', 1);
  */
 function github_theme_sanitize_search_query($query) {
     if ($query->is_search && !is_admin() && $query->is_main_query()) {
-        // Obtener el término directamente de la URL
-        $s = isset($_GET['s']) ? $_GET['s'] : '';
+        // Obtener el término directamente de la URL y sanitizarlo
+        $s = isset($_GET['s']) ? sanitize_text_field($_GET['s']) : '';
         
         // 1. Limpieza profunda y eliminación de etiquetas/caracteres especiales
         $search_term = strip_tags($s);
@@ -246,6 +246,50 @@ function github_block_user_enumeration() {
     }
 }
 add_action('template_redirect', 'github_block_user_enumeration', 1);
+
+/**
+ * Seguridad: Validar parámetros de consulta para prevenir anomalías en rutas
+ * Asegura que el parámetro 'cat' (categoría) sea siempre numérico.
+ * Evita que inyecciones o valores inesperados causen fugas de información o errores 404 extraños.
+ */
+function github_theme_validate_query_params($query) {
+    if (is_admin() || !$query->is_main_query()) {
+        return;
+    }
+
+    // 1. Validar parámetro de categoría (cat)
+    // WordPress suele convertirlo a entero, pero forzamos la validación para mayor seguridad
+    if ($query->is_category() || isset($_GET['cat'])) {
+        $cat = $query->get('cat');
+        if (!empty($cat) && !is_numeric($cat) && !is_array($cat)) {
+            // Si no es numérico, lo invalidamos para evitar consultas erróneas a la BD
+            $query->set('cat', 0);
+            $query->set('category_name', '');
+        }
+    }
+
+    // 2. Validar otros parámetros comunes que podrían ser sondeados
+    $numeric_params = array('p', 'page_id', 'author', 'm');
+    foreach ($numeric_params as $param) {
+        $val = $query->get($param);
+        if (!empty($val) && !is_numeric($val) && !is_array($val)) {
+            $query->set($param, 0);
+        }
+    }
+}
+add_action('pre_get_posts', 'github_theme_validate_query_params');
+
+/**
+ * Redirigir todos los errores 404 al inicio (Home)
+ * Útil para evitar errores 404 penalizables por SEO y mejorar la privacidad del sitio.
+ */
+function github_theme_redirect_404_to_home() {
+    if (is_404()) {
+        wp_safe_redirect(home_url('/'), 301);
+        exit;
+    }
+}
+add_action('template_redirect', 'github_theme_redirect_404_to_home');
 
 // 3. Eliminar info de autor en oEmbed API
 add_filter('oembed_response_data', function($data) {
