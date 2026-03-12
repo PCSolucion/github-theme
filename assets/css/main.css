@@ -30,10 +30,10 @@
   --github-text-secondary: #adbac7; /* Soft gray-blue (Better contrast) */
   --github-text-tertiary: #8b949e; /* Muted/Placeholder (WCAG compliant) */
 
-  /* Accents */
-  --github-accent: #ffffff;
-  --github-accent-hover: #ffffff;
-  --github-accent-subtle: rgba(250, 250, 250, 0.1);
+  /* Accents - Luna Obscura (Dark Side) Red */
+  --github-accent: #ff0000;
+  --github-accent-hover: #cc0000;
+  --github-accent-subtle: rgba(255, 0, 0, 0.1);
 
   /* Status Colors */
   --github-success: #22c55e;
@@ -76,6 +76,16 @@ body {
   letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: -1;
 }
 
 body.single,
