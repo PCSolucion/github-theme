@@ -813,7 +813,7 @@
 
 .guide-progress-fill {
     height: 100%;
-    background: var(--github-accent);
+    background: #008ec2; /* Specific blue instead of the red accent */
     width: 0%;
     transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
     border-radius: 4px;
