@@ -82,7 +82,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px); /* Increased visibility from 0.05 to 0.15 */
+  background-image: radial-gradient(rgba(255, 255, 255, 0.10) 1px, transparent 1px); /* Reduced visibility from 0.15 to 0.10 */
   background-size: 32px 32px;
   pointer-events: none;
   z-index: -1;
