@@ -220,7 +220,6 @@ function github_theme_complete_guide() {
         'tag'            => $game_tag,
         'orderby'        => 'date',
         'order'          => 'ASC',
-        'post__not_in'   => array(get_the_ID()), // Excluir el post actual
     );
 
     $guide_query = new WP_Query($args);
