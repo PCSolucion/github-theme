@@ -470,23 +470,25 @@ document.addEventListener("DOMContentLoaded", () => {
       return text.includes('●') || el.classList.contains('guide-legend-item');
     });
 
-    // Si es el div contenedor de la leyenda, buscamos los elementos individuales
     legendItems.forEach(container => {
       const items = container.querySelectorAll('strong');
       items.forEach(strong => {
         const rawText = strong.innerText.trim();
         const type = rawText.toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        const colorSpan = strong.previousElementSibling;
+        
+        // El color suele estar en un span justo antes
+        const colorIndicator = strong.previousElementSibling;
+        const color = colorIndicator ? window.getComputedStyle(colorIndicator).color : null;
         
         if (type && !categories[type]) {
           categories[type] = {
-            name: rawText.split(' ')[0],
+            name: rawText.split(' ')[0].toLowerCase(),
+            color: color,
             total: 0,
             checked: 0,
             elements: []
           };
           
-          // Añadir el contador de porcentaje al lado del strong o dentro de él
           let progEl = strong.querySelector('.legend-progress');
           if (!progEl) {
             progEl = document.createElement('span');
@@ -508,10 +510,17 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!listItem) return;
 
       const itemText = listItem.innerText.toLowerCase();
+      // En BioShock, los colores están en el link <a> dentro del <li>
+      const itemLink = listItem.querySelector('a');
+      const itemColor = itemLink ? window.getComputedStyle(itemLink).color : window.getComputedStyle(listItem).color;
 
       Object.keys(categories).forEach(type => {
         const cat = categories[type];
-        if (itemText.includes(cat.name.toLowerCase().substring(0, 4))) {
+        // Coincidencia por nombre O por color (muy útil en BioShock)
+        const nameMatch = itemText.includes(cat.name.substring(0, 4));
+        const colorMatch = cat.color && itemColor === cat.color;
+
+        if (nameMatch || colorMatch) {
           cat.total++;
           if (cb.checked) cat.checked++;
         }
@@ -520,7 +529,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cb.checked) {
         totalChecked++;
         listItem.classList.add('is-checked');
-        // Un fondo sutil estándar para todos los marcados
         listItem.style.backgroundColor = 'rgba(56, 139, 253, 0.08)';
       } else {
         listItem.classList.remove('is-checked');
