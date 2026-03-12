@@ -737,3 +737,24 @@
     border: 1px solid color-mix(in srgb, var(--github-text-secondary) 20%, transparent);
     text-align: left;
 }
+
+/* Indicador de progreso en la leyenda */
+.legend-progress {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--github-text-tertiary);
+    margin-left: 4px;
+    font-family: var(--github-font-mono);
+    transition: all 0.3s ease;
+}
+
+.guide-legend-item {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--github-border);
+    font-size: 12px;
+}

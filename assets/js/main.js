@@ -456,15 +456,71 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // 7. Checklist Persistence (localStorage)
+  // 7. Checklist Persistence & Progress
   const checklistStorageKey = (id) => `github_theme_checklist_${window.location.pathname}_${id}`;
   
+  const updateProgress = () => {
+    const checkboxes = $$('.entry-content input[type="checkbox"]');
+    if (!checkboxes.length) return;
+
+    // 1. Identificar categorías basadas en la leyenda
+    const categories = {};
+    const legendItems = $$('.guide-legend-item');
+    
+    legendItems.forEach(item => {
+      const type = item.dataset.type;
+      if (type) {
+        categories[type] = {
+          total: 0,
+          checked: 0,
+          el: $('.legend-progress', item) || (() => {
+            const span = document.createElement('span');
+            span.className = 'legend-progress';
+            item.appendChild(span);
+            return span;
+          })()
+        };
+      }
+    });
+
+    // 2. Contar progresos
+    checkboxes.forEach(cb => {
+      // Suponemos que el checkbox está dentro de un contenedor con clase que indica el tipo
+      // o que podemos inferir el tipo por el estilo/clase del checklist-item
+      const item = cb.closest('.checklist-item');
+      if (!item) return;
+
+      // Intentar encontrar el tipo por clase
+      const typeClass = [...item.classList].find(c => c.startsWith('type-'))?.replace('type-', '');
+      if (typeClass && categories[typeClass]) {
+        categories[typeClass].total++;
+        if (cb.checked) categories[typeClass].checked++;
+      }
+    });
+
+    // 3. Actualizar UI
+    Object.keys(categories).forEach(key => {
+      const cat = categories[key];
+      if (cat.total > 0) {
+        const percent = Math.round((cat.checked / cat.total) * 100);
+        cat.el.textContent = ` (${percent}%)`;
+        cat.el.style.opacity = percent > 0 ? "1" : "0.5";
+        
+        // Efecto visual si está completo
+        if (percent === 100) {
+          cat.el.style.color = "var(--github-success)";
+        } else {
+          cat.el.style.color = "";
+        }
+      }
+    });
+  };
+
   const initChecklists = () => {
     const checkboxes = $$('.entry-content input[type="checkbox"]');
     if (!checkboxes.length) return;
 
     checkboxes.forEach((cb, index) => {
-      // Usamos una combinación de ID (si tiene) e índice para identificar el checkbox
       const id = cb.id || `cb-${index}`;
       const savedState = localStorage.getItem(checklistStorageKey(id));
       
@@ -474,8 +530,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       cb.addEventListener('change', () => {
         localStorage.setItem(checklistStorageKey(id), cb.checked);
+        updateProgress();
       });
     });
+
+    updateProgress();
   };
 
   initChecklists();
