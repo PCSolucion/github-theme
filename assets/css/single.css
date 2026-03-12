@@ -759,31 +759,52 @@
     font-size: 12px;
 }
 
+.entry-content li {
+    margin-bottom: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.entry-content li.is-checked {
+    color: var(--github-text-primary);
+}
+
+.entry-content input[type="checkbox"] {
+    margin-right: 10px;
+    cursor: pointer;
+}
+
 /* Barra de progreso total en sidebar */
 .guide-total-wrapper {
-    margin: 12px 12px 16px 12px;
+    margin: 12px 12px 20px 12px;
     padding-bottom: 16px;
     border-bottom: 1px solid var(--github-border);
 }
 
 .guide-progress-text {
-    font-size: 12px;
-    color: var(--github-text-secondary);
-    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--github-text-tertiary);
+    margin-bottom: 10px;
     display: flex;
     justify-content: space-between;
 }
 
 .guide-progress-bar {
-    height: 6px;
+    height: 8px;
     background: var(--github-bg-tertiary);
-    border-radius: 3px;
+    border-radius: 4px;
     overflow: hidden;
+    position: relative;
 }
 
 .guide-progress-fill {
     height: 100%;
     background: var(--github-accent);
     width: 0%;
-    transition: width 0.4s ease, background 0.4s ease;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+    border-radius: 4px;
 }

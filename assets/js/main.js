@@ -463,21 +463,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkboxes = $$('.entry-content input[type="checkbox"]');
     if (!checkboxes.length) return;
 
-    // 1. Identificar categorías basadas en la leyenda (intentar varios selectores comunes)
+    // 1. Identificar categorías basadas en la leyenda
     const categories = {};
     const legendItems = $$('.guide-legend-item, .legend-item, [class*="legend"] span, [class*="legend"] div').filter(el => {
-      // Filtrar para evitar falsos positivos
       return el.innerText.length < 50 && !el.closest('.contributions-legend');
     });
     
     legendItems.forEach(item => {
-      // Si no tiene data-type, intentamos sacarlo del texto
       const type = item.dataset.type || item.innerText.toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       if (type && type.length > 2) {
         if (!categories[type]) {
+          // Obtener el color real del elemento de la leyenda
+          const style = window.getComputedStyle(item);
           categories[type] = {
             total: 0,
             checked: 0,
+            color: style.color || style.backgroundColor || 'var(--github-accent)',
             elements: []
           };
         }
@@ -492,26 +493,42 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 2. Contar progresos
+    // 2. Contar progresos y aplicar estilos a los LI
     let totalItems = 0;
     let totalChecked = 0;
+    const colorCounts = {}; // Para el gradiente
 
     checkboxes.forEach(cb => {
       totalItems++;
-      if (cb.checked) totalChecked++;
-
-      const item = cb.closest('.checklist-item, li, p');
+      const item = cb.closest('li, p, .checklist-item');
       if (!item) return;
 
-      // Intentar encontrar el tipo por clase o texto cercano
+      if (cb.checked) {
+        totalChecked++;
+        // Estilo para el LI marcado (leve color de fondo)
+        const style = window.getComputedStyle(item);
+        const itemColor = style.color;
+        
+        // Convertir el color de texto a un fondo suave sin romper si ya es rgba
+        if (itemColor.startsWith('rgb')) {
+          item.style.backgroundColor = itemColor.replace(/rgb\((.*)\)/, 'rgba($1, 0.08)').replace(/rgba\((.*),[\s\d.]+\)/, 'rgba($1, 0.08)');
+        }
+        item.classList.add('is-checked');
+      } else {
+        item.style.backgroundColor = "";
+        item.classList.remove('is-checked');
+      }
+
       const typeClass = [...item.classList].find(c => c.startsWith('type-'))?.replace('type-', '');
       const itemText = item.innerText.toLowerCase();
 
       Object.keys(categories).forEach(type => {
-        // Marcamos si el tipo está en la clase o si el texto del item contiene palabras clave del tipo
         if (typeClass === type || itemText.includes(type.substring(0, 4))) {
           categories[type].total++;
-          if (cb.checked) categories[type].checked++;
+          if (cb.checked) {
+            categories[type].checked++;
+            colorCounts[type] = (colorCounts[type] || 0) + 1;
+          }
         }
       });
     });
@@ -530,7 +547,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 4. Progreso Total en la Sidebar (Caja de Contenido)
+    // 4. Progreso Total con Gradiente Multicolor
     const tocBox = $('.toc-box');
     if (tocBox) {
       let totalBar = $('.guide-total-wrapper', tocBox);
@@ -541,30 +558,43 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="guide-progress-text">Progreso de este post: <span class="percent">0%</span></div>
           <div class="guide-progress-bar"><div class="guide-progress-fill"></div></div>
         `;
-        // Insertamos después del título de "Contenido"
         const title = tocBox.querySelector('h3');
-        if (title && title.nextSibling) {
-          tocBox.insertBefore(wrapper, title.nextSibling);
-        } else {
-          tocBox.appendChild(wrapper);
-        }
+        if (title && title.nextSibling) tocBox.insertBefore(wrapper, title.nextSibling);
+        else tocBox.appendChild(wrapper);
         totalBar = wrapper;
       }
       
       const totalPercent = totalItems > 0 ? Math.round((totalChecked / totalItems) * 100) : 0;
-      const percentEl = totalBar.querySelector('.percent');
-      const fillEl = totalBar.querySelector('.guide-progress-fill');
+      $('.percent', totalBar).textContent = `${totalPercent}%`;
       
-      if (percentEl) percentEl.textContent = `${totalPercent}%`;
+      const fillEl = $('.guide-progress-fill', totalBar);
       if (fillEl) {
-        fillEl.style.width = `${totalPercent}%`;
-        fillEl.style.background = (totalPercent === 100) ? "var(--github-success)" : "var(--github-accent)";
+        if (totalChecked === 0) {
+          fillEl.style.width = "0%";
+          fillEl.style.background = "var(--github-accent)";
+        } else {
+          fillEl.style.width = `${totalPercent}%`;
+          
+          // Construir gradiente basado en los colores de lo que está marcado
+          let gradientParts = [];
+          let currentPos = 0;
+          
+          Object.keys(colorCounts).forEach(type => {
+            const count = colorCounts[type];
+            const partWidth = (count / totalChecked) * 100;
+            const color = categories[type].color;
+            gradientParts.push(`${color} ${currentPos}% ${currentPos + partWidth}%`);
+            currentPos += partWidth;
+          });
+          
+          if (gradientParts.length > 0) {
+            fillEl.style.background = `linear-gradient(to right, ${gradientParts.join(', ')})`;
+          } else {
+            fillEl.style.background = totalPercent === 100 ? "var(--github-success)" : "var(--github-accent)";
+          }
+        }
       }
     }
-    
-    // Limpiar barra antigua de guide-box si existiera por error de la versión anterior
-    const oldBar = $('.guide-box .guide-total-wrapper');
-    if (oldBar) oldBar.remove();
   };
 
   const initChecklists = () => {
