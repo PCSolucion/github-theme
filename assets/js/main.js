@@ -465,35 +465,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 1. Identificar categorías basadas en la leyenda
     const categories = {};
-    const legendItems = $$('.guide-legend-item, .legend-item, [class*="legend"] span, [class*="legend"] div').filter(el => {
+    const legendItems = $$('.guide-legend-item, .legend-item, [class*="legend"] span, [class*="legend"] li').filter(el => {
       return el.innerText.length < 50 && !el.closest('.contributions-legend');
     });
     
     legendItems.forEach(item => {
-      const type = item.dataset.type || item.innerText.toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const type = item.innerText.trim().toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       if (type && type.length > 2) {
         if (!categories[type]) {
-          // Detectar color: Texto -> Hijo con color -> Clase de color común
-          const style = window.getComputedStyle(item);
-          let itemColor = style.color;
-          
-          // Si el color es el blanco/gris por defecto, buscamos un span hijo con color (donde suele estar el color real)
-          if (itemColor === 'rgb(250, 250, 250)' || itemColor === 'rgb(255, 255, 255)' || itemColor === 'rgb(173, 186, 199)') {
-            const coloredElement = item.querySelector('span[style*="color"], font[color], b[style*="color"]');
-            if (coloredElement) {
-              itemColor = coloredElement.style.color || coloredElement.getAttribute('color');
-            }
-          }
-
+          // Intentar obtener el color de cualquier elemento que lo tenga (span, font, etc)
+          const coloredEl = item.querySelector('[style*="color"], [color]') || item;
+          const style = window.getComputedStyle(coloredEl);
           categories[type] = {
             total: 0,
             checked: 0,
-            color: itemColor || 'var(--github-accent)',
+            color: style.color,
             elements: []
           };
         }
         
-        let progEl = $('.legend-progress', item);
+        // Añadir el contador de porcentaje
+        let progEl = item.querySelector('.legend-progress');
         if (!progEl) {
           progEl = document.createElement('span');
           progEl.className = 'legend-progress';
@@ -503,66 +495,48 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 2. Contar progresos y aplicar estilos a los LI
+    // 2. Contar progresos
     let totalItems = 0;
     let totalChecked = 0;
-    const colorCounts = {}; // Para el gradiente
+    const itemsByColor = []; // Array de colores para crear el gradiente real
 
     checkboxes.forEach(cb => {
       totalItems++;
-      const item = cb.closest('li, p, .checklist-item');
-      if (!item) return;
+      const listItem = cb.closest('li, p, .checklist-item');
+      const itemText = (listItem ? listItem.innerText : '').toLowerCase();
+      
+      let matchedType = null;
+      Object.keys(categories).forEach(type => {
+        if (itemText.includes(type.substring(0, 4))) {
+          matchedType = type;
+        }
+      });
 
       if (cb.checked) {
         totalChecked++;
-        // Estilo para el LI marcado (leve color de fondo)
-        const style = window.getComputedStyle(item);
-        let itemColor = style.color;
-        
-        // Si el color del li es el blanco por defecto, intentamos sacar el color de algún hijo
-        if (itemColor === 'rgb(250, 250, 250)' || itemColor === 'rgb(255, 255, 255)') {
-            const coloredSpan = item.querySelector('span[style*="color"]');
-            if (coloredSpan) itemColor = coloredSpan.style.color;
-        }
-
-        if (itemColor && itemColor.startsWith('rgb')) {
-          item.style.backgroundColor = itemColor.replace(/rgb\((.*)\)/, 'rgba($1, 0.08)').replace(/rgba\((.*),[\s\d.]+\)/, 'rgba($1, 0.08)');
-        }
-        item.classList.add('is-checked');
-      } else {
-        item.style.backgroundColor = "";
-        item.classList.remove('is-checked');
+        if (matchedType) itemsByColor.push(categories[matchedType].color);
+        if (listItem) listItem.classList.add('is-checked');
+      } else if (listItem) {
+        listItem.classList.remove('is-checked');
       }
 
-      const typeClass = [...item.classList].find(c => c.startsWith('type-'))?.replace('type-', '');
-      const itemText = item.innerText.toLowerCase();
+      if (matchedType) {
+        categories[matchedType].total++;
+        if (cb.checked) categories[matchedType].checked++;
+      }
+    });
 
-      Object.keys(categories).forEach(type => {
-        if (typeClass === type || itemText.includes(type.substring(0, 4))) {
-          categories[type].total++;
-          if (cb.checked) {
-            categories[type].checked++;
-            colorCounts[type] = (colorCounts[type] || 0) + 1;
-          }
-        }
+    // 3. Actualizar Leyendas
+    Object.keys(categories).forEach(key => {
+      const cat = categories[key];
+      const percent = cat.total > 0 ? Math.round((cat.checked / cat.total) * 100) : 0;
+      cat.elements.forEach(el => {
+        el.textContent = ` (${percent}%)`;
+        el.style.color = (percent === 100) ? "var(--github-success)" : "";
       });
     });
 
-    // 3. Actualizar UI de la Leyenda
-    Object.keys(categories).forEach(key => {
-      const cat = categories[key];
-      if (cat.total > 0) {
-        const percent = Math.round((cat.checked / cat.total) * 100);
-        cat.elements.forEach(el => {
-          el.textContent = ` (${percent}%)`;
-          el.style.opacity = percent > 0 ? "1" : "0.5";
-          if (percent === 100) el.style.color = "var(--github-success)";
-          else el.style.color = "";
-        });
-      }
-    });
-
-    // 4. Progreso Total con Gradiente Multicolor
+    // 4. Barra de Progreso Total
     const tocBox = $('.toc-box');
     if (tocBox) {
       let totalBar = $('.guide-total-wrapper', tocBox);
@@ -573,39 +547,28 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="guide-progress-text">Completado: <span class="percent">0%</span></div>
           <div class="guide-progress-bar"><div class="guide-progress-fill"></div></div>
         `;
-        const title = tocBox.querySelector('h3');
-        if (title && title.nextSibling) tocBox.insertBefore(wrapper, title.nextSibling);
-        else tocBox.appendChild(wrapper);
+        const h3 = tocBox.querySelector('h3');
+        if (h3) h3.insertAdjacentElement('afterend', wrapper);
+        else tocBox.prepend(wrapper);
         totalBar = wrapper;
       }
-      
+
       const totalPercent = totalItems > 0 ? Math.round((totalChecked / totalItems) * 100) : 0;
       $('.percent', totalBar).textContent = `${totalPercent}%`;
       
       const fillEl = $('.guide-progress-fill', totalBar);
       if (fillEl) {
+        fillEl.style.width = `${totalPercent}%`;
+        
         if (totalChecked === 0) {
-          fillEl.style.width = "4px";
           fillEl.style.background = "var(--github-bg-tertiary)";
-        } else {
-          fillEl.style.width = `${totalPercent}%`;
-          
-          let gradientParts = [];
-          let currentPos = 0;
-          
-          Object.keys(colorCounts).forEach(type => {
-            const count = colorCounts[type];
-            const partWidth = (count / totalChecked) * 100;
-            const color = categories[type].color;
-            gradientParts.push(`${color} ${currentPos}% ${currentPos + partWidth}%`);
-            currentPos += partWidth;
-          });
-          
-          if (gradientParts.length > 0) {
-            fillEl.style.background = `linear-gradient(to right, ${gradientParts.join(', ')})`;
-          } else {
-            fillEl.style.background = totalPercent === 100 ? "var(--github-success)" : "var(--github-accent)";
-          }
+        } else if (totalPercent === 100) {
+          fillEl.style.background = "var(--github-success)";
+        } else if (itemsByColor.length > 0) {
+          // Crear gradiente perfecto basado en los ítems marcados
+          const step = 100 / itemsByColor.length;
+          const stops = itemsByColor.map((color, i) => `${color} ${i * step}% ${(i + 1) * step}%`);
+          fillEl.style.background = `linear-gradient(to right, ${stops.join(', ')})`;
         }
       }
     }
