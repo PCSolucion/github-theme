@@ -545,7 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
         el.style.opacity = percent > 0 ? "1" : "0.5";
         el.style.color = (percent === 100) ? "var(--github-success)" : "inherit";
         el.style.fontWeight = "normal";
-        el.style.marginLeft = "4px";
+        el.style.marginLeft = "2px";
       });
     });
 
