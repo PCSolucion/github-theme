@@ -530,31 +530,41 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // 4. Progreso Total en la Sidebar (Guía completa)
-    const guideBox = $('.guide-box');
-    if (guideBox) {
-      let totalBar = $('.guide-total-progress', guideBox);
+    // 4. Progreso Total en la Sidebar (Caja de Contenido)
+    const tocBox = $('.toc-box');
+    if (tocBox) {
+      let totalBar = $('.guide-total-wrapper', tocBox);
       if (!totalBar) {
         const wrapper = document.createElement('div');
         wrapper.className = 'guide-total-wrapper';
         wrapper.innerHTML = `
-          <div class="guide-progress-text">Progreso total: <span class="percent">0%</span></div>
+          <div class="guide-progress-text">Progreso de este post: <span class="percent">0%</span></div>
           <div class="guide-progress-bar"><div class="guide-progress-fill"></div></div>
         `;
-        guideBox.insertBefore(wrapper, guideBox.querySelector('.guide-nav'));
+        // Insertamos después del título de "Contenido"
+        const title = tocBox.querySelector('h3');
+        if (title && title.nextSibling) {
+          tocBox.insertBefore(wrapper, title.nextSibling);
+        } else {
+          tocBox.appendChild(wrapper);
+        }
         totalBar = wrapper;
       }
       
-      const totalPercent = Math.round((totalChecked / totalItems) * 100);
-      $('.percent', totalBar).textContent = `${totalPercent}%`;
-      $('.guide-progress-fill', totalBar).style.width = `${totalPercent}%`;
+      const totalPercent = totalItems > 0 ? Math.round((totalChecked / totalItems) * 100) : 0;
+      const percentEl = totalBar.querySelector('.percent');
+      const fillEl = totalBar.querySelector('.guide-progress-fill');
       
-      if (totalPercent === 100) {
-        $('.guide-progress-fill', totalBar).style.background = "var(--github-success)";
-      } else {
-        $('.guide-progress-fill', totalBar).style.background = "var(--github-accent)";
+      if (percentEl) percentEl.textContent = `${totalPercent}%`;
+      if (fillEl) {
+        fillEl.style.width = `${totalPercent}%`;
+        fillEl.style.background = (totalPercent === 100) ? "var(--github-success)" : "var(--github-accent)";
       }
     }
+    
+    // Limpiar barra antigua de guide-box si existiera por error de la versión anterior
+    const oldBar = $('.guide-box .guide-total-wrapper');
+    if (oldBar) oldBar.remove();
   };
 
   const initChecklists = () => {
