@@ -465,20 +465,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 1. Identificar categorías basadas en la leyenda
     const categories = {};
-    const legendItems = $$('.guide-legend-item, .legend-item, [class*="legend"] span, [class*="legend"] li').filter(el => {
-      return el.innerText.length < 50 && !el.closest('.contributions-legend');
+    const legendItems = $$('.guide-legend-item, .legend-item, [class*="legend"] span, [class*="legend"] b, [class*="legend"] li').filter(el => {
+      const text = el.innerText.trim();
+      return text.length > 2 && text.length < 50 && !el.closest('.contributions-legend');
     });
     
     legendItems.forEach(item => {
-      const type = item.innerText.trim().toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      const rawText = item.innerText.trim();
+      // Limpiar texto para usarlo como ID de categoría (ej: "Diarios de Audio" -> "diarios")
+      const type = (item.dataset.type || rawText.toLowerCase().split(' ')[0]).normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      
       if (type && type.length > 2) {
         if (!categories[type]) {
+          // Detectar color real
           const coloredEl = item.querySelector('[style*="color"], [color]') || item;
           const style = window.getComputedStyle(coloredEl);
+          let color = style.color;
+          
+          // Si es casi blanco/negro del tema, intentar buscar un color más "vivo"
+          if (color === 'rgb(250, 250, 250)' || color === 'rgb(255, 255, 255)' || color === 'rgb(173, 186, 199)') {
+             // Fallback a colores comunes de Bioshock si el texto no tiene color inline
+             if (type.includes('diario') || type.includes('audio')) color = '#388bef'; // Azul
+             else if (type.includes('tonico')) color = '#f85149'; // Rojo
+             else if (type.includes('logro')) color = '#d29922'; // Dorado
+             else if (type.includes('estacion')) color = '#bc8cff'; // Morado
+             else color = 'var(--github-accent)';
+          }
+
           categories[type] = {
+            name: rawText.split(' ')[0], // Para comparar con el texto del item
             total: 0,
             checked: 0,
-            color: style.color,
+            color: color,
             elements: []
           };
         }
@@ -504,12 +522,22 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!listItem) return;
 
       const itemText = listItem.innerText.toLowerCase();
-      
-      let matchedType = null;
-      // Intentar encontrar el tipo por coincidencia de texto (primeras 4 letras)
+      let itemMatchedColor = null;
+
+      // Intentar encontrar categoría
       Object.keys(categories).forEach(type => {
-        if (itemText.includes(type.substring(0, 4))) {
-          matchedType = type;
+        const cat = categories[type];
+        // Buscamos si el texto del item contiene el nombre de la categoría (ej: "Diario", "Tónico")
+        // O si tiene una clase CSS que coincida (ej: type-audio)
+        if (itemText.includes(cat.name.toLowerCase().substring(0, 4)) || 
+            listItem.classList.contains(`type-${type}`) ||
+            listItem.classList.contains(type)) {
+          
+          cat.total++;
+          if (cb.checked) {
+            cat.checked++;
+            itemMatchedColor = cat.color;
+          }
         }
       });
 
@@ -517,24 +545,19 @@ document.addEventListener("DOMContentLoaded", () => {
         totalChecked++;
         listItem.classList.add('is-checked');
         
-        // Si hay color de la categoría lo añadimos, si no, usamos el color del propio texto del item
-        if (matchedType) {
-          itemsByColor.push(categories[matchedType].color);
+        // Aplicar color de fondo suave al item marcado
+        const colorToUse = itemMatchedColor || window.getComputedStyle(listItem).color;
+        if (colorToUse && colorToUse.startsWith('rgb')) {
+           listItem.style.backgroundColor = colorToUse.replace(/rgb\((.*)\)/, 'rgba($1, 0.1)').replace(/rgba\((.*),[\s\d.]+\)/, 'rgba($1, 0.1)');
         } else {
-          const itemColor = window.getComputedStyle(listItem).color;
-          if (itemColor !== 'rgb(250, 250, 250)' && itemColor !== 'rgb(255, 255, 255)') {
-            itemsByColor.push(itemColor);
-          } else {
-            itemsByColor.push('var(--github-accent)');
-          }
+           listItem.style.backgroundColor = 'rgba(56, 139, 253, 0.1)';
         }
+
+        if (itemMatchedColor) itemsByColor.push(itemMatchedColor);
+        else itemsByColor.push('var(--github-accent)');
       } else {
         listItem.classList.remove('is-checked');
-      }
-
-      if (matchedType) {
-        categories[matchedType].total++;
-        if (cb.checked) categories[matchedType].checked++;
+        listItem.style.backgroundColor = '';
       }
     });
 
@@ -544,6 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const percent = cat.total > 0 ? Math.round((cat.checked / cat.total) * 100) : 0;
       cat.elements.forEach(el => {
         el.textContent = ` (${percent}%)`;
+        el.style.opacity = percent > 0 ? "1" : "0.5";
         el.style.color = (percent === 100) ? "var(--github-success)" : "";
       });
     });
@@ -569,18 +593,24 @@ document.addEventListener("DOMContentLoaded", () => {
       const percentEl = totalBar.querySelector('.percent');
       if (percentEl) percentEl.textContent = `${totalPercent}%`;
       
-      const fillEl = $('.guide-progress-fill', totalBar);
+      const fillEl = totalBar.querySelector('.guide-progress-fill');
       if (fillEl) {
-        fillEl.style.width = `${totalPercent}%`;
+        fillEl.style.width = `${Math.max(totalPercent, totalChecked > 0 ? 2 : 0)}%`;
         
         if (totalChecked === 0) {
           fillEl.style.background = "var(--github-bg-tertiary)";
+          fillEl.style.width = "4px";
         } else if (totalPercent === 100) {
           fillEl.style.background = "var(--github-success)";
-        } else if (itemsByColor.length > 0) {
-          const step = 100 / itemsByColor.length;
-          const stops = itemsByColor.map((color, i) => `${color} ${i * step}% ${(i + 1) * step}%`);
-          fillEl.style.background = `linear-gradient(to right, ${stops.join(', ')})`;
+        } else {
+          // Gradiente basado en colores de ítems marcados
+          if (itemsByColor.length > 1) {
+            const step = 100 / itemsByColor.length;
+            const stops = itemsByColor.map((color, i) => `${color} ${i * step}% ${(i + 1) * step}%`);
+            fillEl.style.background = `linear-gradient(to right, ${stops.join(', ')})`;
+          } else {
+            fillEl.style.background = itemsByColor[0] || "var(--github-accent)";
+          }
         }
       }
     }
