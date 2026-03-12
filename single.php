@@ -59,7 +59,9 @@ get_header();
         
         <aside class="single-aside">
             <div class="toc-box">
-                <h3>Contenido</h3>
+                <?php if (!has_category('videojuegos')) : ?>
+                    <h3>Contenido</h3>
+                <?php endif; ?>
                 <nav id="table-of-contents">
                     <?php echo github_theme_generate_toc(get_the_content()); ?>
                 </nav>

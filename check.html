@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Checkbox Showcase</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --success: #2ea44f;
+            --danger: #f85149;
+            --text: #c9d1d9;
+            --text-muted: #8b949e;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            padding: 50px 20px;
+            margin: 0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+        }
+
+        .showcase-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .showcase-card h3 {
+            margin: 0;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 8px;
+        }
+
+        .demo-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* 1. CYBERPUNK NEON */
+        .cb-cyberpunk {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent);
+            border-radius: 0;
+            background: transparent;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cb-cyberpunk:checked {
+            background: var(--accent);
+            box-shadow: 0 0 15px var(--accent);
+        }
+        .cb-cyberpunk::after {
+            content: '✓';
+            position: absolute;
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+        .cb-cyberpunk:checked::after { display: block; }
+
+        /* 2. GITHUB DIAMOND (TECH) */
+        .cb-diamond {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid var(--border);
+            transform: rotate(45deg);
+            background: transparent;
+            transition: all 0.3s;
+        }
+        .cb-diamond:checked {
+            background: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        /* 3. RETRO PIXEL */
+        .cb-pixel {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            image-rendering: pixelated;
+            border: 4px solid #fff;
+            box-shadow: -4px 0 #000, 4px 0 #000, 0 -4px #000, 0 4px #000;
+            background: #fff;
+            margin: 4px;
+            transition: transform 0.1s;
+        }
+        .cb-pixel:checked {
+            background: var(--success);
+            transform: scale(0.9);
+        }
+
+        /* 4. HEXAGONAL */
+        .cb-hex {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--border);
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+            transition: background 0.3s;
+        }
+        .cb-hex:checked {
+            background: var(--accent);
+        }
+
+        /* 5. MINIMALIST DOT */
+        .cb-dot-container {
+            display: flex;
+            align-items: center;
+            width: 40px;
+            height: 20px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2px;
+            transition: all 0.3s;
+        }
+        .cb-dot-input { display: none; }
+        .cb-dot-knob {
+            width: 16px;
+            height: 16px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .cb-dot-input:checked + .cb-dot-container .cb-dot-knob {
+            transform: translateX(20px);
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        /* 6. CORNER CUT (BRUTALIST) */
+        .cb-corner {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--border);
+            clip-path: polygon(0 0, 100% 0, 100% 70%, 70% 100%, 0 100%);
+            background: transparent;
+            transition: border-color 0.2s;
+        }
+        .cb-corner:checked {
+            border-color: var(--accent);
+            background: rgba(88, 166, 255, 0.2);
+        }
+        .cb-corner:checked::after {
+             content: '';
+             position: absolute;
+             width: 8px;
+             height: 8px;
+             background: var(--accent);
+             top: 5px; left: 5px;
+        }
+
+        /* 7. RADAR SCAN */
+        .cb-radar {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 1px solid var(--success);
+            border-radius: 50%;
+            background: transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        .cb-radar::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: conic-gradient(from 0deg, var(--success), transparent);
+            opacity: 0.3;
+            animation: rotate-radar 2s linear infinite;
+            display: none;
+        }
+        .cb-radar:checked::before { display: block; }
+        @keyframes rotate-radar { to { transform: rotate(360deg); } }
+
+        /* 8. GLITCH BOX */
+        .cb-glitch {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid white;
+            transition: 0.2s;
+        }
+        .cb-glitch:checked {
+            animation: glitch-anim 0.3s infinite;
+            background: var(--danger);
+            border-color: var(--danger);
+        }
+        @keyframes glitch-anim {
+            0% { transform: translate(0); color: white; }
+            20% { transform: translate(-2px, 2px); color: #0ff; }
+            40% { transform: translate(-2px, -2px); color: #f0f; }
+            60% { transform: translate(2px, 2px); color: #0ff; }
+            80% { transform: translate(2px, -2px); color: #f0f; }
+            100% { transform: translate(0); }
+        }
+
+        /* 9. LINE PROGRESS (MODERN) */
+        .cb-line-wrap { position: relative; padding-bottom: 4px; }
+        .cb-line { appearance: none; width: 14px; height: 14px; border: 1px solid var(--border); border-radius: 2px; }
+        .cb-line:checked { border-color: var(--accent); }
+        .cb-line-wrap::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0%;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.4s;
+        }
+        .cb-line-wrap:has(.cb-line:checked)::after { width: 100%; }
+
+        /* 10. TRON SLIT */
+        .cb-slit {
+            appearance: none;
+            width: 4px;
+            height: 20px;
+            background: var(--border);
+            transition: all 0.3s;
+            margin: 0 8px;
+        }
+        .cb-slit:checked {
+            background: #0ff;
+            box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+            width: 8px;
+        }
+
+        /* 11. BORG EYE (RED NEON) */
+        .cb-borg {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--danger);
+            border-radius: 50%;
+            position: relative;
+            background: rgba(248, 81, 73, 0.1);
+        }
+        .cb-borg:checked {
+            box-shadow: 0 0 15px var(--danger), inset 0 0 5px var(--danger);
+        }
+        .cb-borg:checked::after {
+            content: '';
+            position: absolute;
+            inset: 4px;
+            background: var(--danger);
+            border-radius: 50%;
+        }
+
+        /* 12. BRACKET BOX */
+        .cb-brackets {
+            appearance: none;
+            width: 24px;
+            height: 20px;
+            background: transparent;
+            position: relative;
+        }
+        .cb-brackets::before, .cb-brackets::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 100%;
+            border: 2px solid var(--text-muted);
+            transition: all 0.3s;
+        }
+        .cb-brackets::before { left: 0; border-right: 0; }
+        .cb-brackets::after { right: 0; border-left: 0; }
+        .cb-brackets:checked::before, .cb-brackets:checked::after {
+            border-color: var(--accent);
+            width: 8px;
+        }
+        .cb-brackets:checked::after {
+            background: var(--accent);
+            width: 4px;
+        }
+
+        /* 13. LIQUID FILL */
+        .cb-liquid {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+        .cb-liquid::before {
+            content: '';
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--success);
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cb-liquid:checked::before { bottom: 0; }
+
+        /* 14. GHOST SHELL */
+        .cb-ghost {
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            backdrop-filter: blur(2px);
+        }
+        .cb-ghost:checked {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .cb-ghost:checked::after {
+            content: 'SCAN';
+            font-family: 'JetBrains Mono';
+            font-size: 6px;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+        }
+
+        /* 15. PULSE RING */
+        .cb-pulse {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--border);
+            position: relative;
+        }
+        .cb-pulse:checked {
+            background: var(--accent);
+            animation: pulse-ring 1.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(88, 166, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(88, 166, 255, 0); }
+        }
+
+        /* 16. DATA STREAM */
+        .cb-stream {
+            appearance: none;
+            width: 30px;
+            height: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            position: relative;
+        }
+        .cb-stream:checked {
+            border-color: var(--success);
+        }
+        .cb-stream::after {
+            content: '';
+            position: absolute;
+            left: 2px; top: 2px; bottom: 2px;
+            width: 4px;
+            background: var(--text-muted);
+            transition: 0.3s;
+        }
+        .cb-stream:checked::after {
+            width: 24px;
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+        }
+
+        /* 17. OVERLAY CROSS */
+        .cb-cross {
+            appearance: none;
+            width: 20px; height: 20px;
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        .cb-cross:checked::before, .cb-cross:checked::after {
+            content: '';
+            position: absolute;
+            background: var(--danger);
+            top: 50%; left: 50%;
+        }
+        .cb-cross:checked::before { width: 100%; height: 2px; transform: translate(-50%, -50%) rotate(45deg); }
+        .cb-cross:checked::after { width: 100%; height: 2px; transform: translate(-50%, -50%) rotate(-45deg); }
+
+        /* 18. LOADING BINARY */
+        .cb-binary {
+            appearance: none;
+            width: 22px; height: 22px;
+            border: 1px solid var(--border);
+            position: relative;
+            background: var(--bg);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cb-binary::after { content: '0'; font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-muted); }
+        .cb-binary:checked::after { content: '1'; color: var(--success); text-shadow: 0 0 5px var(--success); }
+
+        /* 19. SHARP ARROW */
+        .cb-arrow {
+            appearance: none;
+            width: 20px; height: 20px;
+            background: transparent;
+            position: relative;
+        }
+        .cb-arrow::before {
+            content: '>';
+            font-family: 'JetBrains Mono';
+            position: absolute;
+            top: 0; left: 0;
+            color: var(--text-muted);
+            transition: 0.2s;
+        }
+        .cb-arrow:checked::before {
+            color: var(--accent);
+            transform: scale(1.5) translateX(4px);
+            text-shadow: 2px 0 5px var(--accent);
+        }
+
+        /* 20. SHIELD GENERATOR */
+        .cb-shield {
+            appearance: none;
+            width: 24px; height: 24px;
+            border: 2px solid var(--border);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: transparent;
+            transition: 0.4s;
+        }
+        .cb-shield:checked {
+            background: var(--accent);
+            border-color: #fff;
+            transform: scale(1.1);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        /* 21. CIRCUIT NODE */
+        .cb-circuit {
+            appearance: none;
+            width: 22px; height: 22px;
+            border: 2px solid var(--border);
+            position: relative;
+        }
+        .cb-circuit::before {
+            content: '';
+            position: absolute;
+            top: -10px; left: 50%;
+            width: 2px; height: 10px;
+            background: var(--border);
+        }
+        .cb-circuit:checked {
+            border-color: #f1e05a;
+            box-shadow: 0 0 10px #f1e05a;
+        }
+
+        /* 22. SLIM TOGGLE */
+        .cb-slim-toggle {
+            appearance: none;
+            width: 34px; height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            position: relative;
+            cursor: pointer;
+        }
+        .cb-slim-toggle::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 0;
+            transform: translateY(-50%);
+            width: 14px; height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .cb-slim-toggle:checked::after {
+            left: 20px;
+            background: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        /* 23. FOCUS BRACKETS */
+        .cb-focus {
+            appearance: none;
+            width: 20px; height: 20px;
+            background: transparent;
+            position: relative;
+        }
+        .cb-focus::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+        .cb-focus:checked::before {
+            border-color: var(--accent);
+            border-style: solid none;
+            animation: focus-expand 0.5s ease-out;
+        }
+        @keyframes focus-expand {
+            0% { inset: 0; }
+            100% { inset: -4px; }
+        }
+
+        /* 24. DNA STRAND */
+        .cb-dna {
+            appearance: none;
+            width: 10px; height: 20px;
+            border-left: 2px solid var(--border);
+            border-right: 2px solid var(--border);
+            position: relative;
+        }
+        .cb-dna::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: -2px; width: 12px; height: 2px;
+            background: var(--border);
+        }
+        .cb-dna:checked {
+            border-color: #a97bff;
+        }
+        .cb-dna:checked::after {
+            background: #a97bff;
+            box-shadow: 0 0 8px #a97bff;
+        }
+
+        /* 25. MATRIX RAIN */
+        .cb-matrix {
+            appearance: none;
+            width: 20px; height: 20px;
+            background: var(--bg);
+            border: 1px solid #003b00;
+            position: relative;
+            overflow: hidden;
+        }
+        .cb-matrix:checked::before {
+            content: '101';
+            font-family: 'JetBrains Mono';
+            font-size: 8px;
+            color: #00ff41;
+            position: absolute;
+            top: -20px;
+            animation: matrix-drop 1s infinite linear;
+        }
+        @keyframes matrix-drop {
+            to { top: 20px; }
+        }
+
+        /* 26. HP BAR SEGMENT */
+        .cb-hp {
+            appearance: none;
+            width: 30px; height: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            clip-path: polygon(0 0, 100% 0, 85% 100%, 0 100%);
+        }
+        .cb-hp:checked {
+            background: var(--success);
+            box-shadow: -5px 0 10px var(--success);
+        }
+
+        /* 27. EYE TRACKER */
+        .cb-eye {
+            appearance: none;
+            width: 22px; height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cb-eye::after {
+            content: '';
+            width: 4px; height: 4px;
+            background: var(--border);
+            border-radius: 50%;
+            transition: 0.2s;
+        }
+        .cb-eye:checked::after {
+            width: 12px; height: 12px;
+            background: #fff;
+            box-shadow: 0 0 15px #fff;
+        }
+
+        /* 28. SCANLINE BOX */
+        .cb-scanline {
+            appearance: none;
+            width: 20px; height: 20px;
+            border: 1px solid var(--accent);
+            position: relative;
+            background: linear-gradient(rgba(88, 166, 255, 0.1) 50%, transparent 50%);
+            background-size: 100% 4px;
+        }
+        .cb-scanline:checked::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: #fff;
+            animation: scan-move 1s infinite alternate;
+        }
+        @keyframes scan-move { to { top: 18px; } }
+
+        /* 29. BATTLE LOG SLASH */
+        .cb-slash {
+            appearance: none;
+            width: 24px; height: 24px;
+            position: relative;
+        }
+        .cb-slash::before {
+            content: '';
+            position: absolute;
+            width: 100%; height: 2px;
+            background: var(--border);
+            top: 50%; transform: rotate(-45deg);
+        }
+        .cb-slash:checked::before {
+            background: var(--danger);
+            animation: slash-hit 0.2s ease-out;
+            box-shadow: 0 0 10px var(--danger);
+        }
+        @keyframes slash-hit {
+            0% { transform: scaleX(0) rotate(-45deg); }
+            100% { transform: scaleX(1) rotate(-45deg); }
+        }
+
+        /* 30. ENERGY CORE */
+        .cb-core {
+            appearance: none;
+            width: 22px; height: 22px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .cb-core::after {
+            content: '';
+            width: 0; height: 0;
+            background: #f1e05a;
+            border-radius: 50%;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .cb-core:checked::after {
+            width: 14px; height: 14px;
+            box-shadow: 0 0 15px #f1e05a;
+        }
+
+        .label-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .code-snippet {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #79c0ff;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- 1-10 -->
+        <div class="showcase-card"><h3>1. Neon Cyber</h3><label class="demo-wrap"><input type="checkbox" class="cb-cyberpunk"><span class="label-text">Objective Completed</span></label></div>
+        <div class="showcase-card"><h3>2. Tech Diamond</h3><label class="demo-wrap"><input type="checkbox" class="cb-diamond"><span class="label-text">Resource Collected</span></label></div>
+        <div class="showcase-card"><h3>3. Retro Pixel</h3><label class="demo-wrap"><input type="checkbox" class="cb-pixel"><span class="label-text">Quest Item Found</span></label></div>
+        <div class="showcase-card"><h3>4. Hex Grid</h3><label class="demo-wrap"><input type="checkbox" class="cb-hex"><span class="label-text">Node Activated</span></label></div>
+        <div class="showcase-card"><label class="demo-wrap"><h3>5. Nano Switch</h3><input type="checkbox" class="cb-dot-input" id="sw1"><div class="cb-dot-container"><div class="cb-dot-knob"></div></div><span class="label-text">System Online</span></label></div>
+        <div class="showcase-card"><h3>6. Corner Cut</h3><label class="demo-wrap"><input type="checkbox" class="cb-corner"><span class="label-text">Tactical Data</span></label></div>
+        <div class="showcase-card"><h3>7. Radar Scan</h3><label class="demo-wrap"><input type="checkbox" class="cb-radar"><span class="label-text">Scanning Area...</span></label></div>
+        <div class="showcase-card"><h3>8. Glitch Box</h3><label class="demo-wrap"><input type="checkbox" class="cb-glitch"><span class="label-text">Corrupted Data</span></label></div>
+        <div class="showcase-card"><h3>9. Underline Flow</h3><label class="demo-wrap cb-line-wrap"><input type="checkbox" class="cb-line"><span class="label-text">Reading Progress</span></label></div>
+        <div class="showcase-card"><h3>10. Power Slit</h3><label class="demo-wrap"><input type="checkbox" class="cb-slit"><span class="label-text">Generator Powered</span></label></div>
+
+        <!-- 11-20 -->
+        <div class="showcase-card"><h3>11. Borg Eye</h3><label class="demo-wrap"><input type="checkbox" class="cb-borg"><span class="label-text">Target Locked</span></label></div>
+        <div class="showcase-card"><h3>12. Bracket Box</h3><label class="demo-wrap"><input type="checkbox" class="cb-brackets"><span class="label-text">Code Snippet Saved</span></label></div>
+        <div class="showcase-card"><h3>13. Liquid Fill</h3><label class="demo-wrap"><input type="checkbox" class="cb-liquid"><span class="label-text">Potion Consumed</span></label></div>
+        <div class="showcase-card"><h3>14. Ghost Shell</h3><label class="demo-wrap"><input type="checkbox" class="cb-ghost"><span class="label-text">Stealth Mode</span></label></div>
+        <div class="showcase-card"><h3>15. Pulse Ring</h3><label class="demo-wrap"><input type="checkbox" class="cb-pulse"><span class="label-text">Signal Detected</span></label></div>
+        <div class="showcase-card"><h3>16. Data Stream</h3><label class="demo-wrap"><input type="checkbox" class="cb-stream"><span class="label-text">Transferring...</span></label></div>
+        <div class="showcase-card"><h3>17. Combat Cross</h3><label class="demo-wrap"><input type="checkbox" class="cb-cross"><span class="label-text">Enemy Neutralized</span></label></div>
+        <div class="showcase-card"><h3>18. Binary State</h3><label class="demo-wrap"><input type="checkbox" class="cb-binary"><span class="label-text">Logic Gates</span></label></div>
+        <div class="showcase-card"><h3>19. Prompt Arrow</h3><label class="demo-wrap"><input type="checkbox" class="cb-arrow"><span class="label-text">Execute Command</span></label></div>
+        <div class="showcase-card"><h3>20. Shield Gen</h3><label class="demo-wrap"><input type="checkbox" class="cb-shield"><span class="label-text">Shield Active</span></label></div>
+
+        <!-- 21-30 -->
+        <div class="showcase-card">
+            <h3>21. Circuit Node</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-circuit">
+                <span class="label-text">Circuit Closed</span>
+            </label>
+            <div class="code-snippet">Componente electrónico que brilla oro.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>22. Slim Toggle</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-slim-toggle">
+                <span class="label-text">Quick Action</span>
+            </label>
+            <div class="code-snippet">Switch ultra-delgado y fluido.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>23. Target Focus</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-focus">
+                <span class="label-text">Locked In</span>
+            </label>
+            <div class="code-snippet">Paréntesis que se cierran (HUD).</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>24. DNA Helix</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-dna">
+                <span class="label-text">Genetic Marker</span>
+            </label>
+            <div class="code-snippet">Estructura biotec morada.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>25. Matrix Drop</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-matrix">
+                <span class="label-text">Decoded Data</span>
+            </label>
+            <div class="code-snippet">Números binarios cayendo dentro.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>26. HP Segment</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-hp">
+                <span class="label-text">Vitally Restored</span>
+            </label>
+            <div class="code-snippet">Segmento de barra de vida RPG.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>27. Pupil Tracker</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-eye">
+                <span class="label-text">Eye Checkpoint</span>
+            </label>
+            <div class="code-snippet">Pupila que se dilata al marcar.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>28. CRT Scanline</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-scanline">
+                <span class="label-text">Terminal Log</span>
+            </label>
+            <div class="code-snippet">Monitor antiguo con línea de refresco.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>29. Katana Slash</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-slash">
+                <span class="label-text">Boss Slain</span>
+            </label>
+            <div class="code-snippet">Animación de corte con sangre.</div>
+        </div>
+
+        <div class="showcase-card">
+            <h3>30. Star Core</h3>
+            <label class="demo-wrap">
+                <input type="checkbox" class="cb-core">
+                <span class="label-text">Reactor Online</span>
+            </label>
+            <div class="code-snippet">Núcleo de energía solar expansivo.</div>
+        </div>
+
+    </div>
+
+    <script>
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('change', () => {console.log('Action');});
+        });
+    </script>
+</body>
+</html>
+
+</body>
+</html>
+
+</body>
+</html>
