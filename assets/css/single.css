@@ -353,7 +353,7 @@
 
 /* Typography & Layout */
 .post-article .entry-content {
-    font-size: 16px;
+    font-size: 15px;
     line-height: 1.7;
     color: var(--github-text-primary);
     text-align: left;
