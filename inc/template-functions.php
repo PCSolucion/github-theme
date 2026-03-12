@@ -231,8 +231,9 @@ function github_theme_complete_guide() {
                 <ul class="toc-list">
                     <?php while ($guide_query->have_posts()) : $guide_query->the_post(); 
                         $title = get_the_title();
-                        // Eliminamos la palabra "Guía" (y "guía") del título
-                        $title = trim(preg_replace('/guía/iu', '', $title));
+                        // Eliminamos "Guía", "Guía 100%", "Guía completa", etc. (case-insensitive)
+                        $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
+                        $title = trim($title);
                         
                         // Determinar si es el post actual
                         $current_post_id = get_queried_object_id();
