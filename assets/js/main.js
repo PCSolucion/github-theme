@@ -557,7 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const wrapper = document.createElement('div');
         wrapper.className = 'guide-total-wrapper';
         wrapper.innerHTML = `
-          <div class="guide-progress-text">Completado: <span class="percent">0%</span></div>
+          <div class="guide-progress-text">Tu progreso: <span class="percent">0%</span></div>
           <div class="guide-progress-bar"><div class="guide-progress-fill"></div></div>
         `;
         const h3 = tocBox.querySelector('h3');
