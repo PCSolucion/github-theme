@@ -607,7 +607,7 @@
 }
 
 .tldr-item {
-    margin-bottom: 8px; /* Espacio mÃ¡s ajustado entre puntos */
+    margin-bottom: 12px; /* Increased spacing for better readability in key points */
     font-size: 15px;
     line-height: 1.6;
     color: var(--github-text-secondary);
@@ -761,8 +761,8 @@
 .guide-legend-item {
     display: inline-flex;
     align-items: center;
-    margin-right: 16px;
-    padding: 4px 8px;
+    margin-right: 8px;
+    padding: 2px 6px;
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--github-border);
@@ -770,8 +770,8 @@
 }
 
 .entry-content li {
-    margin-bottom: 8px;
-    padding: 4px 8px;
+    margin-bottom: 4px; /* Reduced spacing for list items and checklist items */
+    padding: 2px 8px;
     border-radius: 6px;
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
