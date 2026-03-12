@@ -473,12 +473,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const type = item.dataset.type || item.innerText.toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       if (type && type.length > 2) {
         if (!categories[type]) {
-          // Obtener el color real del elemento de la leyenda
+          // Detectar color: Texto -> Hijo con color -> Clase de color común
           const style = window.getComputedStyle(item);
+          let itemColor = style.color;
+          
+          // Si el color es el blanco/gris por defecto, buscamos un span hijo con color (donde suele estar el color real)
+          if (itemColor === 'rgb(250, 250, 250)' || itemColor === 'rgb(255, 255, 255)' || itemColor === 'rgb(173, 186, 199)') {
+            const coloredElement = item.querySelector('span[style*="color"], font[color], b[style*="color"]');
+            if (coloredElement) {
+              itemColor = coloredElement.style.color || coloredElement.getAttribute('color');
+            }
+          }
+
           categories[type] = {
             total: 0,
             checked: 0,
-            color: style.color || style.backgroundColor || 'var(--github-accent)',
+            color: itemColor || 'var(--github-accent)',
             elements: []
           };
         }
@@ -507,10 +517,15 @@ document.addEventListener("DOMContentLoaded", () => {
         totalChecked++;
         // Estilo para el LI marcado (leve color de fondo)
         const style = window.getComputedStyle(item);
-        const itemColor = style.color;
+        let itemColor = style.color;
         
-        // Convertir el color de texto a un fondo suave sin romper si ya es rgba
-        if (itemColor.startsWith('rgb')) {
+        // Si el color del li es el blanco por defecto, intentamos sacar el color de algún hijo
+        if (itemColor === 'rgb(250, 250, 250)' || itemColor === 'rgb(255, 255, 255)') {
+            const coloredSpan = item.querySelector('span[style*="color"]');
+            if (coloredSpan) itemColor = coloredSpan.style.color;
+        }
+
+        if (itemColor && itemColor.startsWith('rgb')) {
           item.style.backgroundColor = itemColor.replace(/rgb\((.*)\)/, 'rgba($1, 0.08)').replace(/rgba\((.*),[\s\d.]+\)/, 'rgba($1, 0.08)');
         }
         item.classList.add('is-checked');
@@ -555,7 +570,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const wrapper = document.createElement('div');
         wrapper.className = 'guide-total-wrapper';
         wrapper.innerHTML = `
-          <div class="guide-progress-text">Progreso de este post: <span class="percent">0%</span></div>
+          <div class="guide-progress-text">Completado: <span class="percent">0%</span></div>
           <div class="guide-progress-bar"><div class="guide-progress-fill"></div></div>
         `;
         const title = tocBox.querySelector('h3');
@@ -570,12 +585,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const fillEl = $('.guide-progress-fill', totalBar);
       if (fillEl) {
         if (totalChecked === 0) {
-          fillEl.style.width = "0%";
-          fillEl.style.background = "var(--github-accent)";
+          fillEl.style.width = "4px";
+          fillEl.style.background = "var(--github-bg-tertiary)";
         } else {
           fillEl.style.width = `${totalPercent}%`;
           
-          // Construir gradiente basado en los colores de lo que está marcado
           let gradientParts = [];
           let currentPos = 0;
           
