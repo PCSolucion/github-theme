@@ -463,57 +463,98 @@ document.addEventListener("DOMContentLoaded", () => {
     const checkboxes = $$('.entry-content input[type="checkbox"]');
     if (!checkboxes.length) return;
 
-    // 1. Identificar categorías basadas en la leyenda
+    // 1. Identificar categorías basadas en la leyenda (intentar varios selectores comunes)
     const categories = {};
-    const legendItems = $$('.guide-legend-item');
+    const legendItems = $$('.guide-legend-item, .legend-item, [class*="legend"] span, [class*="legend"] div').filter(el => {
+      // Filtrar para evitar falsos positivos
+      return el.innerText.length < 50 && !el.closest('.contributions-legend');
+    });
     
     legendItems.forEach(item => {
-      const type = item.dataset.type;
-      if (type) {
-        categories[type] = {
-          total: 0,
-          checked: 0,
-          el: $('.legend-progress', item) || (() => {
-            const span = document.createElement('span');
-            span.className = 'legend-progress';
-            item.appendChild(span);
-            return span;
-          })()
-        };
+      // Si no tiene data-type, intentamos sacarlo del texto
+      const type = item.dataset.type || item.innerText.toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (type && type.length > 2) {
+        if (!categories[type]) {
+          categories[type] = {
+            total: 0,
+            checked: 0,
+            elements: []
+          };
+        }
+        
+        let progEl = $('.legend-progress', item);
+        if (!progEl) {
+          progEl = document.createElement('span');
+          progEl.className = 'legend-progress';
+          item.appendChild(progEl);
+        }
+        categories[type].elements.push(progEl);
       }
     });
 
     // 2. Contar progresos
+    let totalItems = 0;
+    let totalChecked = 0;
+
     checkboxes.forEach(cb => {
-      // Suponemos que el checkbox está dentro de un contenedor con clase que indica el tipo
-      // o que podemos inferir el tipo por el estilo/clase del checklist-item
-      const item = cb.closest('.checklist-item');
+      totalItems++;
+      if (cb.checked) totalChecked++;
+
+      const item = cb.closest('.checklist-item, li, p');
       if (!item) return;
 
-      // Intentar encontrar el tipo por clase
+      // Intentar encontrar el tipo por clase o texto cercano
       const typeClass = [...item.classList].find(c => c.startsWith('type-'))?.replace('type-', '');
-      if (typeClass && categories[typeClass]) {
-        categories[typeClass].total++;
-        if (cb.checked) categories[typeClass].checked++;
-      }
+      const itemText = item.innerText.toLowerCase();
+
+      Object.keys(categories).forEach(type => {
+        // Marcamos si el tipo está en la clase o si el texto del item contiene palabras clave del tipo
+        if (typeClass === type || itemText.includes(type.substring(0, 4))) {
+          categories[type].total++;
+          if (cb.checked) categories[type].checked++;
+        }
+      });
     });
 
-    // 3. Actualizar UI
+    // 3. Actualizar UI de la Leyenda
     Object.keys(categories).forEach(key => {
       const cat = categories[key];
       if (cat.total > 0) {
         const percent = Math.round((cat.checked / cat.total) * 100);
-        cat.el.textContent = ` (${percent}%)`;
-        cat.el.style.opacity = percent > 0 ? "1" : "0.5";
-        
-        // Efecto visual si está completo
-        if (percent === 100) {
-          cat.el.style.color = "var(--github-success)";
-        } else {
-          cat.el.style.color = "";
-        }
+        cat.elements.forEach(el => {
+          el.textContent = ` (${percent}%)`;
+          el.style.opacity = percent > 0 ? "1" : "0.5";
+          if (percent === 100) el.style.color = "var(--github-success)";
+          else el.style.color = "";
+        });
       }
     });
+
+    // 4. Progreso Total en la Sidebar (Guía completa)
+    const guideBox = $('.guide-box');
+    if (guideBox) {
+      let totalBar = $('.guide-total-progress', guideBox);
+      if (!totalBar) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'guide-total-wrapper';
+        wrapper.innerHTML = `
+          <div class="guide-progress-text">Progreso total: <span class="percent">0%</span></div>
+          <div class="guide-progress-bar"><div class="guide-progress-fill"></div></div>
+        `;
+        guideBox.insertBefore(wrapper, guideBox.querySelector('.guide-nav'));
+        totalBar = wrapper;
+      }
+      
+      const totalPercent = Math.round((totalChecked / totalItems) * 100);
+      $('.percent', totalBar).textContent = `${totalPercent}%`;
+      $('.guide-progress-fill', totalBar).style.width = `${totalPercent}%`;
+      
+      if (totalPercent === 100) {
+        $('.guide-progress-fill', totalBar).style.background = "var(--github-success)";
+      } else {
+        $('.guide-progress-fill', totalBar).style.background = "var(--github-accent)";
+      }
+    }
   };
 
   const initChecklists = () => {

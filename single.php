@@ -58,13 +58,13 @@ get_header();
         </main>
         
         <aside class="single-aside">
-            <?php github_theme_complete_guide(); ?>
             <div class="toc-box">
                 <h3>Contenido</h3>
                 <nav id="table-of-contents">
                     <?php echo github_theme_generate_toc(get_the_content()); ?>
                 </nav>
             </div>
+            <?php github_theme_complete_guide(); ?>
             <?php dynamic_sidebar('sidebar-1'); ?>
         </aside>
     </div>
