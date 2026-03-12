@@ -30,10 +30,10 @@
   --github-text-secondary: #adbac7; /* Soft gray-blue (Better contrast) */
   --github-text-tertiary: #8b949e; /* Muted/Placeholder (WCAG compliant) */
 
-  /* Accents - Luna Obscura (Dark Side) Red */
-  --github-accent: #ff0000;
-  --github-accent-hover: #fafafa; /* Restored to light color for links instead of red */
-  --github-accent-subtle: rgba(255, 0, 0, 0.1);
+  /* Accents - Restored Blue Style */
+  --github-accent: #008ec2;
+  --github-accent-hover: #0077a3;
+  --github-accent-subtle: rgba(0, 142, 194, 0.1);
 
   /* Status Colors */
   --github-success: #22c55e;
@@ -82,7 +82,6 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.10) 1px, transparent 1px); /* Reduced visibility from 0.15 to 0.10 */
   background-size: 32px 32px;
   pointer-events: none;
   z-index: -1;
