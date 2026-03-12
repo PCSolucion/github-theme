@@ -234,9 +234,13 @@ function github_theme_complete_guide() {
                         $title = get_the_title();
                         // Eliminamos la palabra "Guía" (y "guía") del título
                         $title = trim(preg_replace('/guía/iu', '', $title));
+                        
+                        // Determinar si es el post actual
+                        $current_post_id = get_queried_object_id();
+                        $active_class = (get_the_ID() === $current_post_id) ? 'active' : '';
                     ?>
                         <li>
-                            <a href="<?php the_permalink(); ?>">
+                            <a href="<?php the_permalink(); ?>" class="<?php echo esc_attr($active_class); ?>">
                                 <?php echo esc_html($title); ?>
                             </a>
                         </li>

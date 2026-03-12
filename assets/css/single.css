@@ -535,6 +535,12 @@
     background: rgba(255, 255, 255, 0.05); /* Igual que el TOC */
 }
 
+.guide-nav a.active {
+    color: var(--github-text-primary);
+    background: rgba(255, 255, 255, 0.08);
+    font-weight: 600;
+}
+
 @media (max-width: 1024px) {
     .single-layout {
         grid-template-columns: 1fr;
