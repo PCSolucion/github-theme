@@ -386,7 +386,7 @@
     height: auto;
     border-radius: 8px;
     border: 1px solid var(--github-border);
-    margin: 32px 0;
+    margin: -10px 0;
 }
 
 .entry-content table {
@@ -505,6 +505,34 @@
 
 #table-of-contents a.toc-h3.active {
     color: var(--github-text-primary);
+}
+
+/* Estilos de la guía que coinciden con el TOC */
+.guide-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.guide-nav li {
+    margin: 2px 0;
+}
+
+.guide-nav a {
+    display: block;
+    padding: 8px 12px;
+    color: var(--github-text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    font-family: var(--github-font-sans);
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    line-height: 1.4;
+}
+
+.guide-nav a:hover {
+    color: var(--github-text-primary);
+    background: rgba(255, 255, 255, 0.05); /* Igual que el TOC */
 }
 
 @media (max-width: 1024px) {

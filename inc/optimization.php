@@ -159,9 +159,11 @@ add_filter('script_loader_src', 'github_theme_remove_script_version', 9999);
  */
 function github_theme_remove_wp_bloat() {
     if (!is_admin()) {
-        // Eliminar Dashicons y Thickbox del frontend por completo
-        wp_dequeue_style('dashicons');
-        wp_deregister_style('dashicons');
+        // Eliminar Dashicons solo si el usuario no está logueado (necesario para la Admin Bar)
+        if (!is_user_logged_in()) {
+            wp_dequeue_style('dashicons');
+            wp_deregister_style('dashicons');
+        }
         
         wp_dequeue_style('thickbox');
         wp_deregister_style('thickbox');
@@ -435,7 +437,7 @@ add_action('wp_footer', 'github_theme_speculative_loading');
  * Bloqueo Agresivo de Dashicons: Eliminar incluso si se inyectan tarde
  */
 add_action('wp_print_styles', function() {
-    if (!is_admin()) {
+    if (!is_admin() && !is_user_logged_in()) {
         wp_dequeue_style('dashicons');
     }
 }, 100);

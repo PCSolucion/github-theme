@@ -58,6 +58,7 @@ get_header();
         </main>
         
         <aside class="single-aside">
+            <?php github_theme_complete_guide(); ?>
             <div class="toc-box">
                 <h3>Contenido</h3>
                 <nav id="table-of-contents">

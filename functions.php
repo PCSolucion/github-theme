@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // =============================================================================
 
 /** Versión del tema para control de caché (Cache Busting) */
-define( 'GITHUB_THEME_VERSION', '1.0.6' ); // Versión estática para permitir caché en producción
+define( 'GITHUB_THEME_VERSION', '1.1.0' ); // Versión estática para permitir caché en producción
 
 
 // =============================================================================
@@ -251,3 +251,6 @@ require get_template_directory() . '/inc/live-search.php';
 require get_template_directory() . '/inc/seo.php';
 require get_template_directory() . '/inc/security.php';
 require get_template_directory() . '/inc/optimization.php';
+
+// Desactivar Sitemaps Nativos de WordPress para usar la versión personalizada del tema
+add_filter('wp_sitemaps_enabled', '__return_false');

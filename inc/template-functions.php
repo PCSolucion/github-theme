@@ -195,3 +195,54 @@ function github_theme_post_meta( $post_id = null ) {
     </div>
     <?php
 }
+
+/**
+ * Generar la sección "Guía completa" para posts de videojuegos.
+ * Muestra enlaces a otros posts con la misma etiqueta (nombre del juego).
+ */
+function github_theme_complete_guide() {
+    if (!is_singular('post') || !has_category('videojuegos')) {
+        return;
+    }
+
+    $tags = get_the_tags();
+    if (!$tags) {
+        return;
+    }
+
+    // Usamos la primera etiqueta como el nombre del juego (ej: Bioshock)
+    $game_tag = $tags[0]->slug;
+    $game_name = $tags[0]->name;
+
+    $args = array(
+        'post_type'      => 'post',
+        'posts_per_page' => -1,
+        'tag'            => $game_tag,
+        'orderby'        => 'date',
+        'order'          => 'ASC',
+        'post__not_in'   => array(get_the_ID()), // Excluir el post actual
+    );
+
+    $guide_query = new WP_Query($args);
+
+    if ($guide_query->have_posts()) : ?>
+        <div class="toc-box guide-box">
+            <h3>Guía completa: <?php echo esc_html($game_name); ?></h3>
+            <nav class="guide-nav">
+                <ul class="toc-list">
+                    <?php while ($guide_query->have_posts()) : $guide_query->the_post(); 
+                        $title = get_the_title();
+                        // Eliminamos la palabra "Guía" (y "guía") del título
+                        $title = trim(preg_replace('/guía/iu', '', $title));
+                    ?>
+                        <li>
+                            <a href="<?php the_permalink(); ?>">
+                                <?php echo esc_html($title); ?>
+                            </a>
+                        </li>
+                    <?php endwhile; wp_reset_postdata(); ?>
+                </ul>
+            </nav>
+        </div>
+    <?php endif;
+}

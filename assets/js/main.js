@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const $ = (s, c = document) => c.querySelector(s),
     $$ = (s, c = document) => [...c.querySelectorAll(s)];
 
-  // --- LIVE SEARCH LOGIC ---
+  // --- CONFIG & ICONS ---
   const lsCfg = {
     MS: 300,
     MAX: 15,
@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ICONS = {
     s: '<path d="M11.5 7a4.499 4.499 0 11-8.998 0A4.499 4.499 0 0111.5 7zm-.82 4.74a6 6 0 111.06-1.06l3.04 3.04a.75.75 0 11-1.06 1.06l-3.04-3.04z"/>',
     a: '<path d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z"/>',
+    x: '<path d="M3.72 3.72a.75.75 0 011.06 0L8 6.94l3.22-3.22a.75.75 0 111.06 1.06L9.06 8l3.22 3.22a.75.75 0 11-1.06 1.06L8 9.06l-3.22 3.22a.75.75 0 01-1.06-1.06L6.94 8 3.72 4.78a.75.75 0 010-1.06z"/>',
   };
   const svgIcon = (p, c = "", w = 16) =>
     `<svg class="${c}" viewBox="0 0 16 16" width="${w}" height="${w}" fill="currentColor">${p}</svg>`;
@@ -30,6 +31,65 @@ document.addEventListener("DOMContentLoaded", () => {
     lsOverlay,
     lsResBox,
     lsInput;
+
+  // --- LIGHTBOX LOGIC ---
+  let imgOverlay;
+  const imgClose = () => {
+    if (imgOverlay) {
+      imgOverlay.classList.remove("active");
+      document.body.style.overflow = "";
+      setTimeout(() => {
+        if (!imgOverlay.classList.contains("active")) {
+          const img = $(".image-lightbox-img", imgOverlay);
+          if (img) img.src = "";
+        }
+      }, 250);
+    }
+  };
+
+  const imgOpen = (src, alt = "") => {
+    if (!imgOverlay) {
+      document.body.insertAdjacentHTML(
+        "beforeend",
+        `<div class="image-lightbox-overlay"><div class="image-lightbox-modal"><button class="image-lightbox-close" aria-label="Cerrar">${svgIcon(ICONS.x, "", 24)}</button><img class="image-lightbox-img" src="" alt=""></div></div>`,
+      );
+      imgOverlay = $(".image-lightbox-overlay");
+      $(".image-lightbox-close", imgOverlay)?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        imgClose();
+      });
+      imgOverlay.addEventListener("click", (e) => {
+        if (!e.target.closest(".image-lightbox-img")) imgClose();
+      });
+    }
+    const img = $(".image-lightbox-img", imgOverlay);
+    if (img) {
+      img.src = src;
+      img.alt = alt;
+      imgOverlay.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+  };
+
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (!a) return;
+    const href = a.getAttribute("href");
+    if (href && /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?.*)?$/i.test(href)) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey) return;
+      e.preventDefault();
+      imgOpen(href, a.querySelector("img")?.alt || "");
+    }
+  }, { capture: true });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      imgClose();
+      if (typeof lsClose === "function") lsClose();
+    }
+  });
+
+  // --- LIVE SEARCH LOGIC ---
 
   const lsRender = (h) => {
     if (lsResBox) lsResBox.innerHTML = h;
@@ -312,12 +372,15 @@ document.addEventListener("DOMContentLoaded", () => {
   if (content)
     $$("a img", content).forEach((i) => {
       const a = i.closest("a");
-      a.classList.add("image-link");
-      if (!a.innerText.trim()) {
-        const label = i.alt || i.title || "Ver imagen a tamaño completo";
-        a.setAttribute("aria-label", label);
+      if (a) {
+        a.classList.add("image-link");
+        if (!a.innerText.trim()) {
+          const label = i.alt || i.title || "Ver imagen a tamaño completo";
+          a.setAttribute("aria-label", label);
+        }
       }
     });
+
   $$(".entry-content h2, .entry-content h3, .entry-content h4").forEach(
     (h) => !h.innerText.trim() && (h.style.display = "none"),
   );
@@ -375,7 +438,10 @@ document.addEventListener("DOMContentLoaded", () => {
     true,
   );
   window.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") lsClose();
+    if (e.key === "Escape") {
+      lsClose();
+      imgClose();
+    }
     if ((e.ctrlKey || e.metaKey) && e.key === "k") {
       e.preventDefault();
       lsOverlay?.classList.contains("active") ? lsClose() : lsOpen();
@@ -389,4 +455,28 @@ document.addEventListener("DOMContentLoaded", () => {
       lsOpen();
     }
   });
+
+  // 7. Checklist Persistence (localStorage)
+  const checklistStorageKey = (id) => `github_theme_checklist_${window.location.pathname}_${id}`;
+  
+  const initChecklists = () => {
+    const checkboxes = $$('.entry-content input[type="checkbox"]');
+    if (!checkboxes.length) return;
+
+    checkboxes.forEach((cb, index) => {
+      // Usamos una combinación de ID (si tiene) e índice para identificar el checkbox
+      const id = cb.id || `cb-${index}`;
+      const savedState = localStorage.getItem(checklistStorageKey(id));
+      
+      if (savedState === 'true') {
+        cb.checked = true;
+      }
+
+      cb.addEventListener('change', () => {
+        localStorage.setItem(checklistStorageKey(id), cb.checked);
+      });
+    });
+  };
+
+  initChecklists();
 });

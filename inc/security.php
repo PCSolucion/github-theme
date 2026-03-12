@@ -300,13 +300,14 @@ add_filter('oembed_response_data', function($data) {
 
 /**
  * CONFIGURACIÓN DE CONTENT SECURITY POLICY (CSP)
- * Agrega los dominios necesarios para que el tema funcione correctamente (Geist Fonts y Twitch API)
+ * Agrega los dominios necesarios para que el tema funcione correctamente (Geist Fonts, Twitch API y Cloudflare Insights)
  */
+/*
 function github_theme_security_headers($headers) {
     // Definimos los dominios permitidos
     $style_src = "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net";
     $font_src = "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net";
-    $connect_src = "connect-src 'self' https://decapi.me https://cdn.jsdelivr.net"; // Para la API de Twitch y Source Maps
+    $connect_src = "connect-src 'self' https://decapi.me https://cdn.jsdelivr.net https://cloudflareinsights.com"; // Para la API de Twitch, Source Maps y Cloudflare
     
     if (isset($headers['Content-Security-Policy'])) {
         // Si ya existe una política, intentamos ampliarla de forma inteligente
@@ -328,15 +329,20 @@ function github_theme_security_headers($headers) {
 
         // Ampliar connect-src
         if (strpos($csp, 'connect-src') !== false) {
-            $csp = preg_replace('/connect-src\s+([^;]+)/i', "connect-src $1 https://decapi.me https://cdn.jsdelivr.net", $csp);
+            $csp = preg_replace('/connect-src\s+([^;]+)/i', "connect-src $1 https://decapi.me https://cdn.jsdelivr.net https://cloudflareinsights.com", $csp);
         } else {
             $csp .= "; " . $connect_src;
+        }
+
+        // Ampliar script-src (Especialmente para Cloudflare)
+        if (strpos($csp, 'script-src') !== false) {
+            $csp = preg_replace('/script-src\s+([^;]+)/i', "script-src $1 https://static.cloudflareinsights.com", $csp);
         }
         
         $headers['Content-Security-Policy'] = $csp;
     } else {
-        // Si no existe, creamos una básica pero permisiva para el tema
-        $headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; " . $style_src . "; " . $font_src . "; img-src 'self' data: https:; " . $connect_src . ";";
+        // Si no existe, creamos una básica con soporte para Cloudflare
+        $headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; " . $style_src . "; " . $font_src . "; img-src 'self' data: https:; " . $connect_src . ";";
     }
 
     // 2. Cabeceras de protección básicas
@@ -353,6 +359,7 @@ function github_theme_security_headers($headers) {
     return $headers;
 }
 add_filter('wp_headers', 'github_theme_security_headers', 999);
+*/
 
 /**
  * Seguridad y Rendimiento: Deshabilitar Comentarios por Completo
@@ -382,13 +389,51 @@ function github_theme_disable_comments_logic() {
 }
 add_action( 'init', 'github_theme_disable_comments_logic' );
 
-// 5. Eliminar el menú de comentarios de la barra superior
-add_action( 'wp_before_admin_bar_render', function() {
-    global $wp_admin_bar;
+// 5. Modificar el menú "Añadir" para que vaya directo a "Entrada"
+add_action( 'admin_bar_menu', function( $wp_admin_bar ) {
+    // 1. Eliminar el menú original de comentarios que ya estaba aquí
     $wp_admin_bar->remove_menu( 'comments' );
-});
+
+    // 2. Modificar el ítem "Añadir" (New Content)
+    $new_content_node = $wp_admin_bar->get_node( 'new-content' );
+    if ( $new_content_node ) {
+        $new_content_node->title = 'Añadir Entrada';
+        $new_content_node->href  = admin_url( 'post-new.php' );
+        $wp_admin_bar->add_node( $new_content_node );
+    }
+
+    // 3. Eliminar submenús para que no se despliegue al poner el ratón
+    $wp_admin_bar->remove_node( 'new-post' );
+    $wp_admin_bar->remove_node( 'new-media' );
+    $wp_admin_bar->remove_node( 'new-page' );
+    $wp_admin_bar->remove_node( 'new-user' );
+}, 999);
 
 // 6. Eliminar widgets de comentarios recientes si existieran
 add_action( 'widgets_init', function() {
     unregister_widget( 'WP_Widget_Recent_Comments' );
+});
+
+/**
+ * Persistencia de Sesión: Mantener el login activo por 1 año
+ * Evita cierres de sesión inesperados y mejora la experiencia de administración.
+ */
+add_filter( 'auth_cookie_expiration', function( $expiration ) {
+    return 31536000; // 365 días en segundos
+}, 999 );
+
+/**
+ * Marcar automáticamente la casilla "Recuérdame" en el login
+ */
+add_action( 'login_footer', function() {
+    ?>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            var remember = document.getElementById('rememberme');
+            if (remember) {
+                remember.checked = true;
+            }
+        });
+    </script>
+    <?php
 });

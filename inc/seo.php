@@ -9,6 +9,9 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// Desactivar Sitemaps Nativos de WordPress
+add_filter('wp_sitemaps_enabled', '__return_false');
+
 /**
  * Generar meta description dinámica para SEO
  */
@@ -371,3 +374,87 @@ function github_theme_custom_robots($robots) {
     return $robots;
 }
 add_filter('wp_robots', 'github_theme_custom_robots');
+
+/**
+ * Generar Sitemap XML dinámico sin plugins
+ * 
+ * WordPress introdujo sitemaps nativos en la versión 5.5 (wp-sitemap.xml).
+ * Estas funciones personalizan o aseguran su correcto funcionamiento.
+ */
+
+/**
+ * Función para generar el sitemap de posts
+ */
+/**
+ * Interceptar la petición de sitemap XML lo más pronto posible
+ * Usamos el hook 'init' con prioridad 0 para capturar la petición antes que nada.
+ */
+function github_theme_sitemap_init_intercept() {
+    $request_uri = $_SERVER['REQUEST_URI'];
+    
+    // Si acceden a sitemap.xml, servimos nuestro sitemap y cortamos la ejecución
+    if (preg_match('/^\/sitemap\.xml$/', $request_uri)) {
+        github_theme_generate_sitemap();
+    }
+}
+add_action('init', 'github_theme_sitemap_init_intercept', 0);
+
+/**
+ * Función para generar el sitemap de posts
+ */
+/**
+ * Función optimizada para generar el sitemap de posts y páginas
+ * Diseñada para manejar miles de entradas de forma eficiente (bajo consumo de RAM)
+ */
+function github_theme_generate_sitemap() {
+    global $wpdb;
+
+    // 1. Obtener únicamente los POSTS publicados (tutoriales y guías)
+    // Ignoramos explícitamente categorías, etiquetas, autores y páginas para evitar contenido duplicado
+    $results = $wpdb->get_results("
+        SELECT ID, post_modified 
+        FROM {$wpdb->posts} 
+        WHERE post_status = 'publish' 
+        AND post_type = 'post' 
+        ORDER BY post_modified DESC
+    ");
+
+    if (empty($results)) {
+        return;
+    }
+
+    // Forzar XML y evitar caché
+    header('Content-Type: application/xml; charset=utf-8');
+    header('Cache-Control: no-cache, must-revalidate');
+
+    $sitemap = '<?xml version="1.0" encoding="UTF-8"?>';
+    $sitemap .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+
+    // Añadir Home (Prioridad máxima ya que se actualiza 2-3 veces al día)
+    $sitemap .= '<url>';
+    $sitemap .= '<loc>' . esc_url(home_url('/')) . '</loc>';
+    $sitemap .= '<lastmod>' . date('c') . '</lastmod>';
+    $sitemap .= '<changefreq>always</changefreq>'; // "always" para sitios que publican varias veces al día
+    $sitemap .= '<priority>1.0</priority>';
+    $sitemap .= '</url>';
+
+    foreach ($results as $item) {
+        $url = get_permalink($item->ID);
+        $date = date('c', strtotime($item->post_modified));
+
+        $sitemap .= '<url>';
+        $sitemap .= '<loc>' . esc_url($url) . '</loc>';
+        $sitemap .= '<lastmod>' . $date . '</lastmod>';
+        $sitemap .= '<changefreq>weekly</changefreq>'; // Los tutoriales no suelen cambiar a diario tras publicarse
+        $sitemap .= '<priority>0.8</priority>';
+        $sitemap .= '</url>';
+    }
+
+    $sitemap .= '</urlset>';
+
+    echo $sitemap;
+    exit;
+}
+
+// Limpiar funciones de interceptación antiguas e integrar la nueva lógica
+add_action('init', 'github_theme_sitemap_init_intercept', 0);
