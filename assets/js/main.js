@@ -473,7 +473,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const type = item.innerText.trim().toLowerCase().split(' ')[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       if (type && type.length > 2) {
         if (!categories[type]) {
-          // Intentar obtener el color de cualquier elemento que lo tenga (span, font, etc)
           const coloredEl = item.querySelector('[style*="color"], [color]') || item;
           const style = window.getComputedStyle(coloredEl);
           categories[type] = {
@@ -484,7 +483,6 @@ document.addEventListener("DOMContentLoaded", () => {
           };
         }
         
-        // Añadir el contador de porcentaje
         let progEl = item.querySelector('.legend-progress');
         if (!progEl) {
           progEl = document.createElement('span');
@@ -498,14 +496,17 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. Contar progresos
     let totalItems = 0;
     let totalChecked = 0;
-    const itemsByColor = []; // Array de colores para crear el gradiente real
+    const itemsByColor = [];
 
     checkboxes.forEach(cb => {
       totalItems++;
       const listItem = cb.closest('li, p, .checklist-item');
-      const itemText = (listItem ? listItem.innerText : '').toLowerCase();
+      if (!listItem) return;
+
+      const itemText = listItem.innerText.toLowerCase();
       
       let matchedType = null;
+      // Intentar encontrar el tipo por coincidencia de texto (primeras 4 letras)
       Object.keys(categories).forEach(type => {
         if (itemText.includes(type.substring(0, 4))) {
           matchedType = type;
@@ -514,9 +515,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (cb.checked) {
         totalChecked++;
-        if (matchedType) itemsByColor.push(categories[matchedType].color);
-        if (listItem) listItem.classList.add('is-checked');
-      } else if (listItem) {
+        listItem.classList.add('is-checked');
+        
+        // Si hay color de la categoría lo añadimos, si no, usamos el color del propio texto del item
+        if (matchedType) {
+          itemsByColor.push(categories[matchedType].color);
+        } else {
+          const itemColor = window.getComputedStyle(listItem).color;
+          if (itemColor !== 'rgb(250, 250, 250)' && itemColor !== 'rgb(255, 255, 255)') {
+            itemsByColor.push(itemColor);
+          } else {
+            itemsByColor.push('var(--github-accent)');
+          }
+        }
+      } else {
         listItem.classList.remove('is-checked');
       }
 
@@ -554,7 +566,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const totalPercent = totalItems > 0 ? Math.round((totalChecked / totalItems) * 100) : 0;
-      $('.percent', totalBar).textContent = `${totalPercent}%`;
+      const percentEl = totalBar.querySelector('.percent');
+      if (percentEl) percentEl.textContent = `${totalPercent}%`;
       
       const fillEl = $('.guide-progress-fill', totalBar);
       if (fillEl) {
@@ -565,7 +578,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (totalPercent === 100) {
           fillEl.style.background = "var(--github-success)";
         } else if (itemsByColor.length > 0) {
-          // Crear gradiente perfecto basado en los ítems marcados
           const step = 100 / itemsByColor.length;
           const stops = itemsByColor.map((color, i) => `${color} ${i * step}% ${(i + 1) * step}%`);
           fillEl.style.background = `linear-gradient(to right, ${stops.join(', ')})`;
