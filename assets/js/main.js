@@ -579,7 +579,7 @@ document.addEventListener("DOMContentLoaded", () => {
           fillEl.style.width = "4px";
         } else {
           // Volvemos a un color sólido y elegante
-          fillEl.style.background = "var(--github-success)";
+          fillEl.style.background = "#008ec2";
         }
       }
     }
