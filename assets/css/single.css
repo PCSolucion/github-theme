@@ -456,6 +456,17 @@
     border-radius: 8px;
     padding: 16px; 
     margin-bottom: 24px;
+    max-height: 40vh;
+    overflow-y: auto;
+}
+
+.toc-box::-webkit-scrollbar {
+    width: 4px;
+}
+
+.toc-box::-webkit-scrollbar-thumb {
+    background: var(--github-border);
+    border-radius: 10px;
 }
 
 .toc-box h3 {
@@ -557,6 +568,10 @@
         grid-column: 1;
         grid-row: 2;
         position: static;
+    }
+    .toc-box {
+        max-height: none;
+        overflow-y: visible;
     }
 }
 
