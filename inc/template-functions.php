@@ -238,12 +238,15 @@ function github_theme_complete_guide() {
             // Eliminamos "Guía", "Guía 100%", "Guía completa", etc. (case-insensitive)
             $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
             
-            // Si tiene un guión, nos quedamos solo con lo que hay después del primer guión (el nombre de la misión/capítulo)
-            if (strpos($title, ' - ') !== false) {
-                $parts = explode(' - ', $title);
-                // Eliminamos la primera parte (el nombre del juego)
-                array_shift($parts);
-                $title = implode(' - ', $parts);
+            // Decodificamos entidades HTML por si WordPress ha convertido el guión
+            $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+            // Eliminamos "Guía", "Guía 100%", etc.
+            $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
+            
+            // Dividimos por cualquier separador común: dos puntos o cualquier tipo de guión
+            $parts = preg_split('/\s*[:\-–—\x{2013}\x{2014}]\s*/u', $title);
+            if (count($parts) > 1) {
+                $title = end($parts);
             }
 
             $title = trim($title);
