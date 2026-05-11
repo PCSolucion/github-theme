@@ -607,4 +607,23 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   initChecklists();
+
+  // 8. Guide Tabs
+  const guideTabs = $$('.guide-tab-btn');
+  const guideContents = $$('.guide-tab-content');
+  if (guideTabs.length > 0) {
+    guideTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        
+        // Update buttons
+        guideTabs.forEach(b => b.classList.toggle('active', b === btn));
+        
+        // Update contents
+        guideContents.forEach(content => {
+          content.classList.toggle('active', content.id === targetId);
+        });
+      });
+    });
+  }
 });

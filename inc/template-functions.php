@@ -223,29 +223,83 @@ function github_theme_complete_guide() {
     );
 
     $guide_query = new WP_Query($args);
+    $main_missions = array();
+    $secondary_missions = array();
+    $current_mission_type = 'principal';
 
-    if ($guide_query->have_posts()) : ?>
+    if ($guide_query->have_posts()) {
+        while ($guide_query->have_posts()) {
+            $guide_query->the_post();
+            $post_id = get_the_ID();
+            $type = get_post_meta($post_id, '_github_mission_type', true);
+            if (empty($type)) $type = 'principal';
+
+            $title = get_the_title();
+            // Eliminamos "Guía", "Guía 100%", "Guía completa", etc. (case-insensitive)
+            $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
+            $title = trim($title);
+            
+            $mission_data = array(
+                'id'    => $post_id,
+                'title' => $title,
+                'url'   => get_permalink(),
+                'class' => (get_queried_object_id() === $post_id) ? 'active' : ''
+            );
+
+            if ($type === 'secundaria') {
+                $secondary_missions[] = $mission_data;
+                if ($mission_data['class'] === 'active') $current_mission_type = 'secundaria';
+            } else {
+                $main_missions[] = $mission_data;
+            }
+        }
+        wp_reset_postdata();
+    }
+
+    if (!empty($main_missions) || !empty($secondary_missions)) : ?>
         <div class="toc-box guide-box">
-            <h3>Guía completa: <?php echo esc_html($game_name); ?></h3>
+            <header class="guide-header">
+                <h3>Guía: <?php echo esc_html($game_name); ?></h3>
+                <?php if (!empty($secondary_missions)) : ?>
+                    <div class="guide-tabs">
+                        <button class="guide-tab-btn <?php echo ($current_mission_type === 'principal') ? 'active' : ''; ?>" data-target="main-missions" title="Historia Principal">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            <span>Principal</span>
+                        </button>
+                        <button class="guide-tab-btn <?php echo ($current_mission_type === 'secundaria') ? 'active' : ''; ?>" data-target="secondary-missions" title="Misiones Secundarias">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                            <span>Secundarias</span>
+                        </button>
+                    </div>
+                <?php endif; ?>
+            </header>
+
             <nav class="guide-nav">
-                <ul class="toc-list">
-                    <?php while ($guide_query->have_posts()) : $guide_query->the_post(); 
-                        $title = get_the_title();
-                        // Eliminamos "Guía", "Guía 100%", "Guía completa", etc. (case-insensitive)
-                        $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
-                        $title = trim($title);
-                        
-                        // Determinar si es el post actual
-                        $current_post_id = get_queried_object_id();
-                        $active_class = (get_the_ID() === $current_post_id) ? 'active' : '';
-                    ?>
-                        <li>
-                            <a href="<?php the_permalink(); ?>" class="<?php echo esc_attr($active_class); ?>">
-                                <?php echo esc_html($title); ?>
-                            </a>
-                        </li>
-                    <?php endwhile; wp_reset_postdata(); ?>
-                </ul>
+                <div id="main-missions" class="guide-tab-content <?php echo ($current_mission_type === 'principal') ? 'active' : ''; ?>">
+                    <ul class="toc-list">
+                        <?php foreach ($main_missions as $mission) : ?>
+                            <li>
+                                <a href="<?php echo esc_url($mission['url']); ?>" class="<?php echo esc_attr($mission['class']); ?>">
+                                    <?php echo esc_html($mission['title']); ?>
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+
+                <?php if (!empty($secondary_missions)) : ?>
+                    <div id="secondary-missions" class="guide-tab-content <?php echo ($current_mission_type === 'secundaria') ? 'active' : ''; ?>">
+                        <ul class="toc-list">
+                            <?php foreach ($secondary_missions as $mission) : ?>
+                                <li>
+                                    <a href="<?php echo esc_url($mission['url']); ?>" class="<?php echo esc_attr($mission['class']); ?>">
+                                        <?php echo esc_html($mission['title']); ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
             </nav>
         </div>
     <?php endif;
