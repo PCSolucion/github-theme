@@ -11,7 +11,14 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'GITHUB_THEME_RAWG_KEY', '47eadf9f2ca641599d9984391121c6d1' );
+/**
+ * RAWG API Key.
+ * Se recomienda definir esta constante en tu wp-config.php para evitar publicarla en el repositorio:
+ * define( 'GITHUB_THEME_RAWG_KEY', 'tu_clave_aqui' );
+ */
+if ( ! defined( 'GITHUB_THEME_RAWG_KEY' ) ) {
+    define( 'GITHUB_THEME_RAWG_KEY', '' );
+}
 
 // =========================================================================
 // DATA HELPERS

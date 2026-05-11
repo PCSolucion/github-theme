@@ -9,3 +9,7 @@ dist/
 Thumbs.db
 .agent/
 htaccess
+
+# RAWG Data & API Keys
+rawg.html
+rawg_sample.json

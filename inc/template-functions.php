@@ -237,6 +237,15 @@ function github_theme_complete_guide() {
             $title = get_the_title();
             // Eliminamos "Guía", "Guía 100%", "Guía completa", etc. (case-insensitive)
             $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
+            
+            // Si tiene un guión, nos quedamos solo con lo que hay después del primer guión (el nombre de la misión/capítulo)
+            if (strpos($title, ' - ') !== false) {
+                $parts = explode(' - ', $title);
+                // Eliminamos la primera parte (el nombre del juego)
+                array_shift($parts);
+                $title = implode(' - ', $parts);
+            }
+
             $title = trim($title);
             
             $mission_data = array(
