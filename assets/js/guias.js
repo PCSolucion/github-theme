@@ -85,7 +85,8 @@
       if (!slug) continue;
 
       try {
-        const resp = await fetch(restUrl + encodeURIComponent(slug));
+        const name = card.dataset.name || '';
+        const resp = await fetch(restUrl + encodeURIComponent(slug) + '?name=' + encodeURIComponent(name));
         if (!resp.ok) continue;
 
         const data = await resp.json();
@@ -100,6 +101,7 @@
             }
           };
 
+          // Set src after defining onload to ensure it catches cached images
           img.src = data.cover;
           img.style.display = '';
 

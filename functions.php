@@ -252,6 +252,7 @@ require get_template_directory() . '/inc/seo.php';
 require get_template_directory() . '/inc/security.php';
 require get_template_directory() . '/inc/optimization.php';
 require get_template_directory() . '/inc/guias-gallery.php';
+require get_template_directory() . '/inc/apuntes-gallery.php';
 
 // Desactivar Sitemaps Nativos de WordPress para usar la versión personalizada del tema
 add_filter('wp_sitemaps_enabled', '__return_false');

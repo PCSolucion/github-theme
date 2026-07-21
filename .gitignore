@@ -13,3 +13,4 @@ htaccess
 # RAWG Data & API Keys
 rawg.html
 rawg_sample.json
+inc/rawg-config.php

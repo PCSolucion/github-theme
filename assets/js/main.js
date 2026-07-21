@@ -310,7 +310,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (toc && content) {
     const heads = $$("h2", content).filter((h) => h.innerText.trim());
     if (!heads.length) {
-      if ($(".toc-box")) $(".toc-box").style.display = "none";
+      const standardToc = $('.toc-box:not(.progress-box):not(.guide-box)');
+      if (standardToc) standardToc.style.display = "none";
     } else if (window.IntersectionObserver) {
       const obs = new IntersectionObserver(
         (es) =>
@@ -461,7 +462,11 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const updateProgress = () => {
     const checkboxes = $$('.entry-content input[type="checkbox"]');
-    if (!checkboxes.length) return;
+    if (!checkboxes.length) {
+      const progressBox = $('#guide-progress-box');
+      if (progressBox) progressBox.style.display = 'none';
+      return;
+    }
 
     // 1. Identificar categorías basadas en la leyenda
     const categories = {};
@@ -550,19 +555,21 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // 4. Barra de Progreso Total
-    const tocBox = $('.toc-box');
-    if (tocBox) {
-      let totalBar = $('.guide-total-wrapper', tocBox);
+    const progressBox = $('#guide-progress-box') || $('.toc-box');
+    if (progressBox) {
+      let totalBar = $('.guide-total-wrapper', progressBox);
       if (!totalBar) {
         const wrapper = document.createElement('div');
         wrapper.className = 'guide-total-wrapper';
         wrapper.innerHTML = `
-          <div class="guide-progress-text">Tu progreso: <span class="percent">0%</span></div>
+          <div class="guide-progress-text">Este capítulo: <span class="percent">0%</span></div>
           <div class="guide-progress-bar"><div class="guide-progress-fill"></div></div>
         `;
-        const h3 = tocBox.querySelector('h3');
+        
+        // Insert after H3 or at the beginning
+        const h3 = progressBox.querySelector('h3');
         if (h3) h3.insertAdjacentElement('afterend', wrapper);
-        else tocBox.prepend(wrapper);
+        else progressBox.prepend(wrapper);
         totalBar = wrapper;
       }
 

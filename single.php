@@ -58,15 +58,24 @@ get_header();
         </main>
         
         <aside class="single-aside">
-            <div class="toc-box">
-                <?php if (!has_category('videojuegos')) : ?>
+            <?php if (has_category('videojuegos')) : ?>
+                <!-- Contenedor para la barra de progreso (Checklist) -->
+                <div id="guide-progress-box" class="toc-box progress-box">
+                    <!-- JS injects the progress bar here -->
+                </div>
+
+                <!-- Widget de Capítulos (Guía completa) -->
+                <?php github_theme_complete_guide(); ?>
+            <?php else : ?>
+                <!-- Tabla de Contenidos estándar -->
+                <div class="toc-box">
                     <h3>Contenido</h3>
-                <?php endif; ?>
-                <nav id="table-of-contents">
-                    <?php echo github_theme_generate_toc(get_the_content()); ?>
-                </nav>
-            </div>
-            <?php github_theme_complete_guide(); ?>
+                    <nav id="table-of-contents">
+                        <?php echo github_theme_generate_toc(get_the_content()); ?>
+                    </nav>
+                </div>
+            <?php endif; ?>
+
             <?php dynamic_sidebar('sidebar-1'); ?>
         </aside>
     </div>

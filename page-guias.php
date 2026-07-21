@@ -75,6 +75,8 @@ $letters = range( 'A', 'Z' );
             <?php endforeach; ?>
         </nav>
 
+        <!-- DEBUG: RAWG Key is <?php echo empty(GITHUB_THEME_RAWG_KEY) ? 'MISSING' : 'PRESENT'; ?> -->
+
         <!-- GAME GRID -->
         <div class="guias-grid" id="guias-grid">
             <?php foreach ( $game_tags as $g ) :
@@ -88,7 +90,7 @@ $letters = range( 'A', 'Z' );
                    class="guia-card <?php echo $is_recent ? '' : 'is-hidden'; ?>"
                    data-letter="<?php echo esc_attr( $letter ); ?>"
                    data-slug="<?php echo esc_attr( $g['slug'] ); ?>"
-                   data-name="<?php echo esc_attr( mb_strtolower( $g['name'], 'UTF-8' ) ); ?>"
+                   data-name="<?php echo esc_attr( $g['name'] ); ?>"
                    data-recent="<?php echo $is_recent ? $g['recent_order'] : ''; ?>"
                    style="<?php echo $is_recent ? 'order: ' . $g['recent_order'] . ';' : ''; ?>">
 

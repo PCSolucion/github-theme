@@ -16,6 +16,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Se recomienda definir esta constante en tu wp-config.php para evitar publicarla en el repositorio:
  * define( 'GITHUB_THEME_RAWG_KEY', 'tu_clave_aqui' );
  */
+if ( file_exists( dirname( __FILE__ ) . '/rawg-config.php' ) ) {
+    include_once dirname( __FILE__ ) . '/rawg-config.php';
+}
+
 if ( ! defined( 'GITHUB_THEME_RAWG_KEY' ) ) {
     define( 'GITHUB_THEME_RAWG_KEY', '' );
 }
@@ -104,7 +108,21 @@ function github_theme_get_game_tags_data() {
             'post_status'    => 'publish',
         ) );
 
-        $rawg_data = get_transient( 'rawg_data_' . md5( $tag->slug ) );
+        $key_v6 = 'rawg_v6_' . md5( $tag->slug );
+        $rawg_data = get_transient( $key_v6 );
+
+        if ( $rawg_data === false ) {
+            // Check older versions but only if they have a cover (migration).
+            $old_prefixes = array( 'rawg_v5_', 'rawg_v3_', 'rawg_data_' );
+            foreach ( $old_prefixes as $p ) {
+                $old_data = get_transient( $p . md5( $tag->slug ) );
+                if ( is_array( $old_data ) && ! empty( $old_data['cover'] ) ) {
+                    $rawg_data = $old_data;
+                    set_transient( $key_v6, $rawg_data, 30 * DAY_IN_SECONDS );
+                    break;
+                }
+            }
+        }
 
         $result[] = array(
             'id'             => $tag->term_id,
@@ -145,39 +163,53 @@ function github_theme_get_game_tags_data() {
 /**
  * Fetch a single game cover from RAWG and cache it for 30 days.
  */
-function github_theme_fetch_rawg_cover( $slug ) {
-    $key    = 'rawg_v3_' . md5( $slug );
+function github_theme_fetch_rawg_cover( $slug, $name = '' ) {
+    $key    = 'rawg_v6_' . md5( $slug );
     $cached = get_transient( $key );
 
     if ( $cached !== false ) {
         return $cached;
     }
 
-    $search = str_replace( '-', ' ', $slug );
-    $url    = sprintf(
-        'https://api.rawg.io/api/games?key=%s&search=%s&page_size=1',
-        GITHUB_THEME_RAWG_KEY,
-        urlencode( $search )
+    $args = array(
+        'timeout'    => 12,
+        'user-agent' => 'GitHubTheme-GameGuide/' . GITHUB_THEME_VERSION . '; ' . home_url(),
     );
 
-    $resp = wp_remote_get( $url, array( 'timeout' => 8 ) );
+    // Step 1: Try direct slug match (faster and more precise if slug matches RAWG)
+    $url  = sprintf( 'https://api.rawg.io/api/games/%s?key=%s', $slug, GITHUB_THEME_RAWG_KEY );
+    $resp = wp_remote_get( $url, $args );
+    $code = wp_remote_retrieve_response_code( $resp );
 
-    if ( is_wp_error( $resp ) ) {
-        return array();
+    if ( $code === 200 ) {
+        $game = json_decode( wp_remote_retrieve_body( $resp ), true );
+    } else {
+        // Step 2: Fallback to search using Name (more reliable) or Slug
+        $search = ! empty( $name ) ? $name : str_replace( '-', ' ', $slug );
+        $url    = sprintf(
+            'https://api.rawg.io/api/games?key=%s&search=%s&page_size=1',
+            GITHUB_THEME_RAWG_KEY,
+            urlencode( $search )
+        );
+
+        $resp = wp_remote_get( $url, $args );
+        $code = wp_remote_retrieve_response_code( $resp );
+
+        if ( is_wp_error( $resp ) || $code !== 200 ) {
+            return array();
+        }
+
+        $body = json_decode( wp_remote_retrieve_body( $resp ), true );
+        if ( empty( $body['results'][0] ) ) {
+            set_transient( $key, array( 'cover' => '', 'metacritic' => '', 'platforms' => array() ), DAY_IN_SECONDS );
+            return array();
+        }
+        $game = $body['results'][0];
     }
-
-    $body = json_decode( wp_remote_retrieve_body( $resp ), true );
-
-    if ( empty( $body['results'][0] ) ) {
-        set_transient( $key, array(), DAY_IN_SECONDS );
-        return array();
-    }
-
-    $game = $body['results'][0];
 
     $data = array(
-        'cover'      => !empty($game['background_image']) ? $game['background_image'] : '',
-        'metacritic' => isset($game['metacritic']) ? $game['metacritic'] : '',
+        'cover'      => ! empty( $game['background_image'] ) ? $game['background_image'] : '',
+        'metacritic' => isset( $game['metacritic'] ) ? $game['metacritic'] : '',
         'platforms'  => array(),
     );
 
@@ -205,7 +237,8 @@ add_action( 'rest_api_init', function () {
 
 function github_theme_rawg_endpoint( $request ) {
     $slug  = sanitize_title( $request['slug'] );
-    $data = github_theme_fetch_rawg_cover( $slug );
+    $name  = isset( $_GET['name'] ) ? sanitize_text_field( $_GET['name'] ) : '';
+    $data = github_theme_fetch_rawg_cover( $slug, $name );
     return rest_ensure_response( $data );
 }
 
@@ -214,7 +247,7 @@ function github_theme_rawg_endpoint( $request ) {
 // =========================================================================
 
 add_action( 'wp_enqueue_scripts', function () {
-    if ( ! is_page_template( 'page-guias.php' ) && ! is_page( 'guias' ) ) {
+    if ( ! is_page_template( 'page-guias.php' ) && ! is_page( 'guias' ) && ! is_page_template( 'page-apuntes.php' ) && ! is_page( 'apuntes' ) ) {
         return;
     }
 
@@ -233,8 +266,10 @@ add_action( 'wp_enqueue_scripts', function () {
         true
     );
 
-    wp_localize_script( 'github-theme-guias', 'guiasData', array(
-        'restUrl' => esc_url_raw( rest_url( 'github-theme/v1/game-cover/' ) ),
-        'nonce'   => wp_create_nonce( 'wp_rest' ),
-    ) );
+    if ( is_page_template( 'page-guias.php' ) || is_page( 'guias' ) ) {
+        wp_localize_script( 'github-theme-guias', 'guiasData', array(
+            'restUrl' => esc_url_raw( rest_url( 'github-theme/v1/game-cover/' ) ),
+            'nonce'   => wp_create_nonce( 'wp_rest' ),
+        ) );
+    }
 } );
