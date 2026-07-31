@@ -211,41 +211,8 @@ function github_theme_body_classes( $classes ) {
 }
 add_filter( 'body_class', 'github_theme_body_classes' );
 
-/**
- * Limpiar etiquetas <p> y <br> dentro de bloques <pre>.
- * WordPress a veces envuelve el contenido de <pre> en <p>, rompiendo el formato de código.
- * Prioridad 9 para ejecutarse antes que wpautop.
- *
- * @param string $content El contenido del post.
- * @return string Contenido con las etiquetas <pre> saneadas.
- */
-function github_theme_fix_pre_tags( $content ) {
-    $content = preg_replace_callback( '/<pre([^>]*)>(.*?)<\/pre>/is', function( $matches ) {
-        $pre_attrs    = $matches[1];
-        $inner_content = $matches[2];
-
-        $inner_content = str_replace( array( '<p>', '</p>' ), '', $inner_content );
-        $inner_content = str_replace( array( '<br>', '<br/>', '<br />' ), "\n", $inner_content );
-
-        return '<pre' . $pre_attrs . '>' . $inner_content . '</pre>';
-    }, $content );
-
-    return $content;
-}
-add_filter( 'the_content', 'github_theme_fix_pre_tags', 9 );
-
-
-// =============================================================================
-// FUNCIONES HELPER
-// =============================================================================
-
-// (Funciones de utilidad movidas a inc/template-functions.php)
-
-// =============================================================================
-// INCLUDES
-// =============================================================================
-
 require get_template_directory() . '/inc/template-functions.php';
+require get_template_directory() . '/inc/content-filters.php';
 require get_template_directory() . '/inc/contributions.php';
 require get_template_directory() . '/inc/live-search.php';
 require get_template_directory() . '/inc/seo.php';
