@@ -21,37 +21,11 @@ get_header();
         
         <?php if (have_posts()) : ?>
             <div class="post-list">
-                <?php while (have_posts()) : the_post(); ?>
-                    <article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
-                        <header class="post-header">
-                            <h2 class="post-title">
-                                <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                            </h2>
-                            
-                            <?php github_theme_post_meta(); ?>
-                            <?php github_theme_post_categories(); ?>
-                        </header>
-                        
-
-                        
-                        <?php if (has_tag()) : ?>
-                            <div class="post-tags">
-                                <?php
-                                $tags = get_the_tags();
-                                if ($tags) {
-                                    foreach ($tags as $tag) :
-                                ?>
-                                    <a href="<?php echo esc_url(get_tag_link($tag->term_id)); ?>" class="tag">
-                                        <?php echo esc_html($tag->name); ?>
-                                    </a>
-                                <?php 
-                                    endforeach;
-                                }
-                                ?>
-                            </div>
-                        <?php endif; ?>
-                    </article>
-                <?php endwhile; ?>
+                <?php 
+                while (have_posts()) : the_post();
+                    get_template_part( 'template-parts/content', 'post' );
+                endwhile; 
+                ?>
             </div>
             
             <?php

@@ -26,21 +26,11 @@ get_header();
         
         <?php if (have_posts()) : ?>
             <div class="post-list">
-                <?php while (have_posts()) : the_post(); ?>
-                    <article id="post-<?php the_ID(); ?>" <?php post_class('post-item'); ?>>
-                        <header class="post-header">
-                            <h2 class="post-title">
-                                <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                            </h2>
-                            
-                            <?php github_theme_post_meta(); ?>
-                        </header>
-                        
-                        <div class="post-excerpt">
-                            <?php the_excerpt(); ?>
-                        </div>
-                    </article>
-                <?php endwhile; ?>
+                <?php 
+                while (have_posts()) : the_post();
+                    get_template_part( 'template-parts/content', 'post' );
+                endwhile; 
+                ?>
             </div>
             
             <?php
