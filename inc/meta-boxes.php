@@ -1,8 +1,6 @@
 <?php
 /**
- * Meta Boxes Personalizados
- *
- * Administra las cajas metabox personalizadas del panel de edición de WordPress.
+ * Custom Meta Boxes para el panel de administración
  *
  * @package GitHubTheme
  */
@@ -11,42 +9,35 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
+// =============================================================================
+// META BOX: TIPO DE MISIÓN (GUÍAS DE VIDEOJUEGOS)
+// =============================================================================
+
 /**
- * Agregar Meta Box para el tipo de misión (Principal/Secundaria).
- * Solo se muestra si la entrada pertenece a la categoría 'videojuegos'.
- *
- * @param string  $post_type El tipo de entrada actual.
- * @param WP_Post $post      El objeto post actual.
+ * Agregar Meta Box para el tipo de misión (Principal/Secundaria)
  */
-function github_theme_add_mission_type_meta_box( $post_type, $post ) {
-    if ( 'post' !== $post_type ) {
-        return;
-    }
-
-    // Mostrar el metabox únicamente si el post tiene la categoría 'videojuegos' (o es un post nuevo sin categorías)
-    if ( $post && ( has_category( 'videojuegos', $post ) || ! has_category( '', $post ) ) ) {
-        add_meta_box(
-            'github_mission_type',
-            'Detalles de la Guía',
-            'github_theme_mission_type_meta_box_callback',
-            'post',
-            'side',
-            'high'
-        );
-    }
+function github_theme_add_mission_type_meta_box() {
+    add_meta_box(
+        'github_mission_type',
+        'Detalles de la Guía',
+        'github_theme_mission_type_meta_box_callback',
+        'post',
+        'side',
+        'high'
+    );
 }
-add_action( 'add_meta_boxes', 'github_theme_add_mission_type_meta_box', 10, 2 );
+add_action( 'add_meta_boxes', 'github_theme_add_mission_type_meta_box' );
 
 /**
- * Callback para renderizar los campos del Meta Box de Tipo de Misión.
+ * Renderizar la interfaz del Meta Box del tipo de misión.
  *
- * @param WP_Post $post Objeto post actual.
+ * @param WP_Post $post El objeto post actual.
  */
 function github_theme_mission_type_meta_box_callback( $post ) {
     wp_nonce_field( 'github_theme_save_mission_type', 'github_theme_mission_type_nonce' );
     $value = get_post_meta( $post->ID, '_github_mission_type', true );
     if ( empty( $value ) ) {
-        $value = 'principal'; // Valor por defecto
+        $value = 'principal'; // Por defecto
     }
     ?>
     <div class="github-meta-field" style="margin-bottom: 10px;">
@@ -61,9 +52,9 @@ function github_theme_mission_type_meta_box_callback( $post ) {
 }
 
 /**
- * Guardar el valor del Meta Box de Tipo de Misión al guardar la entrada.
+ * Guardar el valor del Meta Box del tipo de misión.
  *
- * @param int $post_id ID del post actual.
+ * @param int $post_id ID del post guardado.
  */
 function github_theme_save_mission_type( $post_id ) {
     if ( ! isset( $_POST['github_theme_mission_type_nonce'] ) ) return;
