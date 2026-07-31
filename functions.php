@@ -132,10 +132,6 @@ function github_theme_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'github_theme_scripts' );
 
-// (Filtros de optimización movidos a inc/optimization.php)
-
-
-
 
 // =============================================================================
 // WIDGETS
