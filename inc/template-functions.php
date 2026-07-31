@@ -230,6 +230,11 @@ function github_theme_normalize_letter( $char ) {
  * @return array
  */
 function github_theme_get_category_tags_data( $category_slug, $enrich_callback = null ) {
+    $transient_key = 'gt_cat_tags_' . sanitize_key( $category_slug );
+    $cached = get_transient( $transient_key );
+    if ( false !== $cached ) {
+        return $cached;
+    }
 
     $category = get_category_by_slug( $category_slug );
     if ( ! $category ) {
@@ -327,8 +332,25 @@ function github_theme_get_category_tags_data( $category_slug, $enrich_callback =
     }
     unset( $item );
 
+    set_transient( $transient_key, $result, DAY_IN_SECONDS );
+
     return $result;
 }
+
+/**
+ * Limpiar la caché de etiquetas de categoría al guardar/eliminar un post.
+ *
+ * @param int $post_id ID del post.
+ */
+function github_theme_clear_category_tags_cache( $post_id ) {
+    if ( get_post_type( $post_id ) !== 'post' ) {
+        return;
+    }
+    delete_transient( 'gt_cat_tags_videojuegos' );
+    delete_transient( 'gt_cat_tags_apuntes' );
+}
+add_action( 'save_post', 'github_theme_clear_category_tags_cache' );
+add_action( 'delete_post', 'github_theme_clear_category_tags_cache' );
 
 // =========================================================================
 // SIDEBAR HELPERS
