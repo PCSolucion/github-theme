@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
  * Seguridad y Limpieza: Eliminar información innecesaria del head
  * Oculta la versión de WordPress, enlaces a servicios externos no usados y feeds
  */
-function github_remove_version_info() {
+function github_theme_remove_version_info() {
     // 1. Eliminar meta tags innecesarias del header
     remove_action('wp_head', 'wp_generator');
     remove_action('wp_head', 'wlwmanifest_link');
@@ -29,7 +29,7 @@ function github_remove_version_info() {
     remove_action('wp_head', 'wp_oembed_add_host_js');
     remove_action('template_redirect', 'rest_output_link_header', 11);
 }
-add_action('init', 'github_remove_version_info');
+add_action('init', 'github_theme_remove_version_info');
 
 /**
  * Seguridad: Desactivar XML-RPC y pingbacks
@@ -210,27 +210,27 @@ add_filter('pre_get_posts', 'github_theme_sanitize_search_query');
 /**
  * Ofuscar correos electrónicos en menús para prevenir spam
  */
-function ofuscar_email_menu( $atts, $item, $args, $depth ) {
+function github_theme_ofuscar_email_menu( $atts, $item, $args, $depth ) {
     if ( isset( $atts['href'] ) && preg_match( '/^mailto:/i', $atts['href'] ) ) {
         $email = preg_replace( '/^mailto:(.*)/i', '$1', $atts['href'] );
         $atts['href'] = 'mailto:' . antispambot( $email, 1 );
     }
     return $atts;
 }
-add_filter( 'nav_menu_link_attributes', 'ofuscar_email_menu', 10, 4 );
+add_filter( 'nav_menu_link_attributes', 'github_theme_ofuscar_email_menu', 10, 4 );
 
 /**
  * Mensajes de error de login genéricos para seguridad
  */
-function github_no_wordpress_errors(){
+function github_theme_no_wordpress_errors(){
     return 'Algo salió mal. Por favor, inténtalo de nuevo.';
 }
-// add_filter( 'login_errors', 'github_no_wordpress_errors' );
+// add_filter( 'login_errors', 'github_theme_no_wordpress_errors' );
 
 /**
  * Bloquear enumeración de autores
  */
-function github_block_user_enumeration() {
+function github_theme_block_user_enumeration() {
     if (is_admin()) return;
 
     // 1. Bloquear enumeración por query string (?author=1)
@@ -245,7 +245,7 @@ function github_block_user_enumeration() {
         exit;
     }
 }
-add_action('template_redirect', 'github_block_user_enumeration', 1);
+add_action('template_redirect', 'github_theme_block_user_enumeration', 1);
 
 /**
  * Seguridad: Validar parámetros de consulta para prevenir anomalías en rutas

@@ -13,7 +13,7 @@ if (!defined('ABSPATH')) {
  * Habilitar lazy loading nativo para imágenes
  * Mejora el rendimiento al cargar imágenes solo cuando son visibles
  */
-function github_add_lazy_loading($content) {
+function github_theme_add_lazy_loading($content) {
     // Solo en el contenido del post
     if (is_singular() && in_the_loop() && is_main_query()) {
         // Agregar loading="lazy" a todas las imágenes que no lo tengan
@@ -21,24 +21,24 @@ function github_add_lazy_loading($content) {
     }
     return $content;
 }
-add_filter('the_content', 'github_add_lazy_loading', 20);
+add_filter('the_content', 'github_theme_add_lazy_loading', 20);
 
 /**
  * Agregar loading="lazy" a imágenes destacadas
  */
-function github_lazy_load_featured_images($attr) {
+function github_theme_lazy_load_featured_images($attr) {
     $attr['loading'] = 'lazy';
     return $attr;
 }
-add_filter('wp_get_attachment_image_attributes', 'github_lazy_load_featured_images');
+add_filter('wp_get_attachment_image_attributes', 'github_theme_lazy_load_featured_images');
 
 /**
  * Optimizar consultas de WordPress
  * Reduce el número de consultas a la base de datos
  */
-function github_optimize_queries() {
+function github_theme_optimize_queries() {
     // (Emojis desactivados en github_theme_disable_emojis())
-    // (Limpieza de head centralizada en security.php → github_remove_version_info())
+    // (Limpieza de head centralizada en security.php → github_theme_remove_version_info())
     
     // Deshabilitar enlaces automáticos de Feed RSS
     remove_action('wp_head', 'feed_links', 2);         // Feed general
@@ -48,13 +48,13 @@ function github_optimize_queries() {
     remove_action('wp_head', 'wp_enqueue_speculation_rules');
     remove_action('wp_footer', 'wp_enqueue_speculation_rules');
 }
-add_action('init', 'github_optimize_queries');
+add_action('init', 'github_theme_optimize_queries');
 
 /**
  * Optimizar Heartbeat API
  * Reducir frecuencia en lugar de deshabilitarlo para evitar problemas con el editor
  */
-function github_disable_heartbeat() {
+function github_theme_disable_heartbeat() {
     // Modificar intervalo del heartbeat en lugar de deshabilitarlo
     // Deshabilitarlo causa pantalla blanca al publicar/programar posts
     add_filter('heartbeat_settings', function($settings) {
@@ -63,12 +63,12 @@ function github_disable_heartbeat() {
         return $settings;
     });
 }
-add_action('init', 'github_disable_heartbeat', 1);
+add_action('init', 'github_theme_disable_heartbeat', 1);
 
 /**
  * Agregar sugerencias de recursos (preload) para mejorar el rendimiento
  */
-function github_preload_critical_assets() {
+function github_theme_preload_critical_assets() {
     // 1. Preload de fuentes críticas (Geist Sans y Mono) con ALTA PRIORIDAD
     // Estas son las fuentes principales de la UI y código, servidas localmente.
     // Usamos fetchpriority="high" para que el navegador las descargue antes que cualquier otra cosa.
@@ -78,7 +78,7 @@ function github_preload_critical_assets() {
     // 2. Preload del CSS principal
     echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
 }
-add_action('wp_head', 'github_preload_critical_assets', 1);
+add_action('wp_head', 'github_theme_preload_critical_assets', 1);
 
 /**
  * Generar automáticamente IDs y enlaces de ancla para encabezados h2 y h3
