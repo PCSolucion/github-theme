@@ -75,8 +75,6 @@ $letters = range( 'A', 'Z' );
             <?php endforeach; ?>
         </nav>
 
-        <!-- DEBUG: RAWG Key is <?php echo empty(GITHUB_THEME_RAWG_KEY) ? 'MISSING' : 'PRESENT'; ?> -->
-
         <!-- GAME GRID -->
         <div class="guias-grid" id="guias-grid">
             <?php foreach ( $game_tags as $g ) :
