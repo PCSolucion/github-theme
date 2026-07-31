@@ -316,3 +316,85 @@ function github_theme_complete_guide() {
         </div>
     <?php endif;
 }
+
+/**
+ * Generar la sección de navegación entre apuntes de la misma etiqueta.
+ * Muestra enlaces a otros posts con la misma etiqueta dentro de la categoría 'apuntes'.
+ */
+function github_theme_apuntes_sidebar() {
+    if (!is_singular('post') || !has_category('apuntes')) {
+        return;
+    }
+
+    $tags = get_the_tags();
+    if (!$tags) {
+        return;
+    }
+
+    // Usamos la primera etiqueta como el tema de los apuntes
+    $topic_tag  = $tags[0]->slug;
+    $topic_name = $tags[0]->name;
+
+    $apuntes_cat = get_category_by_slug( 'apuntes' );
+    if ( ! $apuntes_cat ) {
+        return;
+    }
+
+    $args = array(
+        'post_type'      => 'post',
+        'posts_per_page' => -1,
+        'tag'            => $topic_tag,
+        'category'       => $apuntes_cat->term_id,
+        'orderby'        => 'date',
+        'order'          => 'ASC',
+    );
+
+    $apuntes_query = new WP_Query($args);
+    $apuntes_list  = array();
+
+    if ($apuntes_query->have_posts()) {
+        while ($apuntes_query->have_posts()) {
+            $apuntes_query->the_post();
+            $post_id = get_the_ID();
+
+            $title = get_the_title();
+            $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
+
+            // Dividimos por separador común para quedarnos con la parte específica
+            $parts = preg_split('/\s*[:\-–—\x{2013}\x{2014}]\s*/u', $title);
+            if (count($parts) > 1) {
+                $title = end($parts);
+            }
+
+            $title = trim($title);
+
+            $apuntes_list[] = array(
+                'id'    => $post_id,
+                'title' => $title,
+                'url'   => get_permalink(),
+                'class' => (get_queried_object_id() === $post_id) ? 'active' : ''
+            );
+        }
+        wp_reset_postdata();
+    }
+
+    if (!empty($apuntes_list)) : ?>
+        <div class="toc-box guide-box">
+            <header class="guide-header">
+                <h3>Apuntes: <?php echo esc_html($topic_name); ?></h3>
+            </header>
+
+            <nav class="guide-nav">
+                <ul class="toc-list">
+                    <?php foreach ($apuntes_list as $apunte) : ?>
+                        <li>
+                            <a href="<?php echo esc_url($apunte['url']); ?>" class="<?php echo esc_attr($apunte['class']); ?>">
+                                <?php echo esc_html($apunte['title']); ?>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            </nav>
+        </div>
+    <?php endif;
+}
