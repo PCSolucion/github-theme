@@ -60,16 +60,21 @@ function github_theme_get_contributions_data($year = null, $category_id = null) 
         return $cached_data;
     }
     
-    // 2. Si no hay caché, realizar consulta SQL
-    $posts = $wpdb->get_results($wpdb->prepare(
+    // 2. Si no hay caché, realizar consulta SQL optimizada con rango de fechas indexable
+    $start_date = sprintf( '%d-01-01 00:00:00', $year );
+    $end_date   = sprintf( '%d-12-31 23:59:59', $year );
+
+    $posts = $wpdb->get_results( $wpdb->prepare(
         "SELECT DATE(post_date) as post_date, post_title
         FROM {$wpdb->posts}
         WHERE post_status = 'publish'
         AND post_type = 'post'
-        AND YEAR(post_date) = %d
+        AND post_date >= %s
+        AND post_date <= %s
         ORDER BY post_date ASC",
-        $year
-    ));
+        $start_date,
+        $end_date
+    ) );
     
     $contributions = array();
     if ($posts) {
