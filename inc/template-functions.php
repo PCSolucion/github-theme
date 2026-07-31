@@ -568,3 +568,16 @@ function github_theme_apuntes_sidebar() {
     github_theme_render_sidebar_list( $posts, 'Apuntes: ' . $tags[0]->name );
 }
 
+/**
+ * Renderizar la paginación numérica estándar del tema.
+ */
+function github_theme_pagination() {
+    the_posts_pagination( array(
+        'mid_size'           => 2,
+        'prev_text'          => '← Anterior',
+        'next_text'          => 'Siguiente →',
+        'screen_reader_text' => ' ',
+    ) );
+}
+
+

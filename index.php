@@ -35,15 +35,7 @@ get_header();
                 ?>
             </div>
             
-            <?php
-            // Paginación
-            the_posts_pagination(array(
-                'mid_size' => 2,
-                'prev_text' => '← Anterior',
-                'next_text' => 'Siguiente →',
-                'screen_reader_text' => ' ',
-            ));
-            ?>
+            <?php github_theme_pagination(); ?>
             
         <?php else : ?>
             <div class="no-posts">
