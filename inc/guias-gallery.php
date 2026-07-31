@@ -29,132 +29,49 @@ if ( ! defined( 'GITHUB_THEME_RAWG_KEY' ) ) {
 // =========================================================================
 
 /**
- * Normalize accented first-letter to its ASCII equivalent.
+ * Get all game tags (tags attached to posts in the 'videojuegos' category).
+ * Each entry includes: id, name, slug, count, first_post_url, cover, metacritic,
+ * platforms, needs_data, last_updated, recent_order.
+ *
+ * Uses the shared github_theme_get_category_tags_data() with a RAWG enrichment callback.
  */
-function github_theme_normalize_letter( $char ) {
-    $char = mb_strtoupper( $char, 'UTF-8' );
-    $map  = array(
-        'Á'=>'A','À'=>'A','Â'=>'A','Ä'=>'A',
-        'É'=>'E','È'=>'E','Ê'=>'E','Ë'=>'E',
-        'Í'=>'I','Ì'=>'I','Î'=>'I','Ï'=>'I',
-        'Ó'=>'O','Ò'=>'O','Ô'=>'O','Ö'=>'O',
-        'Ú'=>'U','Ù'=>'U','Û'=>'U','Ü'=>'U',
-        'Ñ'=>'N',
-    );
-    return isset( $map[ $char ] ) ? $map[ $char ] : $char;
+function github_theme_get_game_tags_data() {
+    return github_theme_get_category_tags_data( 'videojuegos', 'github_theme_enrich_with_rawg' );
 }
 
 /**
- * Get all game tags (tags attached to posts in the 'videojuegos' category).
- * Each entry includes: id, name, slug, count, first_post_url, cover (cached or '').
+ * RAWG enrichment callback for game tags.
+ * Returns extra fields (cover, metacritic, platforms, needs_data) from cached RAWG data.
+ *
+ * @param WP_Term $tag      The tag term object.
+ * @param WP_Term $category The category term object (unused here).
+ * @return array Extra fields to merge into the tag entry.
  */
-function github_theme_get_game_tags_data() {
+function github_theme_enrich_with_rawg( $tag, $category ) {
+    $key_v6    = 'rawg_v6_' . md5( $tag->slug );
+    $rawg_data = get_transient( $key_v6 );
 
-    $videojuegos = get_category_by_slug( 'videojuegos' );
-    if ( ! $videojuegos ) {
-        return array();
-    }
-
-    // Collect unique tag IDs from all videojuegos posts.
-    $post_ids = get_posts( array(
-        'category'       => $videojuegos->term_id,
-        'posts_per_page' => -1,
-        'post_status'    => 'publish',
-        'fields'         => 'ids',
-    ) );
-
-    if ( empty( $post_ids ) ) {
-        return array();
-    }
-
-    $tag_ids = array();
-    foreach ( $post_ids as $pid ) {
-        $t = wp_get_post_tags( $pid, array( 'fields' => 'ids' ) );
-        if ( $t ) {
-            $tag_ids = array_merge( $tag_ids, $t );
-        }
-    }
-    $tag_ids = array_unique( $tag_ids );
-
-    if ( empty( $tag_ids ) ) {
-        return array();
-    }
-
-    $tags = get_tags( array(
-        'include'    => $tag_ids,
-        'orderby'    => 'name',
-        'order'      => 'ASC',
-        'hide_empty' => true,
-    ) );
-
-    $result = array();
-    foreach ( $tags as $tag ) {
-        // First post of this tag inside videojuegos (oldest = guide start).
-        $first = get_posts( array(
-            'tag_id'         => $tag->term_id,
-            'category'       => $videojuegos->term_id,
-            'posts_per_page' => 1,
-            'orderby'        => 'date',
-            'order'          => 'ASC',
-            'post_status'    => 'publish',
-        ) );
-
-        $latest = get_posts( array(
-            'tag_id'         => $tag->term_id,
-            'category'       => $videojuegos->term_id,
-            'posts_per_page' => 1,
-            'orderby'        => 'date',
-            'order'          => 'DESC',
-            'post_status'    => 'publish',
-        ) );
-
-        $key_v6 = 'rawg_v6_' . md5( $tag->slug );
-        $rawg_data = get_transient( $key_v6 );
-
-        if ( $rawg_data === false ) {
-            // Check older versions but only if they have a cover (migration).
-            $old_prefixes = array( 'rawg_v5_', 'rawg_v3_', 'rawg_data_' );
-            foreach ( $old_prefixes as $p ) {
-                $old_data = get_transient( $p . md5( $tag->slug ) );
-                if ( is_array( $old_data ) && ! empty( $old_data['cover'] ) ) {
-                    $rawg_data = $old_data;
-                    set_transient( $key_v6, $rawg_data, 30 * DAY_IN_SECONDS );
-                    break;
-                }
+    if ( $rawg_data === false ) {
+        // Check older versions but only if they have a cover (migration).
+        $old_prefixes = array( 'rawg_v5_', 'rawg_v3_', 'rawg_data_' );
+        foreach ( $old_prefixes as $p ) {
+            $old_data = get_transient( $p . md5( $tag->slug ) );
+            if ( is_array( $old_data ) && ! empty( $old_data['cover'] ) ) {
+                $rawg_data = $old_data;
+                set_transient( $key_v6, $rawg_data, 30 * DAY_IN_SECONDS );
+                break;
             }
         }
-
-        $result[] = array(
-            'id'             => $tag->term_id,
-            'name'           => $tag->name,
-            'slug'           => $tag->slug,
-            'count'          => $tag->count,
-            'first_post_url' => ! empty( $first ) ? get_permalink( $first[0]->ID ) : get_tag_link( $tag->term_id ),
-            'cover'          => is_array($rawg_data) && !empty($rawg_data['cover']) ? $rawg_data['cover'] : '',
-            'metacritic'     => is_array($rawg_data) && !empty($rawg_data['metacritic']) ? $rawg_data['metacritic'] : '',
-            'platforms'      => is_array($rawg_data) && !empty($rawg_data['platforms']) ? $rawg_data['platforms'] : array(),
-            'needs_data'     => ( $rawg_data === false ),
-            'last_updated'   => ! empty( $latest ) ? strtotime( $latest[0]->post_date ) : 0,
-        );
     }
 
-    $recent_sorted = $result;
-    usort( $recent_sorted, function( $a, $b ) {
-        return $b['last_updated'] - $a['last_updated'];
-    } );
-    
-    $top_20 = array();
-    foreach ( array_slice( $recent_sorted, 0, 20 ) as $index => $item ) {
-        $top_20[ $item['id'] ] = $index + 1;
-    }
-
-    foreach ( $result as &$item ) {
-        $item['recent_order'] = isset( $top_20[ $item['id'] ] ) ? $top_20[ $item['id'] ] : 9999;
-    }
-    unset( $item );
-
-    return $result;
+    return array(
+        'cover'      => is_array( $rawg_data ) && ! empty( $rawg_data['cover'] ) ? $rawg_data['cover'] : '',
+        'metacritic' => is_array( $rawg_data ) && ! empty( $rawg_data['metacritic'] ) ? $rawg_data['metacritic'] : '',
+        'platforms'  => is_array( $rawg_data ) && ! empty( $rawg_data['platforms'] ) ? $rawg_data['platforms'] : array(),
+        'needs_data' => ( $rawg_data === false ),
+    );
 }
+
 
 // =========================================================================
 // RAWG API

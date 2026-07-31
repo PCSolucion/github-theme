@@ -196,6 +196,144 @@ function github_theme_post_meta( $post_id = null ) {
     <?php
 }
 
+// =========================================================================
+// GALLERY HELPERS (shared by guías and apuntes page templates)
+// =========================================================================
+
+/**
+ * Normalize accented first-letter to its ASCII equivalent.
+ * Used by both page-guias.php and page-apuntes.php for A-Z filtering.
+ */
+function github_theme_normalize_letter( $char ) {
+    $char = mb_strtoupper( $char, 'UTF-8' );
+    $map  = array(
+        'Á'=>'A','À'=>'A','Â'=>'A','Ä'=>'A',
+        'É'=>'E','È'=>'E','Ê'=>'E','Ë'=>'E',
+        'Í'=>'I','Ì'=>'I','Î'=>'I','Ï'=>'I',
+        'Ó'=>'O','Ò'=>'O','Ô'=>'O','Ö'=>'O',
+        'Ú'=>'U','Ù'=>'U','Û'=>'U','Ü'=>'U',
+        'Ñ'=>'N',
+    );
+    return isset( $map[ $char ] ) ? $map[ $char ] : $char;
+}
+
+/**
+ * Get all tags attached to posts in a given category.
+ *
+ * Returns an array of tag data sorted by name, each entry containing:
+ * id, name, slug, count, first_post_url, cover, last_updated, recent_order.
+ *
+ * @param string        $category_slug   Slug of the category to scan.
+ * @param callable|null $enrich_callback Optional. Called for each tag with ($tag, $category)
+ *                                       and should return an associative array of extra fields
+ *                                       to merge into the result entry.
+ * @return array
+ */
+function github_theme_get_category_tags_data( $category_slug, $enrich_callback = null ) {
+
+    $category = get_category_by_slug( $category_slug );
+    if ( ! $category ) {
+        return array();
+    }
+
+    // Collect unique tag IDs from all posts in this category.
+    $post_ids = get_posts( array(
+        'category'       => $category->term_id,
+        'posts_per_page' => -1,
+        'post_status'    => 'publish',
+        'fields'         => 'ids',
+    ) );
+
+    if ( empty( $post_ids ) ) {
+        return array();
+    }
+
+    $tag_ids = array();
+    foreach ( $post_ids as $pid ) {
+        $t = wp_get_post_tags( $pid, array( 'fields' => 'ids' ) );
+        if ( $t ) {
+            $tag_ids = array_merge( $tag_ids, $t );
+        }
+    }
+    $tag_ids = array_unique( $tag_ids );
+
+    if ( empty( $tag_ids ) ) {
+        return array();
+    }
+
+    $tags = get_tags( array(
+        'include'    => $tag_ids,
+        'orderby'    => 'name',
+        'order'      => 'ASC',
+        'hide_empty' => true,
+    ) );
+
+    $result = array();
+    foreach ( $tags as $tag ) {
+        // First post of this tag inside the category.
+        $first = get_posts( array(
+            'tag_id'         => $tag->term_id,
+            'category'       => $category->term_id,
+            'posts_per_page' => 1,
+            'orderby'        => 'date',
+            'order'          => 'ASC',
+            'post_status'    => 'publish',
+        ) );
+
+        // Latest post of this tag inside the category.
+        $latest = get_posts( array(
+            'tag_id'         => $tag->term_id,
+            'category'       => $category->term_id,
+            'posts_per_page' => 1,
+            'orderby'        => 'date',
+            'order'          => 'DESC',
+            'post_status'    => 'publish',
+        ) );
+
+        $entry = array(
+            'id'             => $tag->term_id,
+            'name'           => $tag->name,
+            'slug'           => $tag->slug,
+            'count'          => $tag->count,
+            'first_post_url' => ! empty( $first ) ? get_permalink( $first[0]->ID ) : get_tag_link( $tag->term_id ),
+            'cover'          => '',
+            'last_updated'   => ! empty( $latest ) ? strtotime( $latest[0]->post_date ) : 0,
+        );
+
+        // Enrich with extra fields (e.g. RAWG data for videojuegos).
+        if ( is_callable( $enrich_callback ) ) {
+            $extra = call_user_func( $enrich_callback, $tag, $category );
+            if ( is_array( $extra ) ) {
+                $entry = array_merge( $entry, $extra );
+            }
+        }
+
+        $result[] = $entry;
+    }
+
+    // Calculate recent_order (top 20 most recently updated).
+    $recent_sorted = $result;
+    usort( $recent_sorted, function( $a, $b ) {
+        return $b['last_updated'] - $a['last_updated'];
+    } );
+
+    $top_20 = array();
+    foreach ( array_slice( $recent_sorted, 0, 20 ) as $index => $item ) {
+        $top_20[ $item['id'] ] = $index + 1;
+    }
+
+    foreach ( $result as &$item ) {
+        $item['recent_order'] = isset( $top_20[ $item['id'] ] ) ? $top_20[ $item['id'] ] : 9999;
+    }
+    unset( $item );
+
+    return $result;
+}
+
+// =========================================================================
+// SIDEBAR HELPERS
+// =========================================================================
+
 /**
  * Helper: Obtener la lista de posts que comparten la misma etiqueta.
  * Devuelve un array de posts con título limpio, URL y clase active.
