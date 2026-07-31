@@ -197,8 +197,99 @@ function github_theme_post_meta( $post_id = null ) {
 }
 
 /**
+ * Helper: Obtener la lista de posts que comparten la misma etiqueta.
+ * Devuelve un array de posts con título limpio, URL y clase active.
+ *
+ * @param string      $tag_slug      Slug de la etiqueta a buscar.
+ * @param int|null    $category_id   ID de categoría para filtrar (null = sin filtro).
+ * @param string[]    $strip_patterns Patrones regex adicionales para limpiar del título.
+ * @return array Lista de arrays con keys: id, title, url, class.
+ */
+function github_theme_get_tag_posts_list( $tag_slug, $category_id = null, $strip_patterns = array() ) {
+    $args = array(
+        'post_type'      => 'post',
+        'posts_per_page' => -1,
+        'tag'            => $tag_slug,
+        'orderby'        => 'date',
+        'order'          => 'ASC',
+    );
+
+    if ( $category_id ) {
+        $args['category'] = $category_id;
+    }
+
+    $query = new WP_Query( $args );
+    $list  = array();
+
+    if ( $query->have_posts() ) {
+        while ( $query->have_posts() ) {
+            $query->the_post();
+            $post_id = get_the_ID();
+
+            $title = get_the_title();
+            $title = html_entity_decode( $title, ENT_QUOTES, 'UTF-8' );
+
+            // Aplicar patrones de limpieza adicionales (ej: eliminar "Guía 100%:")
+            foreach ( $strip_patterns as $pattern ) {
+                $title = preg_replace( $pattern, '', $title );
+            }
+
+            // Dividimos por separador común: dos puntos o cualquier tipo de guión
+            $parts = preg_split( '/\s*[:\-–—\x{2013}\x{2014}]\s*/u', $title );
+            if ( count( $parts ) > 1 ) {
+                $title = end( $parts );
+            }
+
+            $title = trim( $title );
+
+            $list[] = array(
+                'id'    => $post_id,
+                'title' => $title,
+                'url'   => get_permalink(),
+                'class' => ( get_queried_object_id() === $post_id ) ? 'active' : '',
+            );
+        }
+        wp_reset_postdata();
+    }
+
+    return $list;
+}
+
+/**
+ * Helper: Renderizar una lista simple de posts en el sidebar.
+ *
+ * @param array  $posts  Lista de posts (de github_theme_get_tag_posts_list).
+ * @param string $label  Título del widget (ej: "Apuntes: JavaScript").
+ */
+function github_theme_render_sidebar_list( $posts, $label ) {
+    if ( empty( $posts ) ) {
+        return;
+    }
+    ?>
+    <div class="toc-box guide-box">
+        <header class="guide-header">
+            <h3><?php echo esc_html( $label ); ?></h3>
+        </header>
+
+        <nav class="guide-nav">
+            <ul class="toc-list">
+                <?php foreach ( $posts as $item ) : ?>
+                    <li>
+                        <a href="<?php echo esc_url( $item['url'] ); ?>" class="<?php echo esc_attr( $item['class'] ); ?>">
+                            <?php echo esc_html( $item['title'] ); ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </nav>
+    </div>
+    <?php
+}
+
+/**
  * Generar la sección "Guía completa" para posts de videojuegos.
- * Muestra enlaces a otros posts con la misma etiqueta (nombre del juego).
+ * Muestra enlaces a otros posts con la misma etiqueta (nombre del juego),
+ * separados en pestañas de misiones principales y secundarias.
  */
 function github_theme_complete_guide() {
     if (!is_singular('post') || !has_category('videojuegos')) {
@@ -210,62 +301,38 @@ function github_theme_complete_guide() {
         return;
     }
 
-    // Usamos la primera etiqueta como el nombre del juego (ej: Bioshock)
-    $game_tag = $tags[0]->slug;
     $game_name = $tags[0]->name;
 
-    $args = array(
-        'post_type'      => 'post',
-        'posts_per_page' => -1,
-        'tag'            => $game_tag,
-        'orderby'        => 'date',
-        'order'          => 'ASC',
+    // Obtener todos los posts de esta etiqueta con el título limpio
+    $all_posts = github_theme_get_tag_posts_list(
+        $tags[0]->slug,
+        null,
+        array( '/guía(\s+\d+%)?:?\s*/iu' )
     );
 
-    $guide_query = new WP_Query($args);
-    $main_missions = array();
-    $secondary_missions = array();
+    if ( empty( $all_posts ) ) {
+        return;
+    }
+
+    // Separar por tipo de misión (principal / secundaria)
+    $main_missions       = array();
+    $secondary_missions  = array();
     $current_mission_type = 'principal';
 
-    if ($guide_query->have_posts()) {
-        while ($guide_query->have_posts()) {
-            $guide_query->the_post();
-            $post_id = get_the_ID();
-            $type = get_post_meta($post_id, '_github_mission_type', true);
-            if (empty($type)) $type = 'principal';
-
-            $title = get_the_title();
-            // Eliminamos "Guía", "Guía 100%", "Guía completa", etc. (case-insensitive)
-            $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
-            
-            // Decodificamos entidades HTML por si WordPress ha convertido el guión
-            $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
-            // Eliminamos "Guía", "Guía 100%", etc.
-            $title = preg_replace('/guía(\s+\d+%)?:?\s*/iu', '', $title);
-            
-            // Dividimos por cualquier separador común: dos puntos o cualquier tipo de guión
-            $parts = preg_split('/\s*[:\-–—\x{2013}\x{2014}]\s*/u', $title);
-            if (count($parts) > 1) {
-                $title = end($parts);
-            }
-
-            $title = trim($title);
-            
-            $mission_data = array(
-                'id'    => $post_id,
-                'title' => $title,
-                'url'   => get_permalink(),
-                'class' => (get_queried_object_id() === $post_id) ? 'active' : ''
-            );
-
-            if ($type === 'secundaria') {
-                $secondary_missions[] = $mission_data;
-                if ($mission_data['class'] === 'active') $current_mission_type = 'secundaria';
-            } else {
-                $main_missions[] = $mission_data;
-            }
+    foreach ( $all_posts as $item ) {
+        $type = get_post_meta( $item['id'], '_github_mission_type', true );
+        if ( empty( $type ) ) {
+            $type = 'principal';
         }
-        wp_reset_postdata();
+
+        if ( $type === 'secundaria' ) {
+            $secondary_missions[] = $item;
+            if ( $item['class'] === 'active' ) {
+                $current_mission_type = 'secundaria';
+            }
+        } else {
+            $main_missions[] = $item;
+        }
     }
 
     if (!empty($main_missions) || !empty($secondary_missions)) : ?>
@@ -331,70 +398,13 @@ function github_theme_apuntes_sidebar() {
         return;
     }
 
-    // Usamos la primera etiqueta como el tema de los apuntes
-    $topic_tag  = $tags[0]->slug;
-    $topic_name = $tags[0]->name;
-
     $apuntes_cat = get_category_by_slug( 'apuntes' );
     if ( ! $apuntes_cat ) {
         return;
     }
 
-    $args = array(
-        'post_type'      => 'post',
-        'posts_per_page' => -1,
-        'tag'            => $topic_tag,
-        'category'       => $apuntes_cat->term_id,
-        'orderby'        => 'date',
-        'order'          => 'ASC',
-    );
+    $posts = github_theme_get_tag_posts_list( $tags[0]->slug, $apuntes_cat->term_id );
 
-    $apuntes_query = new WP_Query($args);
-    $apuntes_list  = array();
-
-    if ($apuntes_query->have_posts()) {
-        while ($apuntes_query->have_posts()) {
-            $apuntes_query->the_post();
-            $post_id = get_the_ID();
-
-            $title = get_the_title();
-            $title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
-
-            // Dividimos por separador común para quedarnos con la parte específica
-            $parts = preg_split('/\s*[:\-–—\x{2013}\x{2014}]\s*/u', $title);
-            if (count($parts) > 1) {
-                $title = end($parts);
-            }
-
-            $title = trim($title);
-
-            $apuntes_list[] = array(
-                'id'    => $post_id,
-                'title' => $title,
-                'url'   => get_permalink(),
-                'class' => (get_queried_object_id() === $post_id) ? 'active' : ''
-            );
-        }
-        wp_reset_postdata();
-    }
-
-    if (!empty($apuntes_list)) : ?>
-        <div class="toc-box guide-box">
-            <header class="guide-header">
-                <h3>Apuntes: <?php echo esc_html($topic_name); ?></h3>
-            </header>
-
-            <nav class="guide-nav">
-                <ul class="toc-list">
-                    <?php foreach ($apuntes_list as $apunte) : ?>
-                        <li>
-                            <a href="<?php echo esc_url($apunte['url']); ?>" class="<?php echo esc_attr($apunte['class']); ?>">
-                                <?php echo esc_html($apunte['title']); ?>
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
-            </nav>
-        </div>
-    <?php endif;
+    github_theme_render_sidebar_list( $posts, 'Apuntes: ' . $tags[0]->name );
 }
+
