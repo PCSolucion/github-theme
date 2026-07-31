@@ -57,14 +57,8 @@ add_action('init', 'github_theme_disable_heartbeat', 1);
  * Agregar sugerencias de recursos (preload) para mejorar el rendimiento
  */
 function github_theme_preload_critical_assets() {
-    // 1. Preload de fuentes críticas (Geist Sans y Mono) con ALTA PRIORIDAD
-    // Estas son las fuentes principales de la UI y código, servidas localmente.
-    // Usamos fetchpriority="high" para que el navegador las descargue antes que cualquier otra cosa.
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high">' . "\n";
+    // 1. Preload de fuente mono local (Geist Mono) usada en bloques de código
     echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/fonts/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin fetchpriority="high">' . "\n";
-
-    // 2. Preload del CSS principal
-    echo '<link rel="preload" href="' . get_template_directory_uri() . '/assets/css/main.css" as="style">' . "\n";
 }
 add_action('wp_head', 'github_theme_preload_critical_assets', 1);
 
