@@ -66,19 +66,13 @@ get_header();
 
                 <!-- Widget de Capítulos (Guía completa) -->
                 <?php github_theme_complete_guide(); ?>
-            <?php elseif (has_category('apuntes')) : ?>
-                <!-- Widget de Apuntes de la misma etiqueta -->
-                <?php github_theme_apuntes_sidebar(); ?>
-
-                <!-- Tabla de Contenidos estándar -->
-                <div class="toc-box">
-                    <h3>Contenido</h3>
-                    <nav id="table-of-contents">
-                        <?php echo github_theme_generate_toc(get_the_content()); ?>
-                    </nav>
-                </div>
             <?php else : ?>
-                <!-- Tabla de Contenidos estándar -->
+                <?php if (has_category('apuntes')) : ?>
+                    <!-- Widget de Apuntes de la misma etiqueta -->
+                    <?php github_theme_apuntes_sidebar(); ?>
+                <?php endif; ?>
+
+                <!-- Tabla de Contenidos estándar del post -->
                 <div class="toc-box">
                     <h3>Contenido</h3>
                     <nav id="table-of-contents">
