@@ -10,11 +10,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // =============================================================================
-// CONSTANTES
+// CONSTANTES Y CONFIGURACIÓN GLOBAL
 // =============================================================================
 
 /** Versión del tema para control de caché (Cache Busting) */
-define( 'GITHUB_THEME_VERSION', '1.1.4' ); // Versión estática para permitir caché en producción
+define( 'GITHUB_THEME_VERSION', '1.1.4' );
+
+/** Rutas principales del tema */
+define( 'GITHUB_THEME_DIR', get_template_directory() );
+define( 'GITHUB_THEME_URI', get_template_directory_uri() );
 
 
 // =============================================================================
@@ -107,8 +111,8 @@ add_filter( 'use_block_editor_for_post_type', '__return_false', 10 );
  */
 function github_theme_scripts() {
     // 1. Estilos y JavaScript Globales
-    wp_enqueue_style( 'github-theme-main', get_template_directory_uri() . '/assets/css/main.css', array(), GITHUB_THEME_VERSION );
-    wp_enqueue_script( 'github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array(), GITHUB_THEME_VERSION, true );
+    wp_enqueue_style( 'github-theme-main', GITHUB_THEME_URI . '/assets/css/main.css', array(), GITHUB_THEME_VERSION );
+    wp_enqueue_script( 'github-theme-main', GITHUB_THEME_URI . '/assets/js/main.js', array(), GITHUB_THEME_VERSION, true );
 
     // Configuración para el buscador integrado en main.js
     wp_localize_script( 'github-theme-main', 'liveSearchData', array(
@@ -118,12 +122,12 @@ function github_theme_scripts() {
 
     // 2. Estilos específicos por tipo de plantilla
     if ( is_home() || is_front_page() ) {
-        wp_enqueue_style( 'github-theme-post-list', get_template_directory_uri() . '/assets/css/post-list.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
-        wp_enqueue_style( 'github-theme-contributions', get_template_directory_uri() . '/assets/css/contributions.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+        wp_enqueue_style( 'github-theme-post-list', GITHUB_THEME_URI . '/assets/css/post-list.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+        wp_enqueue_style( 'github-theme-contributions', GITHUB_THEME_URI . '/assets/css/contributions.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
     } elseif ( is_archive() || is_search() ) {
-        wp_enqueue_style( 'github-theme-post-list', get_template_directory_uri() . '/assets/css/post-list.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+        wp_enqueue_style( 'github-theme-post-list', GITHUB_THEME_URI . '/assets/css/post-list.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
     } elseif ( is_singular( 'post' ) ) {
-        wp_enqueue_style( 'github-theme-single', get_template_directory_uri() . '/assets/css/single.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+        wp_enqueue_style( 'github-theme-single', GITHUB_THEME_URI . '/assets/css/single.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
     }
 }
 add_action( 'wp_enqueue_scripts', 'github_theme_scripts' );
@@ -190,14 +194,14 @@ function github_theme_body_classes( $classes ) {
 }
 add_filter( 'body_class', 'github_theme_body_classes' );
 
-require get_template_directory() . '/inc/template-functions.php';
-require get_template_directory() . '/inc/content-filters.php';
-require get_template_directory() . '/inc/contributions.php';
-require get_template_directory() . '/inc/live-search.php';
-require get_template_directory() . '/inc/seo.php';
-require get_template_directory() . '/inc/security.php';
-require get_template_directory() . '/inc/optimization.php';
-require get_template_directory() . '/inc/guias-gallery.php';
-require get_template_directory() . '/inc/apuntes-gallery.php';
-require get_template_directory() . '/inc/meta-boxes.php';
+require GITHUB_THEME_DIR . '/inc/template-functions.php';
+require GITHUB_THEME_DIR . '/inc/content-filters.php';
+require GITHUB_THEME_DIR . '/inc/contributions.php';
+require GITHUB_THEME_DIR . '/inc/live-search.php';
+require GITHUB_THEME_DIR . '/inc/seo.php';
+require GITHUB_THEME_DIR . '/inc/security.php';
+require GITHUB_THEME_DIR . '/inc/optimization.php';
+require GITHUB_THEME_DIR . '/inc/guias-gallery.php';
+require GITHUB_THEME_DIR . '/inc/apuntes-gallery.php';
+require GITHUB_THEME_DIR . '/inc/meta-boxes.php';
 
