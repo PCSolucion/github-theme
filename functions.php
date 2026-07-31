@@ -106,36 +106,25 @@ add_filter( 'use_block_editor_for_post_type', '__return_false', 10 );
  * Encolar estilos y scripts del tema.
  */
 function github_theme_scripts() {
-    // 1. Estilos Globales (Ahora incluyen variables, base y header)
-    wp_enqueue_style( 'github-theme-main',  get_template_directory_uri() . '/assets/css/main.css', array(), GITHUB_THEME_VERSION );
-    // 2. Estilos de Listados (Home, Archivos, Búsqueda)
-    if ( ! is_singular() ) {
-        wp_enqueue_style( 'github-theme-post-list', get_template_directory_uri() . '/assets/css/post-list.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
-    }
-
-    // 4. Contribuciones (Solo en la Home)
-    if ( is_home() || is_front_page() ) {
-        wp_enqueue_style( 'github-theme-contributions', get_template_directory_uri() . '/assets/css/contributions.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
-    }
-
-
-
-    // 6. Estilos exclusivos de lectura (Single)
-    if ( is_singular() ) {
-        wp_enqueue_style( 'github-theme-single', get_template_directory_uri() . '/assets/css/single.css', array( 
-            'github-theme-main'
-        ), GITHUB_THEME_VERSION );
-    }
-
+    // 1. Estilos y JavaScript Globales
+    wp_enqueue_style( 'github-theme-main', get_template_directory_uri() . '/assets/css/main.css', array(), GITHUB_THEME_VERSION );
     wp_enqueue_script( 'github-theme-main', get_template_directory_uri() . '/assets/js/main.js', array(), GITHUB_THEME_VERSION, true );
-    
-    // Configuración para el buscador (Ahora integrado en main.js)
+
+    // Configuración para el buscador integrado en main.js
     wp_localize_script( 'github-theme-main', 'liveSearchData', array(
         'restUrl' => esc_url_raw( rest_url( 'wp/v2' ) ),
         'homeUrl' => esc_url_raw( home_url( '/' ) ),
     ) );
 
-
+    // 2. Estilos específicos por tipo de plantilla
+    if ( is_home() || is_front_page() ) {
+        wp_enqueue_style( 'github-theme-post-list', get_template_directory_uri() . '/assets/css/post-list.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+        wp_enqueue_style( 'github-theme-contributions', get_template_directory_uri() . '/assets/css/contributions.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+    } elseif ( is_archive() || is_search() ) {
+        wp_enqueue_style( 'github-theme-post-list', get_template_directory_uri() . '/assets/css/post-list.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+    } elseif ( is_singular( 'post' ) ) {
+        wp_enqueue_style( 'github-theme-single', get_template_directory_uri() . '/assets/css/single.css', array( 'github-theme-main' ), GITHUB_THEME_VERSION );
+    }
 }
 add_action( 'wp_enqueue_scripts', 'github_theme_scripts' );
 
