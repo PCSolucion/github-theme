@@ -37,25 +37,8 @@ add_filter('wp_get_attachment_image_attributes', 'github_lazy_load_featured_imag
  * Reduce el número de consultas a la base de datos
  */
 function github_optimize_queries() {
-    // Deshabilitar emojis (ahorra 2 solicitudes HTTP)
-    remove_action('wp_head', 'print_emoji_detection_script', 7);
-    remove_action('wp_print_styles', 'print_emoji_styles');
-    remove_action('admin_print_scripts', 'print_emoji_detection_script');
-    remove_action('admin_print_styles', 'print_emoji_styles');
-    
-    // Deshabilitar embeds de WordPress (ahorra 1 solicitud)
-    remove_action('wp_head', 'wp_oembed_add_discovery_links');
-    remove_action('wp_head', 'wp_oembed_add_host_js');
-    
-    // Deshabilitar REST API links en el head
-    remove_action('wp_head', 'rest_output_link_wp_head');
-    remove_action('template_redirect', 'rest_output_link_header', 11);
-
-    // --- Limpieza de Head (SEO y Seguridad) ---
-    remove_action('wp_head', 'rsd_link');              // Editar mediante RSD (Really Simple Discovery)
-    remove_action('wp_head', 'wlwmanifest_link');      // Windows Live Writer
-    remove_action('wp_head', 'wp_generator');          // Versión de WordPress
-    remove_action('wp_head', 'wp_shortlink_wp_head');  // Enlaces cortos
+    // (Emojis desactivados en github_theme_disable_emojis())
+    // (Limpieza de head centralizada en security.php → github_remove_version_info())
     
     // Deshabilitar enlaces automáticos de Feed RSS
     remove_action('wp_head', 'feed_links', 2);         // Feed general
@@ -195,18 +178,6 @@ function github_theme_remove_wp_bloat() {
 }
 add_action('wp_enqueue_scripts', 'github_theme_remove_wp_bloat', 100);
 
-/**
- * Añadir atributo 'defer' a scripts seleccionados para no bloquear el renderizado
- */
-function github_theme_add_defer_attribute($tag, $handle) {
-    $scripts_to_defer = array();
-    
-    if (in_array($handle, $scripts_to_defer)) {
-        return str_replace(' src', ' defer src', $tag);
-    }
-    return $tag;
-}
-add_filter('script_loader_tag', 'github_theme_add_defer_attribute', 10, 2);
 
 /**
  * Desactivar jQuery en el Front-end

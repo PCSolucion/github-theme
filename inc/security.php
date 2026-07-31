@@ -40,8 +40,8 @@ add_filter('wp_headers', function($headers) {
     unset($headers['X-Pingback']);
     return $headers;
 });
-remove_action('wp_head', 'rsd_link');
-remove_action('wp_head', 'wlwmanifest_link');
+
+
 
 /**
  * Seguridad: Ocultar usuarios en REST API y sitemap

@@ -456,5 +456,4 @@ function github_theme_generate_sitemap() {
     exit;
 }
 
-// Limpiar funciones de interceptación antiguas e integrar la nueva lógica
-add_action('init', 'github_theme_sitemap_init_intercept', 0);
+
