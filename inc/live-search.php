@@ -44,7 +44,13 @@ add_action( 'rest_api_init', 'github_theme_register_live_search_endpoint' );
 function github_theme_live_search_handler( WP_REST_Request $request ) {
     global $wpdb;
 
-    $term     = $request->get_param( 'q' );
+    $term = sanitize_text_field( $request->get_param( 'q' ) );
+    $term = mb_substr( trim( $term ), 0, 100 );
+
+    if ( mb_strlen( $term ) < 2 ) {
+        return rest_ensure_response( array() );
+    }
+
     $per_page = min( (int) $request->get_param( 'per_page' ), 50 );
     $like     = '%' . $wpdb->esc_like( $term ) . '%';
 
